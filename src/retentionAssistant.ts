@@ -59,7 +59,12 @@ class RetentionAssistant {
 
         stepElement.attr('data-state', 'active');
 
-        await this[action](stepElement);
+        try {
+            await this[action](stepElement);
+        } catch(err) {
+            console.log(`Error while executing action "${action}": `, err);
+            return;
+        }
 
         stepElement.attr('data-state', 'success');
 
@@ -76,7 +81,16 @@ class RetentionAssistant {
     }
 
     public async workflowAction(element: JQuery) {
-        const tagIds = await this.getUploadTagIdsFromWorkflow();
+        let tagIds: number[];
+
+        try {
+            tagIds = await this.getUploadTagIdsFromWorkflow();
+        } catch(err) {
+            element.attr('data-state', 'fail');
+            element.html(t('sendent', 'Could not get existing workflows'));
+
+            throw new Error(err);
+        }
 
         if (tagIds.includes(this.tags[CONFIG_UPLOAD_TAG])) {
             const workflowTag = await api.getTag(this.tags[CONFIG_UPLOAD_TAG]);
