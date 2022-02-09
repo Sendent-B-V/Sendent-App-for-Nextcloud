@@ -58,7 +58,7 @@ return [
 		['name' => 'license_api#create', 'url' => '/api/1.0/license', 'verb' => 'POST'],
 		['name' => 'license_api#validate', 'url' => '/api/1.0/licensevalidation', 'verb' => 'GET'],
 		['name' => 'license_api#renew', 'url' => '/api/1.0/licenserenew', 'verb' => 'GET'],
-		
+
 		[
 			'name' => 'connecteduser_api#preflighted_cors',
 			'url' => '/api/1.0/{path}',
@@ -66,7 +66,7 @@ return [
 			'requirements' => ['path' => '.+']
 		],
 		['name' => 'connecteduser_api#ping', 'url' => '/api/1.0/ping', 'verb' => 'GET'],
-			   
+
 		[
 			'name' => 'status_api#preflighted_cors',
 			'url' => '/api/1.0/{path}',
@@ -77,7 +77,7 @@ return [
 		['name' => 'tag#show', 'url' => '/api/1.0/tag/{id}', 'verb' => 'GET'],
 		['name' => 'tag#create', 'url' => '/api/1.0/tag', 'verb' => 'POST'],
 		['name' => 'termsagreement_api#agree', 'url' => '/api/1.0/termsagreement/agree/{version}', 'verb' => 'GET'],
-		['name' => 'termsagreement_api#isagreed', 'url' => '/api/1.0/termsagreement/isagreed/{version}', 'verb' => 'GET'],
+		['name' => 'termsagreement_api#isAgreed', 'url' => '/api/1.0/termsagreement/isagreed/{version}', 'verb' => 'GET'],
 	]
 ];
 	?>

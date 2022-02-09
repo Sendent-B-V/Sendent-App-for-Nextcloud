@@ -1,12 +1,9 @@
 /* eslint-disable @nextcloud/no-deprecations */
-import axios from '@nextcloud/axios';
-import { generateUrl } from '@nextcloud/router';
-import { translate as t } from '@nextcloud/l10n'
 import termsAgreementHandler from "./imports/TermsAgreementHandler"
 
 $(async () => {
     console.log('Terms agreement script loaded');
-    $('#termsAgreementForm').on('change', 'input[type=checkbox]', function(e) {
+    $('#termsAgreementForm').on('change', 'input[type=checkbox]', function() {
         handleChange(this);
         console.log(this.name+' '+this.value+' '+this.checked);
     });

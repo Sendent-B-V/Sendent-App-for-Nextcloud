@@ -2,22 +2,21 @@
 
 namespace OCA\Sendent\migration;
 
- use Closure;
- use OCP\DB\ISchemaWrapper;
- use OCP\Migration\IOutput;
- use OCP\Migration\SimpleMigrationStep;
-use Exception;
+use Closure;
+use OCP\DB\ISchemaWrapper;
+use OCP\Migration\IOutput;
+use OCP\Migration\SimpleMigrationStep;
 
- class Version000012Date20211107 extends SimpleMigrationStep {
- 	/**
- 	 * @param IOutput $output
- 	 * @param Closure $schemaClosure The `\Closure` returns a `ISchemaWrapper`
- 	 * @param array $options
- 	 * @return null|ISchemaWrapper
- 	 */
- 	public function changeSchema(IOutput $output, Closure $schemaClosure, array $options): ?ISchemaWrapper {
- 		/** @var ISchemaWrapper $schema */
- 		$schema = $schemaClosure();
+class Version000012Date20211107 extends SimpleMigrationStep {
+	/**
+	 * @param IOutput $output
+	 * @param Closure $schemaClosure The `\Closure` returns a `ISchemaWrapper`
+	 * @param array $options
+	 * @return null|ISchemaWrapper
+	 */
+	public function changeSchema(IOutput $output, Closure $schemaClosure, array $options): ?ISchemaWrapper {
+		/** @var ISchemaWrapper $schema */
+		$schema = $schemaClosure();
 
 		//new since terms agreement feature
 		if ($schema->hasTable('sndnt_trmagr')) {
@@ -28,26 +27,21 @@ use Exception;
 				'notnull' => false,
 			]);
 			$table->setPrimaryKey(['id']);
-
 		}
 
- 		return $schema;
- 	}
+		return $schema;
+	}
 
- 	protected function ensureColumnIsNullable(ISchemaWrapper $schema, string $tableName, string $columnName): bool {
- 		$table = $schema->getTable($tableName);
- 		$column = $table->getColumn($columnName);
- 		// try{
- 		if ($column->getNotnull()) {
- 			$column->setNotnull(false);
- 			return true;
- 		}
- 		// }
- 		// catch(Exception $e){
-		
- 		// 	return false;
+	protected function ensureColumnIsNullable(ISchemaWrapper $schema, string $tableName, string $columnName): bool {
+		$table = $schema->getTable($tableName);
+		$column = $table->getColumn($columnName);
 
- 		// }
- 		return false;
- 	}
- }
+		if ($column->getNotnull()) {
+			$column->setNotnull(false);
+
+			return true;
+		}
+
+		return false;
+	}
+}

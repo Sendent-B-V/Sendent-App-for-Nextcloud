@@ -1,7 +1,6 @@
 /* eslint-disable @nextcloud/no-deprecations */
 import axios from '@nextcloud/axios';
 import { generateUrl } from '@nextcloud/router';
-import { translate as t } from '@nextcloud/l10n'
 
 type TermsAgreementItem = {
     Version: string
@@ -11,10 +10,11 @@ type TermsAgreementItem = {
 export default class TermsAgreementHandler {
     private static instance: TermsAgreementHandler;
 
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     private constructor() {
-        
+
     }
-    
+
     public async getAgreementStatus(version): Promise<boolean> {
         const { data: status } = await this.isAgreed(version);
         if(status == null)

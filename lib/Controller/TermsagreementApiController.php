@@ -29,7 +29,7 @@ class TermsAgreementApiController extends ApiController {
 	 * @param string $version
 	 * @return DataResponse
 	 */
-	public function Agree($version): DataResponse {
+	public function agree($version): DataResponse {
 		try {
 			$termsAgreed = $this->service->update($version, "yes");
 			return new DataResponse($termsAgreed);
@@ -42,18 +42,17 @@ class TermsAgreementApiController extends ApiController {
 	 * @NoAdminRequired
 	 *
 	 * @NoCSRFRequired
-	 * 
+	 *
 	 * @param string $version
 	 * @return DataResponse
 	 */
-	public function IsAgreed($version): DataResponse {
+	public function isAgreed($version): DataResponse {
 		try {
-			$termsAgreed = $this->service->IsAgreed($version);
+			$termsAgreed = $this->service->isAgreed($version);
 			return new DataResponse($termsAgreed);
 		} catch (Exception $e) {
 			error_log(print_r("TermsAgreementApiController-IsAgreed-EXCEPTION=" . $e, true));
 			return new DataResponse(null);
 		}
-
 	}
 }

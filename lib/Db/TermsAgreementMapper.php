@@ -45,5 +45,4 @@ class TermsAgreementMapper extends QBMapper {
 
 		return $this->findEntities($qb);
 	}
-
 }
