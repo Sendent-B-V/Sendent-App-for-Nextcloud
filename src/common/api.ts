@@ -33,7 +33,7 @@ export enum RetentionAfter { Creation, Modification }
 
 class API {
     public async getWorkflows(): Promise<{ [operation: string]: WorkflowData[] }> {
-        const url = generateOcsUrl('apps/workflowengine/api/v1/workflows') + 'global?format=json';
+        const url = generateOcsUrl('apps/workflowengine/api/v1/workflows/') + 'global?format=json';
         const response = await axios.get(url);
         const data = response.data?.ocs || {};
 
@@ -45,7 +45,7 @@ class API {
     }
 
     public async createWorkflow(tagId: number) {
-        const url = generateOcsUrl('apps/workflowengine/api/v1/workflows') + 'global?format=json';
+        const url = generateOcsUrl('apps/workflowengine/api/v1/workflows/') + 'global?format=json';
         const data = {
             checks: [{
                 class: 'OCA\\WorkflowEngine\\Check\\RequestUserAgent',
