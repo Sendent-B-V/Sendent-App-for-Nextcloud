@@ -6,6 +6,7 @@ use OCP\IRequest;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\ApiController;
 use OCA\Sendent\Db\Status;
+use OCA\Sendent\Http\AppVersionHttpClient;
 use OCA\Sendent\Service\LicenseManager;
 use OCA\Sendent\Service\LicenseService;
 use OCP\App\IAppManager;
@@ -16,6 +17,7 @@ class StatusApiController extends ApiController {
 
 	private $userId;
 	private $licensemanager;
+	private $appVersionClient;
 	private $licenseservice;
 
 	public function __construct(
@@ -24,11 +26,13 @@ class StatusApiController extends ApiController {
 		IAppManager $appManager,
 		$userId,
 		LicenseManager $licensemanager,
+		AppVersionHttpClient $appVersionClient,
 		LicenseService $licenseservice
 	) {
 		parent::__construct($appName, $request);
 		$this->appManager = $appManager;
 		$this->userId = $userId;
+		$this->appVersionClient = $appVersionClient;
 		$this->licensemanager = $licensemanager;
 		$this->licenseservice = $licenseservice;
 	}
@@ -50,6 +54,7 @@ class StatusApiController extends ApiController {
 		$statusobj->currentusers = 0;
 		$statusobj->validlicense = false;
 
+		
 		if ($this->licensemanager->isLicenseCheckNeeded()) {
 			$result = $this->licensemanager->renewLicense();
 		}
@@ -76,6 +81,12 @@ class StatusApiController extends ApiController {
 					$status = "Valid";
 				}
 				$statusobj->licenseaction = $status;
+
+				$appVersionVSTO = $this->appVersionClient->latest('vstoaddin');
+				$appVersionNCApp = $this->appVersionClient->latest('ncapp');
+
+				$statusobj->latestVSTOAddinVersion = $appVersionVSTO;
+				$statusobj->latestNCAppVersion = $appVersionNCApp;
 			}
 		}
 

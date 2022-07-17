@@ -46,7 +46,10 @@ class API {
 
     public async createWorkflow(tagId: number) {
         const url = generateOcsUrl('apps/workflowengine/api/v1/workflows/') + 'global?format=json';
+        const data = {
+            checks: [{
                 class: 'OCA\\WorkflowEngine\\Check\\RequestUserAgent',
+                operator: 'is',
                 value: 'mail',
                 invalid: false
             }],

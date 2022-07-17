@@ -87,6 +87,12 @@ label{
 .okStatus{
 	color:darkblue;
 }
+.licensekeyvalueinput {
+	line-height: 40px;
+}
+.statuskeyvalueinput {
+	line-height: 40px;
+}
 .templatesettingkeyname {
 	margin: 0;
 	line-height: 34px;

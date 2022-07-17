@@ -11,8 +11,17 @@ type LicenseStatus = {
     level: string,
     licensekey: string,
     dateLastCheck: string,
+    LatestVSTOAddinVersion : AppVersionStatus
 }
-
+type AppVersionStatus = {
+    ApplicationName : string
+    ApplicationId : string
+    Version : string
+    UrlBinary: string
+    UrlManual: string,
+    UrlReleaseNotes : string,
+    ReleaseDate: string
+}
 export default class LicenseHandler {
     private static instance: LicenseHandler;
 
@@ -29,7 +38,7 @@ export default class LicenseHandler {
         $("#btnClearLicense").on('click', () => {
             $("#licenseEmail").val('');
             $("#licensekey").val('');
-
+            
             this.createLicense('', '');
         });
 
@@ -68,14 +77,19 @@ export default class LicenseHandler {
     }
 
     public async refreshLicenseStatus(): Promise<void> {
-        this.insertLoadIndicator('#licensestatus, #licenselastcheck, #licenseexpires, #licenselevel');
+        this.insertLoadIndicator('#licensestatus, #latestVSTOVersion, #licenselastcheck, #licenseexpires, #licenselevel');
         this.disableButtons();
 
         try {
             const { data: status } = await this.requestStatus();
+            const { data: appStatus } = await this.requestApplicationStatus();
 
             if (status.level !== 'Free' && status.level !== '-' && status.level !== '') {
                 $("#btnSupportButton").removeClass("hidden").addClass("shown");
+                $("#latestVSTOVersion").text(appStatus.LatestVSTOAddinVersion.Version);
+                $("#latestVSTOVersionReleaseDate").text(appStatus.LatestVSTOAddinVersion.ReleaseDate);
+                document.getElementById("latestVSTOVersionDownload")?.setAttribute("href", appStatus.LatestVSTOAddinVersion.UrlBinary);
+                document.getElementById("latestVSTOVersionReleaseNotes")?.setAttribute("href", appStatus.LatestVSTOAddinVersion.UrlReleaseNotes);
             }
 
             $("#licensestatus").html(status.status);
@@ -84,6 +98,8 @@ export default class LicenseHandler {
             $("#licenselevel").text(status.level);
             $("#licenseEmail").val(status.email);
             $("#licensekey").val(status.licensekey);
+            
+
 
             this.updateStatus(status.statusKind);
             this.updateButtonStatus(status.statusKind);
@@ -138,15 +154,15 @@ export default class LicenseHandler {
     }
 
     private showErrorStatus() {
-        $("#license .settingkeyvalueinput").addClass("errorStatus").removeClass("okStatus warningStatus");
+        $("#license .licensekeyvalueinput").addClass("errorStatus").removeClass("okStatus warningStatus");
     }
 
     private showWarningStatus() {
-        $("#license .settingkeyvalueinput").addClass("warningStatus").removeClass("okStatus errorStatus");
+        $("#license .licensekeyvalueinput").addClass("warningStatus").removeClass("okStatus errorStatus");
     }
 
     private showOkStatus() {
-        $("#license .settingkeyvalueinput").addClass("okStatus").removeClass("errorStatus warningStatus");
+        $("#license .licensekeyvalueinput").addClass("okStatus").removeClass("errorStatus warningStatus");
     }
 
     private disableButtons() {
@@ -165,6 +181,11 @@ export default class LicenseHandler {
 
     private requestStatus() {
         const url = generateUrl('/apps/sendent/api/1.0/licensestatus');
+
+        return axios.get<LicenseStatus>(url);
+    }
+    private requestApplicationStatus() {
+        const url = generateUrl('/apps/sendent/api/1.0/status');
 
         return axios.get<LicenseStatus>(url);
     }

@@ -21,6 +21,7 @@ class LicenseHttpClient {
 	protected $baseUrl;
 
 	public function __construct(IClientService $clientService, LoggerInterface $logger, string $baseUrl = "https://api.scwcloud.sendent.nl/") {
+	// public function __construct(IClientService $clientService, LoggerInterface $logger, string $baseUrl = "http://localhost:8085/") {
 		$this->client = $clientService->newClient();
 		$this->logger = $logger;
 		$this->baseUrl = $baseUrl;
@@ -31,7 +32,10 @@ class LicenseHttpClient {
 
 		return $response->getStatusCode() === Http::STATUS_OK;
 	}
-
+	public function getJson(string $request) {
+		$response = $this->client->get($this->baseUrl . $request);
+		return json_decode($response->getBody());
+	}
 	public function post(string $request, Dto\SubscriptionIn $data) {
 		$uri = $this->baseUrl . $request;
 
@@ -62,7 +66,7 @@ class LicenseHttpClient {
 
 		return null;
 	}
-
+	
 	public function put(string $request, $data): bool {
 		$uri = $this->baseUrl . $request;
 

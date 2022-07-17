@@ -16,6 +16,9 @@ class Status implements JsonSerializable {
 	public $maxusersgrace;
 	public $currentusers;
 
+	public $latestVSTOAddinVersion;
+	public $latestNCAppVersion;
+
 	public function __construct() {
 		// add types in constructor
 	}
@@ -30,7 +33,9 @@ class Status implements JsonSerializable {
 			'LicenseAction' => $this->licenseaction,
 			'DateGracePeriodEnd' => $this->dategraceperiodend,
 			'MaxGraceUsers' => $this->maxusersgrace,
-			'CurrentUserCount' => $this->currentusers
+			'CurrentUserCount' => $this->currentusers,
+			'LatestVSTOAddinVersion' => $this->latestVSTOAddinVersion,
+			'LatestNCAppVersion' => $this->latestNCAppVersion
 		];
 	}
 }
