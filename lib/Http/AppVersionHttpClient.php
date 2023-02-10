@@ -3,7 +3,6 @@
 namespace OCA\Sendent\Http;
 
 use Exception;
-use OCA\Sendent\Db\License;
 use Psr\Log\LoggerInterface;
 use OCA\Sendent\Http\Dto\AppVersionResponse;
 
@@ -41,12 +40,11 @@ class AppVersionHttpClient {
 
 				return $appVersionResponse;
 			}
-
 		} catch (Exception $e) {
 			$this->logger->error('AppVersionHttpClient-latest-EXCEPTION: ' . $e->getMessage(), [
 				'exception' => $e,
 			]);
 			return null;
+		}
 	}
-}
 }

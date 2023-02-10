@@ -181,6 +181,7 @@ class RetentionAssistant {
         let hasRemovedTag = false;
         let hasExpiredTag = false;
 
+		console.log(retentions)
         for (const retention of retentions) {
             if (retention.tagid === this.tags[CONFIG_REMOVED_TAG]) {
                 hasRemovedTag = true;

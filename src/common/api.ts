@@ -21,11 +21,17 @@ export interface WorkflowData {
 }
 
 export interface RetentionData {
-    id: number,
-    tagid: number,
-    timeunit: number,
-    timeamount: number,
-    timeafter: number,
+	ocs: {
+		data: [
+			{
+			    id: number,
+			    tagid: number,
+			    timeunit: number,
+				timeamount: number,
+			    timeafter: number,
+			}
+		]
+	}
 }
 
 export enum RetentionUnit { Days, Weeks, Months, Years }
@@ -70,14 +76,14 @@ class API {
     }
 
     public async getRetentions() {
-        const url = generateUrl('apps/files_retention/api/v1/retentions');
-        const response = await axios.get<RetentionData[]>(url);
+        const url = generateUrl('ocsapp/apps/files_retention/api/v1/retentions');
+        const response = await axios.get<RetentionData>(url);
 
-        return response.data;
+        return response.data.ocs.data;
     }
 
     public async createRetention(tagId: number, timeAmount: number, timeUnit = RetentionUnit.Days, timeAfter = RetentionAfter.Modification) {
-        const url = generateUrl('apps/files_retention/api/v1/retentions');
+        const url = generateUrl('ocsapp/apps/files_retention/api/v1/retentions');
         const response = await axios.post<RetentionData>(url, {
             tagid: tagId,
             timeafter: timeAfter,
@@ -85,7 +91,7 @@ class API {
             timeunit: timeUnit,
         });
 
-        return response.data;
+        return response.data.ocs.data;
     }
 
     public async getTag(tagId: number) {

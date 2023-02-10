@@ -2,7 +2,6 @@
 
 namespace OCA\Sendent\Http\Dto;
 
-use OCA\Sendent\Db\License;
 use JsonSerializable;
 
 class AppVersionResponse implements JsonSerializable {
@@ -17,7 +16,6 @@ class AppVersionResponse implements JsonSerializable {
 
 	public function __construct() {
 		// add types in constructor
-		
 	}
 	public function jsonSerialize() {
 		return [

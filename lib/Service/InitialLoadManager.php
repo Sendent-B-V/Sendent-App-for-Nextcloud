@@ -100,7 +100,7 @@ class InitialLoadManager {
 			if ($this->SettingKeyMapper->settingKeyCount("202") < 1) {
 				$this->addTalkEnabledUpdate();
 			}
-			if($this->SettingKeyMapper->settingKeyCount("301") < 1) {
+			if ($this->SettingKeyMapper->settingKeyCount("301") < 1) {
 				$this->addGuestAccountSettings();
 			}
 			$this->fixPaths();
@@ -600,7 +600,7 @@ class InitialLoadManager {
 		return $this->getHTMLTemplate('sharefolderhtml');
 	}
 
-	public function getguestaccountshtml(): string{
+	public function getguestaccountshtml(): string {
 		return $this->getHTMLTemplate('guestaccountshtml');
 	}
 
