@@ -27,11 +27,11 @@
 
     &[data-state="fail"]::before {
         content: '';
-        background-image: var(--icon-error-e9322d);
+        background-image: var(--icon-error-color-red);
     }
 
     &[data-state="success"]::before {
         content: '';
-        background-image: var(--icon-checkmark-46ba61);
+        background-image: var(--icon-checkmark-color-green);
     }
 }
