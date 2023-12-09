@@ -75,10 +75,11 @@ class LicenseApiController extends ApiController {
 	 * @NoCSRFRequired
 	 *
 	 * Returns license status for current user
+	 * @param string $type
 	 *
 	 * @return DataResponse
 	 */
-	public function show(): DataResponse {
+	public function show(string $type = 'outlook'): DataResponse {
 
 		$this->logger->info('Getting license information for user ' . $this->userId);
 
@@ -100,22 +101,23 @@ class LicenseApiController extends ApiController {
 		// Returns settings for 1st matching group
 		if (count($userSendentGroups)) {
 			$this->logger->info('First matching group of user ' . $this->userId . ' is ' . $userSendentGroups[array_keys($userSendentGroups)[0]]);
-			return $this->showForNCGroup($userSendentGroups[array_keys($userSendentGroups)[0]]);
+			return $this->showForNCGroup($userSendentGroups[array_keys($userSendentGroups)[0]], $type);
 		} else {
 			$this->logger->info('User ' . $this->userId . ' is not member of any sendent group');
-			return $this->showForNCGroup('');
+			return $this->showForNCGroup('', $type);
 		}
 
 	}
 /**
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
+	 * @param string $type
 	 *
 	 * Returns license status for current user
 	 *
 	 * @return DataResponse
 	 */
-	public function showInternal(): DataResponse {
+	public function showInternal(string $type = 'outlook'): DataResponse {
 
 		$this->logger->info('Getting license information for user ' . $this->userId);
 
@@ -137,10 +139,10 @@ class LicenseApiController extends ApiController {
 		// Returns settings for 1st matching group
 		if (count($userSendentGroups)) {
 			$this->logger->info('First matching group of user ' . $this->userId . ' is ' . $userSendentGroups[array_keys($userSendentGroups)[0]]);
-			return $this->showForNCGroup($userSendentGroups[array_keys($userSendentGroups)[0]]);
+			return $this->showForNCGroup($userSendentGroups[array_keys($userSendentGroups)[0]], $type);
 		} else {
 			$this->logger->info('User ' . $this->userId . ' is not member of any sendent group');
-			return $this->showForNCGroup('');
+			return $this->showForNCGroup('', $type);
 		}
 
 	}
@@ -151,9 +153,10 @@ class LicenseApiController extends ApiController {
 	 * Returns license status for group $ncgroup
 	 *
 	 * @param string $ncgroup
+	 * @param string $type
 	 * @return DataResponse
 	 */
-	public function showForNCGroup(string $ncgroup = ''): DataResponse {
+	public function showForNCGroup(string $ncgroup = '', string $type = 'outlook'): DataResponse {
 
 		if ($ncgroup === "") {
 			$this->logger->info('Getting license information for default group');
@@ -163,10 +166,10 @@ class LicenseApiController extends ApiController {
 
 		try {
 			// Gets license for group $ncgroup
-			$result = $this->service->findByGroup($ncgroup);
+			$result = $this->service->findByGroup($ncgroup, $type);
 			if (isset($result) && $result !== null && $result !== false && is_array($result) && count($result) === 0) {
 				// No license for group $ncgroup, getting default license
-				$result = $this->service->findByGroup('');
+				$result = $this->service->findByGroup('', $type);
 			}
 			
 			if (isset($result) && $result !== null && $result !== false) {
@@ -177,7 +180,7 @@ class LicenseApiController extends ApiController {
 					$this->logger->info('Check needed for license ' . $result[0]->getId());
 					try {
 						$this->licensemanager->renewLicense($result[0]);
-						$result = $this->service->findByGroup($result[0]->getNcgroup());
+						$result = $this->service->findByGroup($result[0]->getNcgroup(), $type);
 						if (isset($result) && $result !== null && $result !== false) {
 							if (is_array($result) && count($result) > 0
 							&& $result[0]->getLevel() != "Error_clear" && $result[0]->getLevel() != "Error_incomplete") {
@@ -197,6 +200,7 @@ class LicenseApiController extends ApiController {
 					$dateLastCheck = $result[0]->getDatelastchecked();
 					$level = $result[0]->getLevel();
 					$group = $result[0]->getNcgroup();
+					$product = $result[0]->getProduct();
 					$statusKind = "";
 					$status = "";
 
@@ -212,6 +216,12 @@ class LicenseApiController extends ApiController {
 						$status = $this->l->t("Revalidation of your license is required");
 						$statusKind = "check";
 					}
+					elseif (!$result[0]->isCheckNeeded() && !$result[0]->isLicenseExpired() && !$result[0]->isSupportedProduct()) {
+						$status = $this->l->t("Current license is not intended to be used with Sendent Synchroniser. It is only intended to be used for configuring: " . $product) .
+							"</br>" .
+							$this->l->t('%1$sContact support%2$s if you experience issues with configuring your license key.', ["<a href='mailto:info@sendent.com' style='color:blue'>", "</a>"]);
+						$statusKind = "expired";
+					} 
 					elseif ($result[0]->isLicenseRenewedOrSwitched()) {
 						$status = $this->l->t("Current license has been changed.") .
 							"</br>" .
@@ -282,9 +292,10 @@ class LicenseApiController extends ApiController {
 	 * Returns license status for group $ncgroup
 	 *
 	 * @param string $ncgroup
+	 * @param string $type
 	 * @return DataResponse
 	 */
-	public function showForNCGroupInternal(string $ncgroup = ''): DataResponse {
+	public function showForNCGroupInternal(string $ncgroup = '', string $type = 'outlook'): DataResponse {
 
 		if ($ncgroup === "") {
 			$this->logger->info('Getting license information for default group');
@@ -294,10 +305,10 @@ class LicenseApiController extends ApiController {
 
 		try {
 			// Gets license for group $ncgroup
-			$result = $this->service->findByGroup($ncgroup);
+			$result = $this->service->findByGroup($ncgroup, $type);
 			if (isset($result) && $result !== null && $result !== false && is_array($result) && count($result) === 0) {
 				// No license for group $ncgroup, getting default license
-				$result = $this->service->findByGroup('');
+				$result = $this->service->findByGroup('', $type);
 			}
 			
 			if (isset($result) && $result !== null && $result !== false) {
@@ -308,7 +319,7 @@ class LicenseApiController extends ApiController {
 					$this->logger->info('Check needed for license ' . $result[0]->getId());
 					try {
 						$this->licensemanager->renewLicense($result[0]);
-						$result = $this->service->findByGroup($result[0]->getNcgroup());
+						$result = $this->service->findByGroup($result[0]->getNcgroup(), $type);
 						if (isset($result) && $result !== null && $result !== false) {
 							if (is_array($result) && count($result) > 0
 							&& $result[0]->getLevel() != "Error_clear" && $result[0]->getLevel() != "Error_incomplete") {
@@ -328,6 +339,7 @@ class LicenseApiController extends ApiController {
 					$dateLastCheck = $result[0]->getDatelastchecked();
 					$level = $result[0]->getLevel();
 					$group = $result[0]->getNcgroup();
+					$product = $result[0]->getProduct();
 					$statusKind = "";
 					$status = "";
 
@@ -343,6 +355,12 @@ class LicenseApiController extends ApiController {
 						$status = $this->l->t("Revalidation of your license is required");
 						$statusKind = "check";
 					}
+					elseif (!$result[0]->isCheckNeeded() && !$result[0]->isLicenseExpired() && !$result[0]->isSupportedProduct()) {
+						$status = $this->l->t("Current license is not intended to be used with Sendent Synchroniser. It is only intended to be used for configuring: " . $product) .
+							"</br>" .
+							$this->l->t('%1$sContact support%2$s if you experience issues with configuring your license key.', ["<a href='mailto:info@sendent.com' style='color:blue'>", "</a>"]);
+						$statusKind = "expired";
+					} 
 					elseif ($result[0]->isLicenseRenewedOrSwitched()) {
 						$status = $this->l->t("Current license has been changed.") .
 							"</br>" .
@@ -421,26 +439,28 @@ class LicenseApiController extends ApiController {
 	 * @param string $license
 	 * @param string $email
 	 * @param string $ncgroup
+	 * @param string $type
 	 */
-	public function create(string $license, string $email, string $ncgroup) {
-		return $this->licensemanager->createLicense($license, '','', $email, $ncgroup);
+	public function create(string $license, string $email, string $ncgroup, string $type = 'outlook') {
+		return $this->licensemanager->createLicense($license, '','', $email, $ncgroup, $type);
 	}
 
 	/**
 	 * @param string $group
+	 * @param string $type
 	 */
-	public function delete(string $group) {
+	public function delete(string $group, string $type = 'outlook') {
 		// Deletes requested settinglicense
-		return $this->licensemanager->deleteLicense($group);
+		return $this->licensemanager->deleteLicense($group, $type);
 	}
 
 	/**
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
 	 */
-	public function renew() {
+	public function renew(string $type = 'outlook') {
 		// Finds out user's license
-		$license = $this->service->findUserLicense($this->userId);
+		$license = $this->service->findUserLicense($this->userId, $type);
 
 		$this->licensemanager->renewLicense($license);
 	}
@@ -448,10 +468,11 @@ class LicenseApiController extends ApiController {
 	/**
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
+	 * @param string $type
 	 */
-	public function validate() {
+	public function validate(string $type = 'outlook') {
 		// Finds out user's license
-		$license = $this->service->findUserLicense($this->userId);
+		$license = $this->service->findUserLicense($this->userId, $type);
 
 		// Unlicensed?
 		if (is_null($license)) {
@@ -465,9 +486,10 @@ class LicenseApiController extends ApiController {
 	/**
 	 *
 	 * Generates a report of all licenses used
+	 * @param string $type
 	 *
 	 */
-	public function report() {
+	public function report(string $type = 'outlook') {
 
 		// Gets groups for which specific settings and/or license are defined and add it the default one
 		$sendentGroups = $this->appConfig->getAppValue('sendentGroups', '');
@@ -477,7 +499,7 @@ class LicenseApiController extends ApiController {
 		// Gets license of each groups, handling inheritance
 		$licenses = [];
 		foreach($sendentGroups as $gid) {
-			$license = $this->service->findByGroup($gid);
+			$license = $this->service->findByGroup($gid, $type);
 			if (!empty($license)) {
 				$license = $license[0]->jsonSerialize();
 				$license += ['inherited' => false];

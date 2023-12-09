@@ -34,9 +34,9 @@ class LicenseService {
 		$this->logger = $logger;
 	}
 
-	public function delete(string $ncgroup = '') {
+	public function delete(string $ncgroup = '', string $type = 'outlook') {
 		try {
-			$list = $this->mapper->findByGroup($ncgroup);
+			$list = $this->mapper->findByGroup($ncgroup, $type);
 			foreach ($list as $result) {
 				$this->mapper->delete($result);
 			}
@@ -45,9 +45,9 @@ class LicenseService {
 		}
 	}
 
-	public function findAll() {
+	public function findAll(string $type = 'outlook') {
 		try {
-			$list = $this->mapper->findAll();
+			$list = $this->mapper->findAll($type);
 			foreach ($list as $result) {
 				if ($this->valueIsLicenseKeyFilePath($result->getLicensekey()) !== false) {
 					$result->setLicensekey($this->FileStorageManager->getLicenseContent());
@@ -66,9 +66,9 @@ class LicenseService {
 		}
 	}
 
-	public function findByGroup(string $ncgroup = '') {
+	public function findByGroup(string $ncgroup = '', string $type = 'outlook') {
 		try {
-			$list = $this->mapper->findByGroup($ncgroup);
+			$list = $this->mapper->findByGroup($ncgroup, $type);
 			foreach ($list as $result) {
 				if ($this->valueIsLicenseKeyFilePath($result->getLicensekey()) !== false) {
 					$result->setLicensekey($this->FileStorageManager->getLicenseContent($ncgroup));
@@ -127,7 +127,7 @@ class LicenseService {
 	/**
 	 * Finds the license used by a user
 	 */
-	public function findUserLicense(string $userId) {
+	public function findUserLicense(string $userId, string $type = 'outlook') {
 		// Gets groups for which specific settings and/or license are defined
 		// Groups are ordered from highest priority to lowest
 		$sendentGroups = $this->appConfig->getAppValue('sendentGroups', '');
@@ -150,14 +150,14 @@ class LicenseService {
 		if (count($userSendentGroups) === 0) {
 			// User is not member of any sendentGroups => Gets default license
 			$this->logger->debug('User is not member of any sendent group, getting default group license');
-			$license = $this->findByGroup('');
+			$license = $this->findByGroup('', $type);
 		} else {
 			// Gets license of first matching group (highest priority)
-			$license = $this->findByGroup($userSendentGroups[array_keys($userSendentGroups)[0]]);
+			$license = $this->findByGroup($userSendentGroups[array_keys($userSendentGroups)[0]], $type);
 			// If the group has no license assigned, then gets default license
 			if (count($license) === 0 || $license[0]->getLicensekey() === '') {
 				$this->logger->debug('Did not find a license for group ' . $userSendentGroups[array_keys($userSendentGroups)[0]]);
-				$license = $this->findByGroup('');
+				$license = $this->findByGroup('', $type);
 			}
 			$this->logger->debug('Found license: ' . $license[0]->getId() . ' for group ' . $userSendentGroups[array_keys($userSendentGroups)[0]]);
 		}
@@ -191,7 +191,7 @@ class LicenseService {
 
 	public function create(string $license, string $licenseKeyToken, string $subscriptionStatus, DateTime $dategraceperiodend,
 	DateTime $datelicenseend, int $maxusers, int $maxgraceusers,
-	string $email, DateTime $datelastchecked, string $level, string $ncgroup = '') {
+	string $email, DateTime $datelastchecked, string $level, string $technicalLevel, string $product, int $isTrial, string $ncgroup = '', string $type = 'outlook') {
 		error_log(print_r("LICENSESERVICE-CREATE", true));
 
 		try {
@@ -199,7 +199,7 @@ class LicenseService {
 
 			return $this->update(0, $license, $licenseKeyToken, $subscriptionStatus,
 			$dategraceperiodend, $datelicenseend,
-			$maxusers, $maxgraceusers, $email, $datelastchecked, $level, $ncgroup);
+			$maxusers, $maxgraceusers, $email, $datelastchecked, $level, $ncgroup, $type);
 		} catch (Exception $e) {
 			error_log(print_r("LICENSESERVICE-EXCEPTION=" . $e, true));
 
@@ -217,7 +217,11 @@ class LicenseService {
 			$licenseobj->setDategraceperiodend(date_format($dategraceperiodend, "Y-m-d"));
 			$licenseobj->setDatelicenseend(date_format($datelicenseend, "Y-m-d"));
 			$licenseobj->setDatelastchecked(date_format($datelastchecked, "Y-m-d"));
-			$licenseobj->setNcgroup($ncgroup);
+			$licenseobj->setNcgroup($ncgroup);			
+			$licenseobj->setType($type);
+			$licenseobj->setTechnicallevel($technicalLevel);
+			$licenseobj->setProduct($product);
+			$licenseobj->setIstrial($isTrial);
 
 			error_log(print_r("LICENSESERVICE-EXCEPTION-LEVEL=" . $licenseobj->getLevel(), true));
 			$licenseresult = $this->mapper->insert($licenseobj);
@@ -231,7 +235,7 @@ class LicenseService {
 		}
 	}
 
-	public function createNew(string $license, string $licenseKeyToken, string $subscriptionStatus, string $email, string $ncgroup = ''): \OCP\AppFramework\Db\Entity {
+	public function createNew(string $license, string $licenseKeyToken, string $subscriptionStatus, string $email, string $ncgroup = '', string $type = 'outlook'): \OCP\AppFramework\Db\Entity {
 		$licenseobj = new License();
 		
 		$value = $this->FileStorageManager->writeLicenseTxt($license, $ncgroup);
@@ -241,6 +245,7 @@ class LicenseService {
 		$licenseobj->setSubscriptionstatus($subscriptionStatus);
 		$licenseobj->setEmail($email);
 		$licenseobj->setLevel("None");
+		$licenseobj->setType($type);
 		$licenseobj->setMaxusers(1);
 		$licenseobj->setMaxgraceusers(1);
 		$licenseobj->setDategraceperiodend(date_format(date_create("now"), "Y-m-d"));
@@ -260,7 +265,7 @@ class LicenseService {
 
 	public function update(int $id,string $license, string $licenseKeyToken, string $subscriptionStatus, DateTime $dategraceperiodend,
 	DateTime $datelicenseend, int $maxusers, int $maxgraceusers,
-	string $email, DateTime $datelastchecked, string $level, string $ncgroup = ''): \OCP\AppFramework\Db\Entity {
+	string $email, DateTime $datelastchecked, string $level, string $technicalLevel, string $product, int $isTrial, string $ncgroup = '', string $type = 'outlook'): \OCP\AppFramework\Db\Entity {
 		error_log(print_r("LICENSESERVICE-UPDATE", true));
 		$licenseobj = new License();
 
@@ -278,6 +283,10 @@ class LicenseService {
 		$licenseobj->setDatelicenseend(date_format($datelicenseend, "Y-m-d"));
 		$licenseobj->setDatelastchecked(date_format($datelastchecked, "Y-m-d"));
 		$licenseobj->setNcgroup($ncgroup);
+		$licenseobj->setType($type);
+		$licenseobj->setTechnicallevel($technicalLevel);
+		$licenseobj->setProduct($product);
+		$licenseobj->setIstrial($isTrial);
 		
 		$licenseresult = $this->mapper->update($licenseobj);
 		if ($this->valueIsLicenseKeyFilePath($licenseresult->getLicensekey()) !== false) {

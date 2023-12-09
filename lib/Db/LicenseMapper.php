@@ -48,11 +48,14 @@ class LicenseMapper extends QBMapper {
 	 *
 	 * @psalm-return array<\OCP\AppFramework\Db\Entity>
 	 */
-	public function findAll($limit = null, $offset = null): array {
+	public function findAll(string $type = 'outlook', $limit = null, $offset = null): array {
 		$qb = $this->db->getQueryBuilder();
 
 		$qb->select('*')
 		   ->from('sndnt_license')
+		   ->where(
+			$qb->expr()->eq('type', $qb->createNamedParameter($type, IQueryBuilder::PARAM_STR))
+			)
 		   ->setMaxResults($limit)
 		   ->setFirstResult($offset);
 
@@ -64,13 +67,13 @@ class LicenseMapper extends QBMapper {
 	 *
 	 * @psalm-return array<\OCP\AppFramework\Db\Entity>
 	 */
-	public function findByGroup(string $gid = '', $limit = null, $offset = null): array {
+	public function findByGroup(string $gid = '', string $type  = 'outlook', $limit = null, $offset = null): array {
 		$qb = $this->db->getQueryBuilder();
 
 		$qb->select('*')
 		   ->from('sndnt_license')
 		   ->where(
-			$qb->expr()->eq('ncgroup', $qb->createNamedParameter($gid, IQueryBuilder::PARAM_STR))
+			$qb->expr()->eq('ncgroup', $qb->createNamedParameter($gid, IQueryBuilder::PARAM_STR)->eq('type', $qb->createNamedParameter($type, IQueryBuilder::PARAM_STR)))
 		)
 		->setMaxResults($limit)
 		->setFirstResult($offset);

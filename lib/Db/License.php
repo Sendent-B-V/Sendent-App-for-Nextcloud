@@ -22,6 +22,11 @@ class License extends Entity implements JsonSerializable {
 	protected $level;
 	protected $ncgroup;
 	protected $subscriptionstatus;
+	protected $type;
+	protected $technicallevel;
+	protected $product;
+	protected $istrial;
+
 	public function __construct() {
 		// add types in constructor
 	}
@@ -38,7 +43,11 @@ class License extends Entity implements JsonSerializable {
 			'level' => $this->level,
 			'datelicenseend' => $this->datelicenseend,
 			'datelastchecked' => $this->datelastchecked,
-			'ncgroup' => $this->ncgroup
+			'ncgroup' => $this->ncgroup,
+			'type' => $this->type,
+			'technicallevel' => $this->technicallevel,
+			'product' => $this->product,
+			'istrial' => $this->istrial
 		];
 	}
 
@@ -64,6 +73,7 @@ class License extends Entity implements JsonSerializable {
 		}
 		return false;
 	}
+
 	public function isLicenseExpired(): bool {
 		if ((date_create($this->datelicenseend) < date_create("now")
 		&& date_create($this->dategraceperiodend) < date_create("now"))
@@ -72,12 +82,23 @@ class License extends Entity implements JsonSerializable {
 		}
 		return false;
 	}
+	public function isTrial() : bool{
+		return $this->istrial == 1;
+	}
+	public function isSupportedProduct() : bool{
+		return str_contains($this->product, 'Outlook') || str_contains($this->product, 'outlook') 
+			|| str_contains($this->product, '365') || str_contains($this->product, '365')
+			|| str_contains($this->product, 'vsto') || str_contains($this->product, 'vsto')
+			|| str_contains($this->product, 'teams') || str_contains($this->product, 'Teams');
+	}
 	public function isLicenseSuspended(): bool {
 		return $this->subscriptionstatus == "5";
 	}
+
 	public function isLicenseInactive(): bool {
 		return $this->subscriptionstatus == "4";
 	}
+
 	public function isLicenseRenewedOrSwitched(): bool {
 		return $this->subscriptionstatus == "6" || $this->subscriptionstatus == "7";
 	}

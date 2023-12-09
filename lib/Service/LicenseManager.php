@@ -49,8 +49,8 @@ class LicenseManager {
 	 */
 	public function pingLicensing(License $license): void {
 		try {
-			error_log(print_r('Pinging licensing server with license ' . $license->getId(), true));
-			$this->logger->info('Pinging licensing server with license ' . $license->getId());
+			error_log(print_r('Pinging licensing server with license ' . $license->getId() . ' for type: ' . $license->getType(), true));
+			$this->logger->info('Pinging licensing server with license ' . $license->getId() . ' for type: ' . $license->getType());
 			$pingResultLicense = $this->subscriptionvalidationhttpclient->validate($license);
 		} catch (Exception $e) {
 			$this->logger->error('Error while pinging licensing server');
@@ -58,8 +58,8 @@ class LicenseManager {
 	}
 
 	public function renewLicense(License $license) {
-		$this->logger->info('Renewing license ' . $license->getId());
-		error_log(print_r("Renewing license " . $license->getId(), true));
+		$this->logger->info('Renewing license ' . $license->getId() . ' for type: ' . $license->getType());
+		error_log(print_r("Renewing license " . $license->getId() . ' for type: ' . $license->getType(), true));
 
 		$license = $this->subscriptionvalidationhttpclient->validate($license);
 		if (isset($license) && $license != null) {
@@ -89,7 +89,11 @@ class LicenseManager {
 					$license->getEmail(),
 					date_create($license->getDatelastchecked()),
 					$level,
-					$license->getNcgroup()
+					$license->getTechnicallevel(),
+					$license->getProduct(),
+					$license->getIstrial(),
+					$license->getNcgroup(),
+					$license->getType()
 				);
 		}
 		} else if($this->isLocalValid($license)){
@@ -102,21 +106,21 @@ class LicenseManager {
 		}
 	}
 
-	public function createLicense(string $license, string $licenseKeyToken, string $subscriptionStatus, string $email, string $ncgroup = '') {
-		$this->logger->info('Creating license');
+	public function createLicense(string $license, string $licenseKeyToken, string $subscriptionStatus, string $email, string $ncgroup = '', string $type = 'outlook') {
+		$this->logger->info('Creating license for type: ' . $type);
 		$this->deleteLicense($ncgroup);
-		$licenseData = $this->licenseservice->createNew($license, $licenseKeyToken, $subscriptionStatus, $email, $ncgroup);
+		$licenseData = $this->licenseservice->createNew($license, $licenseKeyToken, $subscriptionStatus, $email, $ncgroup, $type);
 		return $this->activateLicense($licenseData);
 	}
 
-	public function deleteLicense(string $ncgroup = '') {
+	public function deleteLicense(string $ncgroup = '', string $type = 'outlook') {
 		try {
 			if ($ncgroup === '') {
 				$this->logger->info('Deleting license for default group');
 			} else {
 				$this->logger->info('Deleting license for group ' . $ncgroup);
 			}
-			$this->licenseservice->delete($ncgroup);
+			$this->licenseservice->delete($ncgroup, $type);
 		} catch (Exception $e) {
 			$this->logger->error('Error while deleting license');
 		}
@@ -158,7 +162,11 @@ class LicenseManager {
 				$activatedLicense->getEmail(),
 				date_create("now"),
 				$level,
-				$license->getNcgroup()
+				$activatedLicense->getTechnicallevel(),
+				$activatedLicense->getProduct(),
+				$activatedLicense->getIstrial(),
+				$license->getNcgroup(),
+				$license->getType()
 			);
 		} else if($this->isLocalValid($license)){
 			return $license;
