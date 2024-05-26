@@ -1,23 +1,18 @@
 name: PHP Tests
 
-on:
-  pull_request:
-  push:
-    branches:
-      - master
+on: [push, pull_request]
 
 jobs:
   unit-tests:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php-versions: ['7.3', '7.4']
-        nextcloud-versions: ['stable20', 'stable21', 'stable22']
+        php-versions: ['8']
+        nextcloud-versions: ['stable26', 'stable27']
         include:
-          - php-versions: '7.2'
-            nextcloud-versions: 'stable20'
-          - php-versions: '8'
-            nextcloud-versions: 'stable22'
+          - php-versions: '7.4'
+            nextcloud-versions: 'stable25'
+
     name: php${{ matrix.php-versions }} on ${{ matrix.nextcloud-versions }} unit tests
     env:
       CI: true
