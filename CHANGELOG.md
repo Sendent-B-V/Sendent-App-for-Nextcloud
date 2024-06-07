@@ -280,3 +280,7 @@
 ## 3.0.9 - 2024-05-23
 ### Maintenance
 - Minor bugfixes and improvements.
+
+## 3.0.10 - 2024-06-07
+### Maintenance
+- Minor bugfixes and improvements.
