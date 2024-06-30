@@ -79,7 +79,7 @@
             <input type="hidden" name="settingkeyid" value="900"/>
         </div>
     </div>
-    <div class="license-settings-setting-box">
+    <div class="license-settings-setting-box subscriptionInformation">
         <div class="settingkeyvalue">
             <label class="licenselabel">
                 <span class="templatesettingkeyname licenseitem ">
@@ -94,7 +94,7 @@
             <input type="hidden" name="settingkeyid" value="904"/>
         </div>
     </div>
-    <div class="license-settings-setting-box" style="margin-top:20px">
+    <div class="license-settings-setting-box subscriptionInformation" style="margin-top:20px">
         <div class="settingkeyvalue">
             <label class="licenselabel">
                 <span class="templatesettingkeyname licenseitem">
@@ -109,7 +109,7 @@
             <input type="hidden" name="settingkeyid" value="902"/>
         </div>
     </div>
-    <div class="license-settings-setting-box" id="defaultlicensesupportedproductscontainer">
+    <div class="license-settings-setting-box subscriptionInformation" id="defaultlicensesupportedproductscontainer">
         <div class="settingkeyvalue">
             <label class="licenselabel">
                 <span class="templatesettingkeyname licenseitem">
@@ -124,7 +124,7 @@
             <input type="hidden" name="settingkeyid" value="902"/>
         </div>
     </div>
-    <div class="license-settings-setting-box" id="licenselevelcontainer">
+    <div class="license-settings-setting-box subscriptionInformation" id="licenselevelcontainer">
         <div class="settingkeyvalue">
             <label class="licenselabel">
                 <span class="templatesettingkeyname licenseitem">
@@ -139,7 +139,7 @@
             <input type="hidden" name="settingkeyid" value="902"/>
         </div>
     </div>
-    <div class="license-settings-setting-box">
+    <div class="license-settings-setting-box statusItem">
         <div class="settingkeyvalue">
             <label class="licenselabel">
                 <span class="templatesettingkeyname licenseitem">
@@ -154,7 +154,7 @@
             <input type="hidden" name="settingkeyid" value="903"/>
         </div>
     </div>
-    <div class="license-settings-setting-box">
+    <div class="license-settings-setting-box subscriptionInformation">
         <div class="settingkeyvalue">
             <label class="licenselabel">
                 <span class="templatesettingkeyname licenseitem">

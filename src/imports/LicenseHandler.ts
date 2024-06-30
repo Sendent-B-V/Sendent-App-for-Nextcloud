@@ -86,15 +86,15 @@ export default class LicenseHandler {
         try {
             const { data: status } = await this.requestStatus(gid);
             const { data: appStatus } = await this.requestApplicationStatus();
-            
+            const offline_mode_text = "Undetermined because Offline mode is used.";
             let LatestVSTOAddinVersionReleaseDate = new Date(appStatus.LatestVSTOAddinVersion.ReleaseDate);
             let LatestVSTOAddinVersionReleaseDateString = LatestVSTOAddinVersionReleaseDate.toLocaleDateString('nl-NL', { timeZone: 'UTC' });
             let statusdateLastCheckDate = new Date(status.dateLastCheck);
-            let statusdateLastCheckDateString = statusdateLastCheckDate.toLocaleDateString('nl-NL', { timeZone: 'UTC' });
+            let statusdateLastCheckDateString = status.level == "Offline_mode" ? offline_mode_text : statusdateLastCheckDate.toLocaleDateString('nl-NL', { timeZone: 'UTC' });
             let statusdateExpirationDate = new Date(status.dateExpiration);
-            let statusdateExpirationDateString = statusdateExpirationDate.toLocaleDateString('nl-NL', { timeZone: 'UTC' });
-            let statusSubscriptionType = status.istrial == 1 ? "Trial" : status.istrial == 0 ? "Paid subscription" : "Subscription type can't be determined";
-            let statusSubscriptionLevel = status.level == '0' || status.level == ''|| status.level == null ? status.product : status.level;
+            let statusdateExpirationDateString = status.level == "Offline_mode" ? offline_mode_text : statusdateExpirationDate.toLocaleDateString('nl-NL', { timeZone: 'UTC' });
+            let statusSubscriptionType = status.level == "Offline_mode" ? offline_mode_text : status.istrial == 1 ? "Trial" : status.istrial == 0 ? "Paid subscription" : "Subscription type can't be determined";
+            let statusSubscriptionLevel = status.level == "Offline_mode" ? offline_mode_text : status.level == '0' || status.level == ''|| status.level == null ? status.product : status.level;
 
 
             statusSubscriptionLevel = statusSubscriptionLevel.replace('\r\n', '<br/>');
@@ -107,6 +107,7 @@ export default class LicenseHandler {
             console.log('statusSubscriptionType = ' + statusSubscriptionType);
             console.log('statusSubscriptionLevel = ' + statusSubscriptionLevel);
 
+            
             if ((statusSubscriptionLevel !== 'Free' && statusSubscriptionLevel !== '-' && statusSubscriptionLevel !== '') && status.status == 'Current license is valid') {
                 $("#outlookAddon").removeClass("hidden").addClass("shown");
                 $("#btnSupportButton").removeClass("hidden").addClass("shown");
@@ -161,7 +162,7 @@ export default class LicenseHandler {
                 $("#licenselevelcontainer").removeClass("hidden").addClass("shown");
                 $("#defaultlicenselevelcontainer").removeClass("hidden").addClass("shown");
             }
-            if(status.product == '')
+            if(status.product == '' || status.level == "Offline_mode")
             {
                 $("#licensesupportedproductscontainer").removeClass("shown").addClass("hidden");
                 $("#defaultlicensesupportedproductscontainer").removeClass("shown").addClass("hidden");
@@ -190,9 +191,9 @@ export default class LicenseHandler {
                 $("#defaultlicensesubscriptiontype").html(statusSubscriptionType);
 			}
 
+            
             this.updateStatus(status.statusKind);
             this.updateButtonStatus(status.statusKind);
-
 			// Shows/Hides inheritance checkbox and disables user input if needed
 			if (gid !== '') {
 				$("#licensekey").next().addClass('settingkeyvalueinherited');
@@ -234,6 +235,7 @@ export default class LicenseHandler {
 					this.enableButtons();
                 }
             });
+            this.hideValuesForOffline(status);
 
 			// Makes sure the buttons' click action act on the correct group
 			$("#btnLicenseActivation").off('click')
@@ -306,7 +308,19 @@ export default class LicenseHandler {
                 .val(t("sendent", "Activate license"));
         }
     }
-
+    private hideValuesForOffline(status: LicenseStatus) {
+        if (status.level === 'Offline_mode') {
+            $(".subscriptionInformation").removeClass("shown").addClass("hidden");
+        }
+        else{
+            $(".subscriptionInformation").removeClass("hidden").addClass("shown");
+        }
+        if(status.level == '' || status.level == status.product ||  status.product.toLowerCase().includes(status.level.toLowerCase()))
+            {
+                $("#licenselevelcontainer").removeClass("shown").addClass("hidden");
+                $("#defaultlicenselevelcontainer").removeClass("shown").addClass("hidden");
+            }
+    }
     // private showErrorStatus() {
     //     $("#license .licensekeyvalueinput").addClass("errorStatus").removeClass("okStatus warningStatus");
     // }

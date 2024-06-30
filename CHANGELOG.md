@@ -284,3 +284,7 @@
 ## 3.0.10 - 2024-06-07
 ### Maintenance
 - Minor bugfixes and improvements.
+
+## 3.0.11 - 2024-06-27
+### Features
+- Support for customers that use an airgapped Nextcloud installation with no internet access.

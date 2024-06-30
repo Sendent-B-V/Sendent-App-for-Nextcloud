@@ -4,7 +4,7 @@
         <?php p($l->t('Default license information')); ?>
     </h2>
 
-    <div class="license-settings-setting-box">
+    <div class="license-settings-setting-box subscriptionInformation">
         <div class="settingkeyvalue">
             <label class="licenselabel">
                 <span class="templatesettingkeyname licenseitem">
@@ -13,7 +13,7 @@
             <span class="statuskeyvalueinput statusitem" id="defaultlicensesubscriptiontype"></span>
         </div>
     </div>
-    <div class="license-settings-setting-box" id="defaultlicensesupportedproductscontainer">
+    <div class="license-settings-setting-box subscriptionInformation" id="defaultlicensesupportedproductscontainer">
         <div class="settingkeyvalue">
             <label class="licenselabel">
                 <span class="templatesettingkeyname licenseitem">
@@ -22,7 +22,7 @@
             <span class="statuskeyvalueinput statusitem" id="defaultlicenseproducts"></span>
         </div>
     </div>
-    <div class="license-settings-setting-box" id="defaultlicenselevelcontainer">
+    <div class="license-settings-setting-box subscriptionInformation" id="defaultlicenselevelcontainer">
         <div class="settingkeyvalue">
             <label class="licenselabel">
                 <span class="templatesettingkeyname licenseitem">
@@ -41,7 +41,7 @@
         </div>
     </div>
 
-    <div class="license-settings-setting-box">
+    <div class="license-settings-setting-box subscriptionInformation">
         <div class="settingkeyvalue">
             <label class="licenselabel">
                 <span class="templatesettingkeyname licenseitem">
@@ -50,7 +50,7 @@
             <span class="statuskeyvalueinput statusitem" id="defaultlicenseexpires"><?php p($_['defaultLicenseExpirationDate']); ?></span>
         </div>
     </div>
-    <div class="license-settings-setting-box">
+    <div class="license-settings-setting-box subscriptionInformation">
         <div class="settingkeyvalue">
             <label class="licenselabel">
                 <span class="templatesettingkeyname licenseitem">
