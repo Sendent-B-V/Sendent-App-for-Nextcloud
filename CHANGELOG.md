@@ -288,3 +288,7 @@
 ## 3.0.11 - 2024-06-27
 ### Features
 - Support for customers that use an airgapped Nextcloud installation with no internet access.
+
+## 3.0.12 - 2024-08-12
+### Bugfix
+- Fix for users who couldn't clear their license properly to return to Free version.

@@ -87,13 +87,14 @@ export default class LicenseHandler {
             const { data: status } = await this.requestStatus(gid);
             const { data: appStatus } = await this.requestApplicationStatus();
             const offline_mode_text = "Undetermined because Offline mode is used.";
-            let LatestVSTOAddinVersionReleaseDate = new Date(appStatus.LatestVSTOAddinVersion.ReleaseDate);
-            let LatestVSTOAddinVersionReleaseDateString = LatestVSTOAddinVersionReleaseDate.toLocaleDateString('nl-NL', { timeZone: 'UTC' });
+            const versionInfoAvailable = appStatus.LatestVSTOAddinVersion != null;
+            let LatestVSTOAddinVersionReleaseDate = versionInfoAvailable ? new Date(appStatus.LatestVSTOAddinVersion.ReleaseDate) : null;
+            let LatestVSTOAddinVersionReleaseDateString = versionInfoAvailable ? LatestVSTOAddinVersionReleaseDate?.toLocaleDateString('nl-NL', { timeZone: 'UTC' }) : null;
             let statusdateLastCheckDate = new Date(status.dateLastCheck);
             let statusdateLastCheckDateString = status.level == "Offline_mode" ? offline_mode_text : statusdateLastCheckDate.toLocaleDateString('nl-NL', { timeZone: 'UTC' });
             let statusdateExpirationDate = new Date(status.dateExpiration);
             let statusdateExpirationDateString = status.level == "Offline_mode" ? offline_mode_text : statusdateExpirationDate.toLocaleDateString('nl-NL', { timeZone: 'UTC' });
-            let statusSubscriptionType = status.level == "Offline_mode" ? offline_mode_text : status.istrial == 1 ? "Trial" : status.istrial == 0 ? "Paid subscription" : "Subscription type can't be determined";
+            let statusSubscriptionType = status.level == "Offline_mode" ? offline_mode_text : status.istrial == 1 ? "Trial" : status.istrial == 0 ? "Paid subscription" : status.email == '' ? "No license configured" :  "Subscription type can't be determined";
             let statusSubscriptionLevel = status.level == "Offline_mode" ? offline_mode_text : status.level == '0' || status.level == ''|| status.level == null ? status.product : status.level;
 
 
@@ -108,11 +109,11 @@ export default class LicenseHandler {
             console.log('statusSubscriptionLevel = ' + statusSubscriptionLevel);
 
             
-            if ((statusSubscriptionLevel !== 'Free' && statusSubscriptionLevel !== '-' && statusSubscriptionLevel !== '') && status.status == 'Current license is valid') {
+            if ((statusSubscriptionLevel !== 'Free' && statusSubscriptionLevel !== '-' && statusSubscriptionLevel !== '' && versionInfoAvailable) && status.status == 'Current license is valid') {
                 $("#outlookAddon").removeClass("hidden").addClass("shown");
                 $("#btnSupportButton").removeClass("hidden").addClass("shown");
-                $("#latestVSTOVersion").text(appStatus.LatestVSTOAddinVersion.Version);
-                $("#latestVSTOVersionReleaseDate").text(LatestVSTOAddinVersionReleaseDateString);
+                $("#latestVSTOVersion").text(appStatus.LatestVSTOAddinVersion.Version ?? "");
+                $("#latestVSTOVersionReleaseDate").text(LatestVSTOAddinVersionReleaseDateString ?? "");
                 document.getElementById("latestVSTOVersionDownload")?.setAttribute("href", appStatus.LatestVSTOAddinVersion.UrlBinary);
                 document.getElementById("latestVSTOVersionReleaseNotes")?.setAttribute("href", appStatus.LatestVSTOAddinVersion.UrlReleaseNotes);
                 $("#outlookAddon").removeClass("hidden").addClass("shown");

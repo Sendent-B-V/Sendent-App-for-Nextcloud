@@ -59,7 +59,7 @@ class StatusApiController extends ApiController {
 		$result = $this->licenseservice->findUserLicense($this->userId);
 
 		// Unlicensed?
-		if (is_null($result)) {
+		if (is_null($result) || $result->getEmail() == '') {
 			return new DataResponse($statusobj);
 		}
 
@@ -87,13 +87,23 @@ class StatusApiController extends ApiController {
 				if (!$result->isCheckNeeded() && !$result->isLicenseExpired()) {
 					$status = "Valid";
 				}
+
 				$statusobj->licenseaction = $status;
 				
-				$appVersionVSTO = $this->appVersionClient->latest('vstoaddin');
-				$appVersionNCApp = $this->appVersionClient->latest('ncapp');
-
-				$statusobj->latestVSTOAddinVersion = $appVersionVSTO;
-				$statusobj->latestNCAppVersion = $appVersionNCApp;
+				if(!str_contains($result->getEmail(), 'OFFLINE_'))
+				{
+					$appVersionVSTO = $this->appVersionClient->latest('vstoaddin');
+					$appVersionNCApp = $this->appVersionClient->latest('ncapp');
+					if(!is_null($appVersionVSTO))
+					{
+						$statusobj->latestVSTOAddinVersion = $appVersionVSTO;
+					}
+					if(!is_null($appVersionNCApp))
+					{
+						$statusobj->latestNCAppVersion = $appVersionNCApp;
+					}
+				}
+				
 			}
 		}
 
