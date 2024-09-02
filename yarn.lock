@@ -298,15 +298,7 @@
     core-js "^3.11.2"
     semver "^7.3.5"
 
-"@nextcloud/event-bus@^3.1.0", "@nextcloud/event-bus@^3.2.0":
-  version "3.3.1"
-  resolved "https://registry.npmjs.org/@nextcloud/event-bus/-/event-bus-3.3.1.tgz"
-  integrity sha512-VBYJspOVk5aZopgZwCUoMKFqcTLCNel2TLvtu0HMPV2gR5ZLPiPAKbkyKkYTh+Sd5QB1gR6l3STTv1gyal0soQ==
-  dependencies:
-    "@types/node" "^20.12.12"
-    semver "^7.6.2"
-
-"@nextcloud/event-bus@^3.3.1":
+"@nextcloud/event-bus@^3.1.0", "@nextcloud/event-bus@^3.2.0", "@nextcloud/event-bus@^3.3.1":
   version "3.3.1"
   resolved "https://registry.npmjs.org/@nextcloud/event-bus/-/event-bus-3.3.1.tgz"
   integrity sha512-VBYJspOVk5aZopgZwCUoMKFqcTLCNel2TLvtu0HMPV2gR5ZLPiPAKbkyKkYTh+Sd5QB1gR6l3STTv1gyal0soQ==

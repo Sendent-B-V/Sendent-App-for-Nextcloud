@@ -1,5 +1,7 @@
 import './filelist.scss';
 import { generateRemoteUrl, generateUrl } from '@nextcloud/router';
+import { getNavigation, Node as NCNode } from '@nextcloud/files';
+import { subscribe } from '@nextcloud/event-bus';
 import axios from '@nextcloud/axios';
 import sanitizeHtml from 'sanitize-html';
 
@@ -22,52 +24,42 @@ const SANITIZE_OPTIONS = {
     }
 };
 
-type NextcloudFile = {
-    id: number
-    name: string
-    path: string
-    size: number
-    type: 'dir' | 'file'
-}
-
-type NextcloudFileList = {
-    $el: JQuery<HTMLElement>
-    $fileList: JQuery<HTMLElement>
-    files: NextcloudFile[]
-}
-
+/**
+ * FooterFile: This class is used to display a preview of a securemail file at the bottom of the files list
+ */
 class FooterFile {
-    constructor(private fileList: NextcloudFileList, private file: NextcloudFile) {
-
+    constructor(private file: NCNode) {
     }
 
     public async appendBelowFiles(): Promise<void> {
+
+        console.log('sendent: Appending a preview of the securemail file at the bottom of the files list');
+
         $(CONTENT_ID).remove();
 
         const containerElement = $('<div>');
         containerElement.attr('id', 'sendent-content');
-        containerElement.insertAfter(this.fileList.$el);
+        if (OCA.Sharing?.PublicApp) {
+            containerElement.insertAfter($('.files-filestable'));
+        } else {
+            containerElement.insertAfter($('.files-list__table'));
+        }
 
-        const loadingElement = $('<span>').addClass('icon-loading');
+        const loadingElement = $('<span>').addClass('icon-loading').css('position', 'unset');
         loadingElement.appendTo(containerElement);
 
-        let content = await this.getFileContent();
+        const path = this.getFilePath();
+        const response = await axios.get(path);
+        let content = response.data;
         content = sanitizeHtml(content, SANITIZE_OPTIONS);
 
         const iframeElement = this.generateIframeElement(content);
         containerElement.empty().append(iframeElement);
     }
 
-    private async getFileContent(): Promise<string> {
-        const path = this.getFilePath();
-        const response = await axios.get(path);
-
-        return response.data;
-    }
-
     private getFilePath(): string {
         const path = encodeURI(this.file.path);
-        const name = encodeURIComponent(this.file.name);
+        const name = encodeURIComponent(this.file.basename);
 
         if (OCA.Sharing?.PublicApp) {
             const token = $('#sharingToken').val();
@@ -81,7 +73,7 @@ class FooterFile {
             );
         }
 
-        return generateRemoteUrl(`files${path}/${name}`);
+        return generateRemoteUrl(`files/${name}`);
     }
 
     private generateIframeElement(content: string) {
@@ -101,52 +93,51 @@ class FooterFile {
     }
 }
 
-class FileList {
-    constructor(private fileList: NextcloudFileList) {
+/**
+ * Searches for a securemail file, and, when found, display its sanitized content below the file list
+ */
+async function onFileListUpdated() {
 
+    // function to block script execution
+    const wait = t => new Promise((resolve, reject) => setTimeout(resolve, t))
+
+    let fileList;
+    if (OCA.Sharing?.PublicApp) {
+        await wait(1500);
+        fileList = OCA.Sharing.PublicApp.fileList.files.map((f) => {
+            f.basename = f.name;
+            return f;
+        });
+    } else {
+        const currentPath = OCP.Files.Router.query.dir ?? '/';
+        const view = getNavigation().active;
+        const content = await view?.getContents(currentPath);
+        fileList = content?.contents ?? [];
     }
 
-    public getFooterFile(): FooterFile | undefined {
-        for (const file of this.fileList.files) {
-            if (file.type === 'file' && file.name === FOOTER_NAME) {
-                return new FooterFile(this.fileList, file);
-            }
+    for (const file of fileList ?? []) {
+        if (file.type === 'file' && file.basename === FOOTER_NAME) {
+            const footerFile = new FooterFile(file);
+            footerFile.appendBelowFiles();
         }
     }
+
 }
 
-function onFileListUpdated() {
-    const fileList = new FileList(OCA.Files?.App?.fileList || OCA.Sharing?.PublicApp?.fileList);
-
-    fileList.getFooterFile()?.appendBelowFiles();
-}
-
-function onDirectoryChanged() {
-    $(CONTENT_ID).remove();
-}
-
-function addFooterWatcher() {
-    if (!OCA?.Files?.App && !OCA?.Sharing?.PublicApp) {
-        console.warn('[sendent] "OCA.Files.App" not available');
-
-        return;
-    }
-
-    const fileList = OCA?.Files?.App?.fileList || OCA?.Sharing?.PublicApp?.fileList;
-
-    if (!fileList?.$fileList) {
-        setTimeout(() => addFooterWatcher(), 500);
-        return;
-    }
-
-    fileList.$fileList.on('updated', onFileListUpdated);
-    fileList?.$el.on('changeDirectory', onDirectoryChanged);
-
+/**
+ * Initializes the securemail previewer
+ */
+function initSecureMailPreviewer() {
+    console.log('sendent: initialising securemail previewer')
+    subscribe('files:list:updated', (node: NCNode) => onFileListUpdated())
     onFileListUpdated();
 }
 
+/**
+ * entry point
+ */
 if (document.readyState === 'complete') {
-    addFooterWatcher();
+    initSecureMailPreviewer();
 } else {
-    document.addEventListener('DOMContentLoaded', addFooterWatcher);
+    document.addEventListener('DOMContentLoaded', initSecureMailPreviewer);
 }
