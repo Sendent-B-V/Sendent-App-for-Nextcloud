@@ -124,7 +124,7 @@ export default class DependenciesHandler {
 		let url = generateUrl('/ocs/v1.php/cloud/capabilities').replace('/index.php','')
 		return axios.get(url,{
 			headers: {
-				'OCS-APIRequest': true
+				'OCS-APIRequest': 'true'
 			}
 		})
 	}
