@@ -127,4 +127,11 @@ declare namespace OCP {
 	namespace AppConfig {
 		function setValue(appId: string, key: string, value: any): void;
 	}
+	namespace Files {
+		namespace Router {
+			namespace query {
+				const dir: null | string
+			}
+		}
+	}
 }

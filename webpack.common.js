@@ -52,6 +52,10 @@ module.exports = {
 			$: 'jquery',
 			jQuery: 'jquery'
 		}),
+		// fix "process is not defined" error:
+		new webpack.ProvidePlugin({
+			process: 'process/browser.js',
+		}),
 	],
 	resolve: {
 		extensions: ['.*', '.ts', '.js', '.scss'],

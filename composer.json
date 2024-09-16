@@ -18,7 +18,7 @@
         "phpunit/phpunit": "^8.5 || ^9.3",
         "nextcloud/coding-standard": "^0.5.0",
         "friendsofphp/php-cs-fixer": "^2.18",
-        "christophwurst/nextcloud": "^20.0 || ^21.0 || ^22.0",
+        "nextcloud/ocp": "^27.0 || ^28.0 || ^29.0",
         "vimeo/psalm": "^4.5"
     }
 }
