@@ -292,3 +292,7 @@
 ## 3.0.12 - 2024-08-12
 ### Bugfix
 - Fix for users who couldn't clear their license properly to return to Free version.
+
+## 3.0.13 - 2024-09-16
+### Version limitation
+- This build will only work for Nextcloud versions <= 27.x
