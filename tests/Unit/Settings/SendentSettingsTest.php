@@ -4,11 +4,14 @@ namespace OCA\Sendent\Tests\Unit\Settings;
 
 use OCA\Sendent\Constants;
 use OCA\Sendent\Settings\SendentSettings;
+use OCA\Sendent\Service\LicenseManager;
+use OCA\Sendent\Service\LicenseService;
 use OCP\App\IAppManager;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\AppFramework\Services\IAppConfig;
 use OCP\AppFramework\Services\IInitialState;
 use OCP\IGroupManager;
+use OCP\IL10N;
 use OCP\SystemTag\ISystemTagManager;
 use OCP\SystemTag\TagNotFoundException;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -27,6 +30,15 @@ class SendentSettingsTest extends TestCase {
 	/** @var MockObject */
 	private $tagManager;
 
+	/** @var MockObject */
+	private $l;
+
+	/** @var MockObject */
+	private $licenseManager;
+
+	/** @var MockObject */
+	private $licenseService;
+
 	/** @var SendentSettings */
 	private $settings;
 
@@ -41,13 +53,28 @@ class SendentSettingsTest extends TestCase {
 		$this->appConfig = $this->getMockBuilder(IAppConfig::class)->getMock();
 		/** @var ISystemTagManager */
 		$this->tagManager = $this->getMockBuilder(ISystemTagManager::class)->getMock();
+		/** @var IL10N */
+		$this->l = $this->getMockBuilder(IL10N::class)->getMock();
+		/** @var LicenseManager */
+		$this->licenseManager = $this->getMockBuilder(LicenseManager::class)
+										->disableOriginalConstructor()
+										->getMock();
+		/** @var LicenseService */
+		$this->licenseService = $this->getMockBuilder(LicenseService::class)
+										->disableOriginalConstructor()
+										->getMock();
+		$this->licenseService->method('findByGroup')
+								->willReturn([]);
 
 		$this->settings = new SendentSettings(
 			$this->appManager,
 			$this->groupManager,
 			$this->initialState,
 			$this->appConfig,
-			$this->tagManager
+			$this->tagManager,
+			$this->l,
+       		$this->licenseManager,
+       		$this->licenseService
 		);
 	}
 
