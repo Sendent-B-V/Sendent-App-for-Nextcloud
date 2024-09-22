@@ -58,7 +58,9 @@ class FooterFile {
     }
 
     private getFilePath(): string {
+        //console.log(this.file); // Added this so i could analyse the properties of the "file" object
         const path = encodeURI(this.file.path);
+        const source = encodeURI(this.file.source); //Added this so i get full link to file
         const name = encodeURIComponent(this.file.basename);
 
         if (OCA.Sharing?.PublicApp) {
@@ -71,9 +73,10 @@ class FooterFile {
                     name,
                 }
             );
-        }
+       }
 
-        return generateRemoteUrl(`files/${name}`);
+        //return generateRemoteUrl('files/' + name); // Replaced this to generate remoteUrl based on filename to
+        return source;
     }
 
     private generateIframeElement(content: string) {

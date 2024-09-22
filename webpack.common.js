@@ -60,5 +60,6 @@ module.exports = {
 	resolve: {
 		extensions: ['.*', '.ts', '.js', '.scss'],
 		symlinks: false,
+		fallback: { "path": require.resolve("path-browserify") }
 	},
 }

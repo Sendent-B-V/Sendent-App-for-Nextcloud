@@ -51,6 +51,7 @@
     "@nextcloud/logger": "~2.5.0",
     "@nextcloud/password-confirmation": "^5.1.0",
     "@nextcloud/vue": "^8.12.0",
+    "path-browserify":"^1.0.1",
     "jquery": "^3.6.2",
     "jquery-ui": "^1.13.2",
     "process": "^0.11.10",
