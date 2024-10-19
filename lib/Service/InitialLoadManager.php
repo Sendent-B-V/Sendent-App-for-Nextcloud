@@ -6,14 +6,18 @@ use Exception;
 use OCA\Sendent\AppInfo\Application;
 use OCA\Sendent\Db\SettingKey;
 use OCA\Sendent\Db\SettingKeyMapper;
+use OCA\Sendent\Db\SettingTemplateMapper;
 use OCA\Sendent\Db\SettingGroupValueMapper;
 use OCA\Sendent\Db\SettingGroupValue;
+use OCA\Sendent\Db\SettingTemplate;
+use Psr\Log\LoggerInterface;
 use OCP\App\IAppManager;
 use OCP\IConfig;
 use OCP\PreConditionNotMetException;
 
 class InitialLoadManager {
 	private $SettingKeyMapper;
+	private $SettingTemplateMapper;
 	private $SettingGroupValueMapper;
 	private $SendentFileStorageManager;
 	private $config;
@@ -21,15 +25,22 @@ class InitialLoadManager {
 	/** @var IAppManager */
 	private $appManager;
 
+	/** @var LoggerInterface */
+	private $logger;
+
 	public function __construct(
 		SettingKeyMapper $SettingKeyMapper,
+		SettingTemplateMapper $SettingTemplateMapper,
 		SettingGroupValueMapper $SettingGroupValueMapper,
 		SendentFileStorageManager $SendentFileStorageManager,
+		LoggerInterface $logger,
 		IConfig $config,
 		IAppManager $appManager) {
-		$this->SettingKeyMapper = $SettingKeyMapper;
-		$this->SettingGroupValueMapper = $SettingGroupValueMapper;
+			$this->SettingKeyMapper = $SettingKeyMapper;
+			$this->SettingTemplateMapper = $SettingTemplateMapper;
+			$this->SettingGroupValueMapper = $SettingGroupValueMapper;
 		$this->SendentFileStorageManager = $SendentFileStorageManager;
+		$this->logger = $logger;
 		$this->config = $config;
 		$this->appManager = $appManager;
 
@@ -39,26 +50,57 @@ class InitialLoadManager {
 	/**
 	 * Return true if this is the first time a user is acessing their instance with deck enabled
 	 *
-	 * @param $userId
 	 * @return bool
 	 */
 	public function checkUpdateNeeded115(): bool {
 		$firstRun = $this->config->getAppValue('sendent', 'firstRunAppVersion');
 
-		if ($firstRun !== '3.0.1') {
-			try {
+		if ($firstRun !== '3.0.15') {
+			try {				
+				$this->logger->info('Initial load manager determined it needs to run. ');
+
 				$this->runInitialLoadTasks115();
-				$this->config->setAppValue('sendent', 'firstRunAppVersion', '3.0.1');
+				$this->config->setAppValue('sendent', 'firstRunAppVersion', '3.0.15');
 			} catch (PreConditionNotMetException $e) {
+				$this->logger->error('Error while running initial load manager. ' . $e);
+
 				return false;
 			}
 			return true;
+		}
+		else{
+			$this->logger->debug('Initial load manager determined it doesnt need to run. ');
+
 		}
 
 		return false;
 	}
 	private function runInitialLoadTasks115(): void {
 		try {
+			if($this->SettingTemplateMapper->settingTemplateCount("0") < 1)
+			{
+				$this->logger->info('settingtemplate 0 not present, creating it. ');
+				$this->createTemplate("0", "msoutlook");
+			}
+			if($this->SettingTemplateMapper->settingTemplateCount("1") < 1)
+			{
+				$this->logger->info('settingtemplate 1 not present, creating it. ');
+				$this->createTemplate("1", "msoutlook_advanced-theming");
+			}
+			if($this->SettingTemplateMapper->settingTemplateCount("2") < 1)
+			{
+				$this->logger->info('settingtemplate 2 not present, creating it. ');
+				$this->createTemplate("2", "msteams");
+			}
+			if ($this->SettingKeyMapper->settingKeyCount("401") < 1) {
+				$this->logger->info('statussync settingkey (401) not present, creating it. ');
+				$this->addStatusSync();
+			}
+			if ($this->SettingKeyMapper->settingKeyCount("501") < 1) {
+				$this->logger->info('teams_pathuploadfiles settingkey (501) not present, creating it. ');
+				$this->addPathUploadFilesTeams();
+				$this->fixTeams_pathuploadfiles();
+			}
 			if ($this->SettingKeyMapper->settingKeyCount("20") < 1) {
 				$this->initialLoading();
 			}
@@ -194,7 +236,26 @@ class InitialLoadManager {
 		} catch (Exception $exception) {
 		}
 	}
-
+	public function addStatusSync() : void {
+		$this->createKey("401", "statussync", "0", "select-one");
+		$this->createGroupValue("0", "401", "False");
+	}
+	public function addPathUploadFilesTeams() : void {
+		$this->createKey("501", "teams_pathuploadfiles", "2", "text");
+		$this->createGroupValue("0", "501", "/MSTeams/Upload-Share/");
+	}
+	private function fixTeams_pathuploadfiles(): void {
+		try {
+			$teams_pathuploadfiles = $this->showBySettingKeyId(501);
+			
+			if (!is_null($teams_pathuploadfiles)) {
+				if ($teams_pathuploadfiles->getValue() === '') {
+					$this->update($teams_pathuploadfiles->getId(), $teams_pathuploadfiles->getSettingkeyid(), $teams_pathuploadfiles->getGroupid(), "/MSTeams/Upload-Share/");
+				}
+			}
+		} catch (Exception $exception) {
+		}
+	}
 	public function addPopupExternalMail(): void {
 		$this->createKey("31", "attachmentdomainexceptionsexternalpopup", "0", "select-one");
 		$this->createGroupValue("0", "31", "False");
@@ -520,24 +581,33 @@ class InitialLoadManager {
 		$this->createKey("600", "securemailuimode", "0", "select-one");
 		$this->createGroupValue("0", "600", "toolbar");
 	}
-	public function createKey(string $key, string $name, string $templateid, string $valuetype) {
+	public function createKey(string $key, string $name, string $templatekey, string $valuetype) {
 		try {
 			$SettingKey = new settingkey();
 			$SettingKey->setKey($key);
 			$SettingKey->setName($name);
-			$SettingKey->setTemplateid($templateid);
+			$SettingKey->setTemplateid($templatekey);
 			$SettingKey->setValuetype($valuetype);
 			return $this->SettingKeyMapper->insert($SettingKey);
 		} catch (Exception $e) {
 			return null;
 		}
 	}
-
-	public function updateKey(string $key, string $name, string $templateid, string $valuetype) {
+	public function createTemplate(string $templatekey, string $name) {
+		try {
+			$SettingTemplate = new SettingTemplate();
+			$SettingTemplate->setTemplatekey($templatekey);
+			$SettingTemplate->setTemplatename($name);
+			return $this->SettingTemplateMapper->insert($SettingTemplate);
+		} catch (Exception $e) {
+			return null;
+		}
+	}
+	public function updateKey(string $key, string $name, string $templatekey, string $valuetype) {
 		try {
 			$SettingKey = $this->SettingKeyMapper->findByKey($key);
 			$SettingKey->setName($name);
-			$SettingKey->setTemplateid($templateid);
+			$SettingKey->setTemplateid($templatekey);
 			$result = $this->SettingKeyMapper->update($SettingKey);
 			return $this->showBySettingKeyId($key);
 		} catch (Exception $e) {

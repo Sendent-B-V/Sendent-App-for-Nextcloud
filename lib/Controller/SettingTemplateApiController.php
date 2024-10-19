@@ -52,7 +52,22 @@
  			return new DataResponse([], Http::STATUS_NOT_FOUND);
  		}
  	}
-
+	/**
+ 	 * @NoAdminRequired
+ 	 *
+ 	 * @NoCSRFRequired
+ 	 *
+ 	 * @param string $templateKey
+ 	 *
+ 	 * @return DataResponse
+ 	 */
+	  public function showByTemplateKey(string $templateKey): DataResponse {
+		try {
+			return new DataResponse($this->mapper->getByTemplateKey($templateKey));
+		} catch (Exception $e) {
+			return new DataResponse([], Http::STATUS_NOT_FOUND);
+		}
+	}
  	/**
  	 * @NoAdminRequired
  	 *

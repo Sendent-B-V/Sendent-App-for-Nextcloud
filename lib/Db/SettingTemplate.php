@@ -8,7 +8,7 @@ use JsonSerializable;
 
 class SettingTemplate extends Entity implements JsonSerializable {
 	protected $templatename;
-
+	protected $templatekey;
 	public function __construct() {
 		// add types in constructor
 	}
@@ -16,7 +16,8 @@ class SettingTemplate extends Entity implements JsonSerializable {
 	public function jsonSerialize() {
 		return [
 			'id' => $this->id,
-			'templatename' => $this->templatename
+			'templatename' => $this->templatename,
+			'templatekey' => $this->templatekey
 		];
 	}
 }

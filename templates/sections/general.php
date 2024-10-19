@@ -204,4 +204,28 @@
             <input type="hidden" name="settingkeyid" value="30">
         </div>
     </div>
+    <div class="personal-settings-setting-box">
+        <div class="settingkeyvalue">
+            <label>
+                <span class="templatesettingkeyname">
+                    <?php p($l->t('Presence Synchronization')); ?>
+                </span>
+            </label>
+            <div class="status-error icon-error error hidden"></div>
+            <div class="status-ok icon-checkmark ok hidden"></div>
+            <select class="settingkeyvalueinput" type="select" name="settingkeyvalueinput" id="statussync">
+                <option value="True"><?php p($l->t('Enabled')); ?></option>
+                <option value="False" selected><?php p($l->t('Disabled')); ?></option>
+            </select>
+			<label style="display:none">
+				<input class="settingkeyvalueinheritedcheckbox"  type="checkbox" />
+				<span class="settingkeyvalueinheritedlabel"><?php p($l->t('Use default group settings'));?></span>
+			</label>
+            <input type="hidden" name="settingkeyname" value="statussync">
+            <input type="hidden" name="settingkeytemplateid" value="0">
+            <input type="hidden" name="settinggroupid" value="0">
+            <input type="hidden" name="settingkeyid" value="401">
+            <input type="hidden" name="settingkeykey" value="401">
+        </div>
+    </div>
 </div>

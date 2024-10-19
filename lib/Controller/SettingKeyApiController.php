@@ -55,7 +55,6 @@
  	public function showTheming() {
  		return $this->service->findByTemplateId(1);
  	}
-
  	/**
  	 * @NoAdminRequired
  	 * @NoCSRFRequired
@@ -64,7 +63,6 @@
  	public function showByTemplateId(int $templateid) {
  		return $this->service->findByTemplateId($templateid);
  	}
-
  	/**
  	 * @NoAdminRequired
  	 * @NoCSRFRequired

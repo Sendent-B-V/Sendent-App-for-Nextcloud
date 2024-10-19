@@ -40,7 +40,9 @@ class SettingKeyService {
 	public function findByTemplateId(int $id) {
 		return $this->mapper->findByTemplateId($id);
 	}
-
+	public function findByTemplateKey(int $key) {
+		return $this->mapper->findByTemplateKey($key);
+	}
 	public function find(int $id) {
 		try {
 			return $this->mapper->find($id);

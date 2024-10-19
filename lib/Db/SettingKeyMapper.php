@@ -89,7 +89,6 @@ class SettingKeyMapper extends QBMapper {
 
 		return $this->findEntities($qb);
 	}
-
 	/**
 	 * @return \OCP\AppFramework\Db\Entity[]
 	 *

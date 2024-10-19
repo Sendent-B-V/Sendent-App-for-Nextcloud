@@ -42,6 +42,7 @@ export default class SettingFormHandler {
             const valueType = inputElement.prop('type');
 
             if (!key || !name || !templateId || !valueType || typeof value !== 'string' || !groupId) {
+                console.warn('key, name, templateid, valuetype, not string or no groupid constrained triggerd. cannot continue with settings renderling.');
                 return;
             }
 

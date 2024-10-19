@@ -300,3 +300,8 @@
 ## 3.0.14 - 2024-09-16
 ### Fix
 - Fix for users experiencing issues with Secure Mail rendering in Nextcloud running versions >= 28.x
+
+## 3.0.15 - 2024-10-19
+### Features
+- Added setting for controlling Presence Synchronisation (Outlook add-in)
+- Added setting to configure default upload path  (MS Teams add-in)
