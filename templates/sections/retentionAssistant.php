@@ -5,7 +5,7 @@
 script('sendent', 'retentionAssistant');
 ?>
 <div id="sendent-retention-assistant" class="section">
-    <h2><?php p($l->t('Retention Assistant')); ?> <a style="color:darkgray;font-size:large;margin-left:10px" href="https://sendent.freshdesk.com/support/solutions/articles/80000600279">i</a></h2>
+    <h2><?php p($l->t('Retention Assistant')); ?> <a style="color:darkgray;font-size:large;margin-left:10px" href="https://help.sendent.com/sendent-app-for-nextcloud-outlook-ms-teams/how-to-configure-the-retention-assistant-and-time">i</a></h2>
 
     <p class="assistant-text"><?php p($l->t('With the help of our Retention Assistant, you can easily set up each step of the process for cleaning up unused content.')); ?></p>
      

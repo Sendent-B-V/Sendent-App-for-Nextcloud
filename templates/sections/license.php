@@ -5,7 +5,7 @@
     <div class="license-settings-setting-box" id="licenseMessage">
         <div class="settingkeyvalue">
             <div class="labelFullWidth" id="lblLicenseMessage" style="display:grid;float:left;text-align:left;color:slate-gray;font-style:italic;font-size:smaller">
-                <p>Find out how to configure your license <a style="color: var(--color-primary-element);text-decoration:underline"  href="https://sendent.freshdesk.com/support/solutions/articles/80000592300-configuring-your-license">here</a>.</p>
+                <p>Find out how to configure your license <a style="color: var(--color-primary-element);text-decoration:underline"  href="https://help.sendent.com/sendent-app-for-nextcloud-outlook-ms-teams/how-to-configure-your-license-information-on-the-sendent-server-app">here</a>.</p>
                 <?php p($l->t('You only need a license key if you are using one of the paid plans of Sendent. If you don’t have a valid license key anymore, you will automatically be downgraded to Sendent Free.')); ?>
             </div>
             <input type="hidden" name="settingkeyname" value="licenseMessage"/>
