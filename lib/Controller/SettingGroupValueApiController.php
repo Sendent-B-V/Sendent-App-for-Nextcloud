@@ -45,9 +45,11 @@ class SettingGroupValueApiController extends ApiController {
 	 *
 	 * Gets settings for a specific user
 	 *
+	 * @param int $templateId
+	 * 
 	 * @return DataResponse
 	 */
-	public function index(): DataResponse {
+	public function index(int $templateId = null): DataResponse {
 
 		// Gets groups for which specific settings and/or license are defined
 		// Groups are ordered from highest priority to lowest
@@ -66,11 +68,49 @@ class SettingGroupValueApiController extends ApiController {
 
 		// Returns settings for 1st matching group
 		if (count($userSendentGroups)) {
-			return $this->getForNCGroup($userSendentGroups[array_keys($userSendentGroups)[0]], true);
+			return $this->getForNCGroup($userSendentGroups[array_keys($userSendentGroups)[0]], $templateId, true);
 		} else {
-			return $this->getForNCGroup('', true);
+			return $this->getForNCGroup('', $templateId, true);
 		}
 
+	}
+	/**
+	 * @NoAdminRequired
+	 * @NoCSRFRequired
+	 *
+	 * Gets settings for a specific user
+	 *
+	 * @param int $templateId
+	 * 
+	 * @return DataResponse
+	 */
+	public function byTemplate(int $templateId = NULL): DataResponse {
+
+		if(!isset($templateId) || $templateId == NULL)
+		{
+			return $this->index();
+		}
+		// Gets groups for which specific settings and/or license are defined
+		// Groups are ordered from highest priority to lowest
+		$sendentGroups = $this->appConfig->getAppValue('sendentGroups', '');
+		$sendentGroups = $sendentGroups !== '' ? json_decode($sendentGroups) : [];
+
+		// Gets user groups
+		$user = $this->userManager->get($this->userId);
+		$userGroups = $this->groupManager->getUserGroups($user);
+		$userGroups = array_map(function ($group) {
+			return $group->getGid();
+		}, $userGroups);
+
+		// Gets user groups that are sendentGroups
+		$userSendentGroups = array_intersect($sendentGroups, $userGroups);
+
+		// Returns settings for 1st matching group
+		if (count($userSendentGroups)) {
+			return $this->getForNCGroup($userSendentGroups[array_keys($userSendentGroups)[0]], $templateId, true);
+		} else {
+			return $this->getForNCGroup('', $templateId, true);
+		}
 	}
 
 	/**
@@ -92,9 +132,10 @@ class SettingGroupValueApiController extends ApiController {
 	 * Gets settings for group $ncgroup
 	 *
 	 * @param string $ncgroup
+	 * @param int $templateId
 	 * @return DataResponse
 	 */
-	public function getForNCGroup(string $ncgroup = '', bool $wantUserSettings = false): DataResponse {
+	public function getForNCGroup(string $ncgroup = '', int $templateId = NULL, bool $wantUserSettings = false): DataResponse {
 
 		// Gets settings for group
 		$list = $this->mapper->findSettingsForNCGroup($ncgroup);
@@ -103,8 +144,8 @@ class SettingGroupValueApiController extends ApiController {
 				$result->setValue($this->FileStorageManager->getContent($result->getGroupid(), $result->getSettingkeyid(), $ncgroup));
 			}
 		}
-
-		// Merges settings from default group
+		
+				// Merges settings from default group
 		if ($ncgroup !== '') {
 			// Gets a list of all settings defined for the group
 			$settingkeyidList = array_map(function ($setting) {
@@ -142,7 +183,14 @@ class SettingGroupValueApiController extends ApiController {
 				}
 			}
 		}
-
+		if(isset($templateId) && $templateId != NULL)
+		{
+			$list = array_filter($list, function($objf) use ($templateId) {
+				if ($objf->getGroupid() !== NULL) {
+					return $objf->getGroupid() == $templateId;
+				}});
+		}
+	
 		return new DataResponse($list);
 	}
 
@@ -228,6 +276,31 @@ class SettingGroupValueApiController extends ApiController {
 			} else {
 				return new DataResponse([], Http::STATUS_NOT_FOUND);
 			}
+		} catch (Exception $e) {
+			return new DataResponse([], Http::STATUS_NOT_FOUND);
+		}
+	}
+	/**
+	 * @NoAdminRequired
+	 *
+	 * @NoCSRFRequired
+	 *
+	 * @PublicPage
+	 *
+	 * @param int $templateId
+	 *
+	 * @return DataResponse
+	 */
+	public function findByTemplateId(int $templateId): DataResponse {
+		try {
+
+				$result = $this->mapper->findByGroupId($templateId);
+				foreach ($result as $item) {
+					if ($this->valueIsSettingGroupValueFilePath($item->getValue()) !== false) {
+						$item->setValue($this->FileStorageManager->getContent($item->getGroupid(), $item->getSettingkeyid(), $item->getNcgroup()));
+					}
+				}
+				return new DataResponse($result);
 		} catch (Exception $e) {
 			return new DataResponse([], Http::STATUS_NOT_FOUND);
 		}

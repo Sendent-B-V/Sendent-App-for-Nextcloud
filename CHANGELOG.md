@@ -305,3 +305,11 @@
 ### Features
 - Added setting for controlling Presence Synchronisation (Outlook add-in)
 - Added setting to configure default upload path  (MS Teams add-in)
+
+## 3.0.16 - 2024-12-19
+### Features
+- Added setting for controlling wether recipients are allowed to remove uploaded files from a public share
+
+## 3.0.17 - 2025-01-04
+### Bugfix
+- Fix for users experiencing slow performance in settings page due to large number of Nextcloud Groups contained within their installation.

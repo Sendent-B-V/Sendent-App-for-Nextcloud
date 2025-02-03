@@ -4,7 +4,7 @@ import { generateUrl } from '@nextcloud/router';
 import { translate as t } from '@nextcloud/l10n'
 import SettingFormHandler from "./SettingFormHandler";
 import LicenseHandler from "./LicenseHandler"
-
+import Sortable from "sortablejs";
 require("jquery-ui/ui/widgets/sortable");
 
 export default class GroupsManagementHandler {
@@ -38,16 +38,43 @@ export default class GroupsManagementHandler {
 		})
 
 		// Makes the Sendent groups lists sortable
-		$("#ncGroups").sortable({
-			items: "li:not(.ui-state-disabled",
-			connectWith: ".connectedSortable"
-		}).find( "li" )
-		.on( "click", this.instance.showSettingsForGroup)
+		// Sortable.create(document.getElementById('ncGroups'), {
+		// 	filter: ".ui-state-disabled",
+		// 	group: "GroupsManagement",
+		// 	sort: true,
+		// 	draggable: ".ui-state-default",
+		// 	dataIdAttr: 'data-gid'
+		// }).find( "li" )
+		// .on( "click", this.instance.showSettingsForGroup);
+
+		// Sortable.create(document.getElementById('sendentGroups'), {
+		// 	filter: ".ui-state-disabled",
+		// 	onAdd: () => this.instance.updateGroupLists(),
+		// 	onRemove: () => this.instance.updateGroupLists(),
+		// 	group: "GroupsManagement",
+		// 	draggable: ".ui-state-default",
+		// 	dataIdAttr: 'data-gid',
+		// 	sort: true
+		// }).find( "li" )
+		// .on( "click", this.instance.showSettingsForGroup);
+
+		var $sortable1 = $("#ncGroups")
+		.sortable({
+			connectWith: ".connectedSortable",
+			items: ".sorting-initialize" // only insert element with class sorting-initialize
+		});
+
+		$sortable1.find(".ui-state-default").on("mouseenter",function(){
+		  $(this).addClass("sorting-initialize");
+		  $sortable1.sortable('refresh');
+		});
+
 		$("#sendentGroups").sortable({
 			connectWith: ".connectedSortable",
 			update: () => this.instance.updateGroupLists()
 		}).find( "li" )
 		.on( "click", this.instance.showSettingsForGroup)
+
 		$("#defaultGroup").sortable({
 			cancel: ".unsortable",
 		}).find( "li" )

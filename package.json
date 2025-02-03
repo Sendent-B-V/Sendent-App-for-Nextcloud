@@ -51,10 +51,11 @@
     "@nextcloud/logger": "~2.5.0",
     "@nextcloud/password-confirmation": "^5.1.0",
     "@nextcloud/vue": "^8.12.0",
-    "path-browserify":"^1.0.1",
     "jquery": "^3.6.2",
     "jquery-ui": "^1.13.2",
+    "path-browserify": "^1.0.1",
     "process": "^0.11.10",
+    "sortablejs": "^1.15.6",
     "tinymce": "^5.8.2",
     "typescript-formatter": "^7.2.2"
   },

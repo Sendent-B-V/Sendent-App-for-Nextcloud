@@ -55,12 +55,12 @@ class InitialLoadManager {
 	public function checkUpdateNeeded115(): bool {
 		$firstRun = $this->config->getAppValue('sendent', 'firstRunAppVersion');
 
-		if ($firstRun !== '3.0.15') {
+		if ($firstRun !== '3.0.18') {
 			try {				
 				$this->logger->info('Initial load manager determined it needs to run. ');
 
 				$this->runInitialLoadTasks115();
-				$this->config->setAppValue('sendent', 'firstRunAppVersion', '3.0.15');
+				$this->config->setAppValue('sendent', 'firstRunAppVersion', '3.0.18');
 			} catch (PreConditionNotMetException $e) {
 				$this->logger->error('Error while running initial load manager. ' . $e);
 
@@ -91,6 +91,9 @@ class InitialLoadManager {
 			{
 				$this->logger->info('settingtemplate 2 not present, creating it. ');
 				$this->createTemplate("2", "msteams");
+			}
+			if ($this->SettingKeyMapper->settingKeyCount("700") < 1) {
+				$this->addEnforceFiledropSetting();
 			}
 			if ($this->SettingKeyMapper->settingKeyCount("401") < 1) {
 				$this->logger->info('statussync settingkey (401) not present, creating it. ');
@@ -242,7 +245,7 @@ class InitialLoadManager {
 	}
 	public function addPathUploadFilesTeams() : void {
 		$this->createKey("501", "teams_pathuploadfiles", "2", "text");
-		$this->createGroupValue("0", "501", "/MSTeams/Upload-Share/");
+		$this->createGroupValue("2", "501", "/MSTeams/Upload-Share/");
 	}
 	private function fixTeams_pathuploadfiles(): void {
 		try {
@@ -521,7 +524,10 @@ class InitialLoadManager {
 		$this->createKey("23", "sendmode", "0", "select-one");
 		$this->createGroupValue("0", "23", "CurrentMail");
 	}
-
+	public function addEnforceFiledropSetting(): void {
+		$this->createKey("700", "enforceFiledrop", "0", "select-one");
+		$this->createGroupValue("0", "700", "False");
+	}
 	public function initialLoading(): void {
 		$this->createKey("20", "setlanguage", "0", "select-one");
 		$this->createKey("19", "passwordcontrolbehavior", "0", "select-one");

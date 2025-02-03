@@ -132,6 +132,8 @@ class SendentSettings implements ISettings {
 			}
 		}, $sendentGroups);
 
+		
+
 		// Gets all Nextcloud groups
 		$NCGroups = $this->groupManager->search('');
 		$NCGroups = array_map(function ($group) {
@@ -145,6 +147,18 @@ class SendentSettings implements ISettings {
 		$NCGroups = array_udiff($NCGroups, $sendentGroups, function($g1, $g2) {
 			return strcmp($g1['gid'], $g2['gid']);
 		});
+
+		// Sorts NC Groups by gid
+		$ncGroupsKeys = array_map(function ($ncGroup) {
+			return $ncGroup['gid'];
+		}, $NCGroups);
+		array_multisort($ncGroupsKeys, SORT_ASC, $NCGroups);
+
+		// Sorts NC Groups by gid
+		$sendentGroupsKeys = array_map(function ($sendentGroup) {
+			return $sendentGroup['gid'];
+		}, $sendentGroups);
+		array_multisort($sendentGroupsKeys, SORT_ASC, $sendentGroups);
 
 		$params['ncGroups'] = $NCGroups;
 		$params['sendentGroups'] = $sendentGroups;

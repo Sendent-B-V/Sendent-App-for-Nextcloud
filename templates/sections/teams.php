@@ -22,7 +22,7 @@
         </label>
         <input type="hidden" name="settingkeyname" value="teams_pathuploadfiles">
         <input type="hidden" name="settingkeytemplateid" value="2">
-        <input type="hidden" name="settinggroupid" value="0">
+        <input type="hidden" name="settinggroupid" value="2">
         <input type="hidden" name="settingkeykey" value="501">
         <input type="hidden" name="settingkeyid" value="501">
     </div>

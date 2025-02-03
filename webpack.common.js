@@ -16,6 +16,9 @@ module.exports = {
 		settings: [
 			path.join(__dirname, 'src', 'settings.ts'),
 		],
+		groupManagement: [
+			path.join(__dirname, 'src', 'imports','GroupsManagementHandler.ts'),
+		],
 	},
 	output: {
 		path: path.resolve(__dirname, './js'),

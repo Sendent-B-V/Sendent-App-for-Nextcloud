@@ -34,6 +34,7 @@ const tags = {
     FILES: t('sendent', 'Files'),
     CURRENTDATE: t('sendent', 'Current date'),
     CURRENTTIME: t('sendent', 'Current time'),
+    EXTRA: t('sendent', 'Extra'),
 }
 
 const LOGO_VAR = '{LOGO}';

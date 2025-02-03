@@ -101,4 +101,33 @@
             <input type="hidden" name="settingkeyid" value="9">
         </div>
     </div>
+    <div class="personal-settings-setting-box">
+        <div class="settingkeyvalue">
+            <label>
+                <span class="templatesettingkeyname">
+                    <?php p($l->t('Filedrop')); ?>
+                </span>
+            </label>
+            <div class="status-error icon-error error hidden"></div>
+            <div class="status-ok icon-checkmark ok hidden"></div>
+            <select class="settingkeyvalueinput" type="select" name="settingkeyvalueinput" id="enforceFiledrop">
+                <option value="True"><?php p($l->t('Enabled')); ?></option>
+                <option value="False" selected><?php p($l->t('Disabled')); ?></option>
+            </select>
+            
+           
+			<label style="display:none">
+				<input class="settingkeyvalueinheritedcheckbox"  type="checkbox" />
+				<span class="settingkeyvalueinheritedlabel"><?php p($l->t('Use default group settings'));?></span>
+			</label>          
+            <input type="hidden" name="settingkeyname" value="enforceFiledrop">
+            <input type="hidden" name="settingkeykey" value="700">
+            <input type="hidden" name="settingkeytemplateid" value="0">
+            <input type="hidden" name="settinggroupid" value="0">
+            <input type="hidden" name="settingkeyid" value="700">
+        </div>
+    </div>
+    <p class="underlinesettings-box-text"> 
+                    <i style="color:gray !important;font-size:12px !important">By enabling Filedrop mode, recipients are prevented from deleting files from a public share</i>
+    </p>
 </div>

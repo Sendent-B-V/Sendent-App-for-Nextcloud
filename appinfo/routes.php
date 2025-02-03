@@ -31,11 +31,13 @@ return [
 			'requirements' => ['path' => '.+']
 		],
 		['name' => 'setting_group_value_api#index', 'url' => '/api/1.0/settinggroupvalue/index', 'verb' => 'GET'],
+		['name' => 'setting_group_value_api#byTemplate', 'url' => '/api/1.0/settinggroupvalue/index/byTemplate/{templateId}', 'verb' => 'GET', 'defaults' => array('templateId' => NULL)],
 		['name' => 'setting_group_value_api#getForDefaultGroup', 'url' => '/api/1.0/settinggroupvalue/getForDefaultGroup', 'verb' => 'GET'],
 		['name' => 'setting_group_value_api#getForNCGroup', 'url' => '/api/1.0/settinggroupvalue/getForNCGroup/{ncgroup}', 'verb' => 'GET'],
 		['name' => 'setting_group_value_api#show', 'url' => '/api/1.0/settinggroupvalue/{id}', 'verb' => 'GET'],
 		['name' => 'setting_group_value_api#showBySettingKeyId', 'url' => '/api/1.0/settinggroupvalue/showbysettingkeyid/{settingkeyid}', 'verb' => 'GET'],
 		['name' => 'setting_group_value_api#findByGroupId', 'url' => '/api/1.0/settinggroupvalue/findByGroupId/{groupid}', 'verb' => 'GET'],
+		['name' => 'setting_group_value_api#findByTemplateId', 'url' => '/api/1.0/settinggroupvalue/findByTemplateId/{templateid}', 'verb' => 'GET'],
 		['name' => 'setting_group_value_api#create', 'url' => '/api/1.0/settinggroupvalue', 'verb' => 'POST'],
 		['name' => 'setting_group_value_api#update', 'url' => '/api/1.0/settinggroupvalue/{id}', 'verb' => 'PUT'],
 		['name' => 'setting_group_value_api#destroy', 'url' => '/api/1.0/settinggroupvalue/{id}', 'verb' => 'DELETE'],
