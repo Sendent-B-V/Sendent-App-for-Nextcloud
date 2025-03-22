@@ -313,3 +313,7 @@
 ## 3.0.17 - 2025-01-04
 ### Bugfix
 - Fix for users experiencing slow performance in settings page due to large number of Nextcloud Groups contained within their installation.
+
+## 3.0.19 - 2025-03-17
+### Feature
+- Support for Danish and Russian language.

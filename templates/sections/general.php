@@ -18,6 +18,8 @@
                 <option value="de">Deutsch</option>
                 <option value="it">Italiano</option>
                 <option value="es">Español</option>
+                <option value="da">Dansk</option>
+                <option value="ru">Russkiy</option>
             </select>
 			<label style="display:none">
 				<input class="settingkeyvalueinheritedcheckbox"  type="checkbox" />
