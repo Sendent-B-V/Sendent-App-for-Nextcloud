@@ -31,6 +31,7 @@ const tags = {
     RECIPIENTS: t('sendent', 'Recipients'),
     FROM: t('sendent', 'From'),
     SUBJECT: t('sendent', 'Subject'),
+    SHAREID: t('sendent', 'ShareId'),
     FILES: t('sendent', 'Files'),
     CURRENTDATE: t('sendent', 'Current date'),
     CURRENTTIME: t('sendent', 'Current time'),

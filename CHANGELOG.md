@@ -314,6 +314,15 @@
 ### Bugfix
 - Fix for users experiencing slow performance in settings page due to large number of Nextcloud Groups contained within their installation.
 
-## 3.0.19 - 2025-03-17
+## 3.0.18 - 2025-02-03
+### Fix
+- Bugfixes and stability improvements for environments utilizing large amounts of groups
+
+## 3.0.19 - 2025-03-22
 ### Feature
 - Support for Danish and Russian language.
+
+
+## 3.0.20 - 2025-03-23
+### Feature
+- Support new ShareId tag in template editor(s).
