@@ -326,3 +326,7 @@
 ## 3.0.20 - 2025-03-23
 ### Feature
 - Support new ShareId tag in template editor(s).
+
+## 3.0.21 - 2025-05-02
+### Feature
+- Added support for Archiving settings.

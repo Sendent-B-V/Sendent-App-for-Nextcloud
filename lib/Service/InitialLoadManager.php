@@ -54,13 +54,12 @@ class InitialLoadManager {
 	 */
 	public function checkUpdateNeeded115(): bool {
 		$firstRun = $this->config->getAppValue('sendent', 'firstRunAppVersion');
-
-		if ($firstRun !== '3.0.18') {
+		if ($firstRun !== '3.0.21') {
 			try {				
 				$this->logger->info('Initial load manager determined it needs to run. ');
 
 				$this->runInitialLoadTasks115();
-				$this->config->setAppValue('sendent', 'firstRunAppVersion', '3.0.18');
+				$this->config->setAppValue('sendent', 'firstRunAppVersion', '3.0.21');
 			} catch (PreConditionNotMetException $e) {
 				$this->logger->error('Error while running initial load manager. ' . $e);
 
@@ -160,6 +159,9 @@ class InitialLoadManager {
 			if ($this->SettingKeyMapper->settingKeyCount("5") < 1) {
 				$this->addSenderExceptionSettings();
 			}
+			if($this->SettingKeyMapper->settingKeyCount("204") < 1) {
+				$this->addArchivingSettings();
+			}
 			$this->fixPaths();
 			$this->fixSnippets();
 		} catch (Exception $e) {
@@ -171,6 +173,7 @@ class InitialLoadManager {
 			$filepath = $this->showBySettingKeyId(8);
 			$folderpath = $this->showBySettingKeyId(7);
 			$securemailpath = $this -> showBySettingKeyId(24);
+			$archivingPath = $this -> showBySettingKeyId(205);
 			if (!is_null($folderpath)) {
 				if ($folderpath->getValue() === '') {
 					$this->update($folderpath->getId(), $folderpath->getSettingkeyid(), $folderpath->getGroupid(), "/Outlook/Public-Share/");
@@ -184,6 +187,11 @@ class InitialLoadManager {
 			if (!is_null($securemailpath)) {
 				if ($securemailpath->getValue() === '') {
 					$this->update($securemailpath->getId(), $securemailpath->getSettingkeyid(), $securemailpath->getGroupid(), "/Outlook/SecureMail-Share/");
+				}
+			}
+			if (!is_null($archivingPath)) {
+				if ($archivingPath->getValue() === '') {
+					$this->update($archivingPath->getId(), $archivingPath->getSettingkeyid(), $archivingPath->getGroupid(), "/Outlook/Archiving/");
 				}
 			}
 		} catch (Exception $exception) {
@@ -262,6 +270,27 @@ class InitialLoadManager {
 	public function addPopupExternalMail(): void {
 		$this->createKey("31", "attachmentdomainexceptionsexternalpopup", "0", "select-one");
 		$this->createGroupValue("0", "31", "False");
+	}
+	public function addArchivingSettings(): void {
+		$this->createKey("204", "archivingenabled", "0", "select-one");
+		$this->createGroupValue("0", "204", "False");
+
+		$this->createKey("205", "patharchiving", "0", "text");
+		$this->createGroupValue("0", "205", "/Outlook/Archiving/");
+		
+
+		$archivingPath = $this -> showBySettingKeyId(205);
+		if (!is_null($archivingPath)) {
+			if ($archivingPath->getValue() === '') {
+				$this->update($archivingPath->getId(), $archivingPath->getSettingkeyid(), $archivingPath->getGroupid(), "/Outlook/Archiving/");
+			}
+		}
+
+		$this->createKey("206", "archivemode", "0", "select-one");
+		$this->createGroupValue("0", "206", "3");
+
+		$this->createKey("207", "archivecreatefolder", "0", "select-one");
+		$this->createGroupValue("0", "207", "False");
 	}
 	public function addSenderExceptionSettings(): void {
 		$this->createKey("5", "senderexceptions", "0", "text");

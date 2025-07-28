@@ -51,6 +51,7 @@ style('sendent', ['style']);
 			<div class="SettingsGroup" id="sendent_settings_outlook" style="display:none">
 	    		<?php print_unescaped($this->inc('sections/general')); ?>
 		    	<?php print_unescaped($this->inc('sections/talk')); ?>
+		    	<?php print_unescaped($this->inc('sections/archiving')); ?>
 			    <?php print_unescaped($this->inc('sections/domainExceptions')); ?>
     			<?php print_unescaped($this->inc('sections/attachments')); ?>
 			    <?php print_unescaped($this->inc('sections/fileHandling')); ?>
