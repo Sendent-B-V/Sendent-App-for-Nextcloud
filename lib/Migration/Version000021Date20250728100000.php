@@ -59,14 +59,19 @@ class Version000021Date20250728100000 extends SimpleMigrationStep {
 		/** @var ISchemaWrapper $schema */
 		$schema = $schemaClosure();
 
+
 		if (!$schema->hasTable('sndnt_foldermap')) {
 			$table = $schema->createTable('sndnt_foldermap');
-			$table->addColumn('id', 'autoincrement', ['unsigned' => true]);
-			$table->addColumn('folder_id', 'string', ['notnull' => true]);
-			$table->addColumn('ms_id', 'string', ['length' => 255]);
-			$table->addColumn('type', 'string', ['length' => 16]); // 'channel' or 'team'
+			$table->addColumn('id', 'integer', [
+				'notnull' => true,
+				'autoincrement' => true,
+				'unsigned' => true
+			]);
+			$table->addColumn('folder_id', 'integer', ['notnull' => true]);
+			$table->addColumn('ms_id', 'string', ['length' => 255, 'notnull' => true]);
+			$table->addColumn('type', 'string', ['length' => 16, 'notnull' => true]); // 'channel' or 'team'
 			$table->setPrimaryKey(['id']);
-		}		
+		}
 
 		return $schema;
 	}
