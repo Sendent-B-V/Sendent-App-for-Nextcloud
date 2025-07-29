@@ -59,8 +59,8 @@ class Version000021Date20250728100000 extends SimpleMigrationStep {
 		/** @var ISchemaWrapper $schema */
 		$schema = $schemaClosure();
 
-		if (!$schema->hasTable('sendent_msteamsfolder_mappings')) {
-			$table = $schema->createTable('sendent_msteamsfolder_mappings');
+		if (!$schema->hasTable('sndnt_foldermap')) {
+			$table = $schema->createTable('sndnt_foldermap');
 			$table->addColumn('id', 'autoincrement', ['unsigned' => true]);
 			$table->addColumn('folder_id', 'string', ['notnull' => true]);
 			$table->addColumn('ms_id', 'string', ['length' => 255]);
