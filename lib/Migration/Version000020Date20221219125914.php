@@ -3,9 +3,9 @@
 declare(strict_types=1);
 
 /**
- * @copyright Copyright (c) 2022 Your name <your@email.com>
+ * @copyright Copyright (c) 2022 Sendent B.V. info@sendent.com
  *
- * @author Your name <your@email.com>
+ * @author Sendent B.V. info@sendent.com
  *
  * @license GNU AGPL version 3 or any later version
  *
