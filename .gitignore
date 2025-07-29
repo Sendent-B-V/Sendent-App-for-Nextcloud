@@ -11,3 +11,5 @@ node_modules/
 /js/settings.js*
 /js/termsAgreement.js*
 /certificates
+/releases
+/.vs

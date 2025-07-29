@@ -103,6 +103,11 @@ return [
 			'verb' => 'OPTIONS',
 			'requirements' => ['path' => '.+']
 		],
+		['name' => 'folder_mapping#getFolderIdByMsId', 'url' => '/api/1.0/mapping/{msId}', 'verb' => 'GET'],
+        ['name' => 'folder_mapping#createMapping', 'url' => '/api/1.0/mapping', 'verb' => 'POST'],
+        ['name' => 'folder_mapping#updateMapping', 'url' => '/api/1.0/mapping/{id}', 'verb' => 'PUT'],
+        ['name' => 'folder_mapping#deleteMapping', 'url' => '/api/1.0/mapping/{id}', 'verb' => 'DELETE'],
+
 	]
 ];
 	?>
