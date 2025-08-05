@@ -67,7 +67,7 @@ class Version000021Date20250728100000 extends SimpleMigrationStep {
 				'autoincrement' => true,
 				'unsigned' => true
 			]);
-			$table->addColumn('folder_id', 'integer', ['notnull' => true]);
+			$table->addColumn('folder_id', 'string', ['length' => 255, 'notnull' => true]);
 			$table->addColumn('ms_id', 'string', ['length' => 255, 'notnull' => true]);
 			$table->addColumn('type', 'string', ['length' => 16, 'notnull' => true]); // 'channel' or 'team'
 			$table->setPrimaryKey(['id']);
