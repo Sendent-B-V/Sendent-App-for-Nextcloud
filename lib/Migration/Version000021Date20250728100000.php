@@ -32,7 +32,7 @@ use OCP\IDBConnection;
 use OCP\Migration\IOutput;
 use OCP\Migration\SimpleMigrationStep;
 
-class Version000020Date20231017192200 extends SimpleMigrationStep {
+class Version000021Date20250728100000 extends SimpleMigrationStep {
 
 	/** @var IDBConnection */
 	private $db;
@@ -59,16 +59,19 @@ class Version000020Date20231017192200 extends SimpleMigrationStep {
 		/** @var ISchemaWrapper $schema */
 		$schema = $schemaClosure();
 
-		if ($schema->hasTable('sndnt_license')) {
-			// Adds a column to store the license used by a connected user
-			$table = $schema->getTable('sndnt_license');
-						$table->addColumn('licensekeytoken', \OCP\DB\Types::STRING, [
-				'notnull' => false
+
+		if (!$schema->hasTable('sndnt_foldermap')) {
+			$table = $schema->createTable('sndnt_foldermap');
+			$table->addColumn('id', 'integer', [
+				'notnull' => true,
+				'autoincrement' => true,
+				'unsigned' => true
 			]);
-		
-		
+			$table->addColumn('folder_id', 'string', ['length' => 255, 'notnull' => true]);
+			$table->addColumn('ms_id', 'string', ['length' => 255, 'notnull' => true]);
+			$table->addColumn('type', 'string', ['length' => 16, 'notnull' => true]); // 'channel' or 'team'
+			$table->setPrimaryKey(['id']);
 		}
-		
 
 		return $schema;
 	}

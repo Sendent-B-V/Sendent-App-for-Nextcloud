@@ -44,7 +44,7 @@ class InitialLoadManager {
 		$this->config = $config;
 		$this->appManager = $appManager;
 
-		$this->checkUpdateNeeded115();
+		$this->checkUpdateNeeded();
 	}
 
 	/**
@@ -52,14 +52,14 @@ class InitialLoadManager {
 	 *
 	 * @return bool
 	 */
-	public function checkUpdateNeeded115(): bool {
+	public function checkUpdateNeeded(): bool {
 		$firstRun = $this->config->getAppValue('sendent', 'firstRunAppVersion');
-		if ($firstRun !== '3.0.21') {
+		if ($firstRun !== '3.1.0') {
 			try {				
 				$this->logger->info('Initial load manager determined it needs to run. ');
 
-				$this->runInitialLoadTasks115();
-				$this->config->setAppValue('sendent', 'firstRunAppVersion', '3.0.21');
+				$this->runInitialLoadTasks();
+				$this->config->setAppValue('sendent', 'firstRunAppVersion', '3.1.0');
 			} catch (PreConditionNotMetException $e) {
 				$this->logger->error('Error while running initial load manager. ' . $e);
 
@@ -74,7 +74,7 @@ class InitialLoadManager {
 
 		return false;
 	}
-	private function runInitialLoadTasks115(): void {
+	private function runInitialLoadTasks(): void {
 		try {
 			if($this->SettingTemplateMapper->settingTemplateCount("0") < 1)
 			{
@@ -207,6 +207,7 @@ class InitialLoadManager {
 			$guestaccounthtmlsnippet = $this->showBySettingKeyId(302);
 			$guestaccountpublicsharehtmlsnippet = $this->showBySettingKeyId(303);
 			$talkhtmlsnippet = $this->showBySettingKeyId(203);
+			$talkpwhtmlsnippet = $this->showBySettingKeyId(210);
 
 			if (!is_null($folderpath)) {
 				if ($folderpath->getValue() === '') {
@@ -242,6 +243,11 @@ class InitialLoadManager {
 			if (!is_null($talkhtmlsnippet)) {
 				if ($talkhtmlsnippet->getValue() === '') {
 					$this->update($talkhtmlsnippet->getId(), $talkhtmlsnippet->getSettingkeyid(), $talkhtmlsnippet->getGroupid(), $this->gethtmltalksnippet());
+				}
+			}
+			if (!is_null($talkpwhtmlsnippet)) {
+				if ($talkpwhtmlsnippet->getValue() === '') {
+					$this->update($talkpwhtmlsnippet->getId(), $talkpwhtmlsnippet->getSettingkeyid(), $talkpwhtmlsnippet->getGroupid(), $this->gethtmltalkpwsnippet());
 				}
 			}
 		} catch (Exception $exception) {
@@ -312,6 +318,15 @@ class InitialLoadManager {
 		$this->createKey("202", "talkenabled", "0", "select-one");
 		$this->createGroupValue("0", "202", "True");
 	}
+	
+	public function addTalkSeparateModeUpdate() : void {
+		$this->createKey("209", "talkpwsepenabled", "0", "select-one");
+		$this->createGroupValue("0", "209", "False");
+		
+		$this->createKey("210", "talkpwhtml", "0", "textarea");
+		$this->createGroupValue("0", "210", $this->gethtmltalkpwsnippet());
+	}
+	
 	public function addAdvancedTheming(): void {
 		if (!is_null($this->showNameBySettingKeyId("81"))) {
 			$this->updateKey("81", "GeneralIconColor", "1", "text");
@@ -584,6 +599,7 @@ class InitialLoadManager {
 		$this->createKey("302", "htmlsnippetguestaccounts", "0", "textarea");
 		$this->createKey("303", "htmlsnippetpublicaccounts", "0", "textarea");
 		$this->createKey("203", "talkhtml", "0", "textarea");
+		$this->createKey("210", "talkpwhtml", "0", "textarea");
 
 		$this->createGroupValue("0", "20", "en");
 		$this->createGroupValue("0", "19", "BeforeSend");
@@ -605,6 +621,7 @@ class InitialLoadManager {
 		$this->createGroupValue("0", "24", "/Outlook/SecureMail-Share/");
 		$this->createGroupValue("0", "12", $this->getsharefilehtml());
 		$this->createGroupValue("0", "203", $this->gethtmltalksnippet());
+		$this->createGroupValue("0", "210", $this->gethtmltalkpwsnippet());
 		$this->createGroupValue("0", "30", $this->gethtmlpasswordsnippet());
 		$this->createGroupValue("0", "27", "False");
 		$this->createGroupValue("0", "26", "False");
@@ -743,6 +760,11 @@ class InitialLoadManager {
 	public function gethtmltalksnippet(): string {
 		return $this->getHTMLTemplate('talkhtml');
 	}
+	
+	public function gethtmltalkpwsnippet(): string {
+		return $this->getHTMLTemplate('talkpwhtml');
+	}
+	
 	public function getsharefolderhtml(): string {
 		return $this->getHTMLTemplate('sharefolderhtml');
 	}
