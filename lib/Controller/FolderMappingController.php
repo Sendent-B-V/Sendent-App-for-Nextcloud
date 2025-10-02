@@ -22,52 +22,41 @@ class FolderMappingController extends ApiController {
 		$this->service = $service;
 	}
 
-	/**
-	 * @NoAdminRequired
-	 */
+	/** @NoAdminRequired */
 	public function getFolderIdByMsId(string $msId): DataResponse {
 		$result = $this->service->getByMsId($msId);
-
-		if ($result) {
-			return new DataResponse($result);
-		}
-
-		return new DataResponse(['error' => 'Mapping not found'], Http::STATUS_NOT_FOUND);
+		return $result ? new DataResponse($result)
+		               : new DataResponse(['error' => 'Mapping not found'], Http::STATUS_NOT_FOUND);
 	}
 
-	/**
-	 * @NoAdminRequired
-	 */
-	public function createMapping(string $msId, string $folderId, string $type): JSONResponse {
-		if (!in_array($type, ['channel', 'team'])) {
+	/** @NoAdminRequired */
+	public function createMapping(string $msId, string $folderId, string $type, ?string $nextcloudTeamId = null): JSONResponse {
+		if (!in_array($type, ['channel', 'team'], true)) {
 			return new JSONResponse(['error' => 'Invalid type'], Http::STATUS_BAD_REQUEST);
 		}
-
-		$this->service->create($msId, $folderId, $type);
+		$this->service->create($msId, $folderId, $type, $nextcloudTeamId);
 		return new JSONResponse(['status' => 'success']);
 	}
 
-	/**
-	 * @NoAdminRequired
-	 */
-	public function updateMapping(int $id, string $msId, string $folderId, string $type): JSONResponse {
-		if (!in_array($type, ['channel', 'team'])) {
+	/** @NoAdminRequired */
+	public function updateMapping(string $msId, string $folderId, string $type, ?string $nextcloudTeamId = null): JSONResponse {
+		if (!in_array($type, ['channel', 'team'], true)) {
 			return new JSONResponse(['error' => 'Invalid type'], Http::STATUS_BAD_REQUEST);
 		}
 
-		$this->service->update($id, $msId, $folderId, $type);
+		$affected = $this->service->updateByMsId($msId, $folderId, $type, $nextcloudTeamId);
+
+		if ($affected === 0) {
+			return new JSONResponse(['error' => 'Mapping not found'], Http::STATUS_NOT_FOUND);
+		}
 		return new JSONResponse(['status' => 'updated']);
 	}
 
-	/**
-	 * @NoAdminRequired
-	 */
+	/** @NoAdminRequired */
 	public function deleteMapping(string $msId): JSONResponse {
 		$deleted = $this->service->deleteByMsId($msId);
-
-		if ($deleted === 0) {
-			return new JSONResponse(['error' => 'Mapping not found'], Http::STATUS_NOT_FOUND);
-		}
-		return new JSONResponse(['status' => 'deleted']);
+		return $deleted === 0
+			? new JSONResponse(['error' => 'Mapping not found'], Http::STATUS_NOT_FOUND)
+			: new JSONResponse(['status' => 'deleted']);
 	}
 }
