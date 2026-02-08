@@ -4,9 +4,9 @@
 
 namespace OCA\Sendent\Db;
 
+use OCP\AppFramework\Db\QBMapper;
 use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\IDBConnection;
-use OCP\AppFramework\Db\QBMapper;
 
 class TermsAgreementMapper extends QBMapper {
 	public function __construct(IDBConnection $db) {
@@ -23,10 +23,10 @@ class TermsAgreementMapper extends QBMapper {
 		$qb = $this->db->getQueryBuilder();
 
 		$qb->select('*')
-		   ->from('sndnt_trmagr')
-		   ->where(
-			$qb->expr()->eq('version', $qb->createNamedParameter($version, IQueryBuilder::PARAM_STR))
-		);
+			->from('sndnt_trmagr')
+			->where(
+				$qb->expr()->eq('version', $qb->createNamedParameter($version, IQueryBuilder::PARAM_STR))
+			);
 
 		return $this->findEntity($qb);
 	}
@@ -39,9 +39,9 @@ class TermsAgreementMapper extends QBMapper {
 		$qb = $this->db->getQueryBuilder();
 
 		$qb->select('*')
-		   ->from('sndnt_trmagr')
-		   ->setMaxResults($limit)
-		   ->setFirstResult($offset);
+			->from('sndnt_trmagr')
+			->setMaxResults($limit)
+			->setFirstResult($offset);
 
 		return $this->findEntities($qb);
 	}

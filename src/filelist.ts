@@ -1,146 +1,149 @@
-import './filelist.scss';
-import { generateRemoteUrl, generateUrl } from '@nextcloud/router';
-import { getNavigation, Node as NCNode } from '@nextcloud/files';
-import { subscribe } from '@nextcloud/event-bus';
-import axios from '@nextcloud/axios';
-import sanitizeHtml from 'sanitize-html';
+import './filelist.scss'
+import { generateUrl } from '@nextcloud/router'
+import { getNavigation, Node as NCNode } from '@nextcloud/files'
+import { subscribe } from '@nextcloud/event-bus'
+import axios from '@nextcloud/axios'
+import sanitizeHtml from 'sanitize-html'
 
-const FOOTER_NAME = '.SECUREMAIL.html';
-const CONTENT_ID = '#sendent-content';
+const FOOTER_NAME = '.SECUREMAIL.html'
+const CONTENT_ID = 'sendent-content'
 
 const SANITIZE_OPTIONS = {
-    allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img', 'html', 'head', 'body', 'meta', 'style']),
-    allowedAttributes: {
-        ...sanitizeHtml.defaults.allowedAttributes,
-        '*': ['class', 'style', 'colspan', 'width', 'border', 'valign', 'cellspacing', 'cellpadding', 'align', 'height', 'rowspan', 'rowspacing', 'rowpadding'],
-        img: ['src', 'width', 'height', 'style', 'id'],
-        html: ['xmlns*'],
-        meta: ['name', 'content'],
-    },
-    allowVulnerableTags: true,
-    allowedSchemes: ['data'],
-    allowedSchemesByTag: {
-        a: ['http', 'https', 'mailto', 'tel'],
-    }
-};
+	allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img', 'html', 'head', 'body', 'meta', 'style']),
+	allowedAttributes: {
+		...sanitizeHtml.defaults.allowedAttributes,
+		'*': ['class', 'style', 'colspan', 'width', 'border', 'valign', 'cellspacing', 'cellpadding', 'align', 'height', 'rowspan', 'rowspacing', 'rowpadding'],
+		img: ['src', 'width', 'height', 'style', 'id'],
+		html: ['xmlns*'],
+		meta: ['name', 'content'],
+	},
+	allowVulnerableTags: true,
+	allowedSchemes: ['data'],
+	allowedSchemesByTag: {
+		a: ['http', 'https', 'mailto', 'tel'],
+	},
+}
 
 /**
- * FooterFile: This class is used to display a preview of a securemail file at the bottom of the files list
+ * FooterFile: displays a preview of a SECUREMAIL.html file below the files list
  */
 class FooterFile {
-    constructor(private file: NCNode) {
-    }
 
-    public async appendBelowFiles(): Promise<void> {
+	// eslint-disable-next-line no-useless-constructor
+	constructor(private file: NCNode) {
+	}
 
-        console.log('sendent: Appending a preview of the securemail file at the bottom of the files list');
+	public async appendBelowFiles(): Promise<void> {
+		// eslint-disable-next-line no-console
+		console.log('sendent: Appending a preview of the securemail file at the bottom of the files list')
 
-        $(CONTENT_ID).remove();
+		// Remove any existing preview
+		document.getElementById(CONTENT_ID)?.remove()
 
-        const containerElement = $('<div>');
-        containerElement.attr('id', 'sendent-content');
-        if (OCA.Sharing?.PublicApp) {
-            containerElement.insertAfter($('.files-filestable'));
-        } else {
-            containerElement.insertAfter($('.files-list__table'));
-        }
+		// Create container
+		const containerElement = document.createElement('div')
+		containerElement.id = CONTENT_ID
 
-        const loadingElement = $('<span>').addClass('icon-loading').css('position', 'unset');
-        loadingElement.appendTo(containerElement);
+		// Insert after the file list table
+		const anchor = OCA.Sharing?.PublicApp
+			? document.querySelector('.files-filestable')
+			: document.querySelector('.files-list__table')
+		anchor?.insertAdjacentElement('afterend', containerElement)
 
-        const path = this.getFilePath();
-        const response = await axios.get(path);
-        let content = response.data;
-        content = sanitizeHtml(content, SANITIZE_OPTIONS);
+		// Show loading spinner
+		const loadingElement = document.createElement('span')
+		loadingElement.classList.add('icon-loading')
+		loadingElement.style.position = 'unset'
+		containerElement.appendChild(loadingElement)
 
-        const iframeElement = this.generateIframeElement(content);
-        containerElement.empty().append(iframeElement);
-    }
+		// Fetch and sanitize content
+		const filePath = this.getFilePath()
+		const response = await axios.get(filePath)
+		const content = sanitizeHtml(response.data, SANITIZE_OPTIONS)
 
-    private getFilePath(): string {
-        //console.log(this.file); // Added this so i could analyse the properties of the "file" object
-        const path = encodeURI(this.file.path);
-        const source = encodeURI(this.file.source); //Added this so i get full link to file
-        const name = encodeURIComponent(this.file.basename);
+		// Replace loading spinner with iframe
+		containerElement.innerHTML = ''
+		containerElement.appendChild(this.generateIframeElement(content))
+	}
 
-        if (OCA.Sharing?.PublicApp) {
-            const token = $('#sharingToken').val();
+	private getFilePath(): string {
+		const path = encodeURI(this.file.path)
+		const source = encodeURI(this.file.source)
+		const name = encodeURIComponent(this.file.basename)
 
-            return generateUrl('/s/{token}/download?path={path}&files={name}',
-                {
-                    token,
-                    path,
-                    name,
-                }
-            );
-       }
+		if (OCA.Sharing?.PublicApp) {
+			const tokenInput = document.getElementById('sharingToken') as HTMLInputElement | null
+			const token = tokenInput?.value ?? ''
 
-        //return generateRemoteUrl('files/' + name); // Replaced this to generate remoteUrl based on filename to
-        return source;
-    }
+			return generateUrl('/s/{token}/download?path={path}&files={name}', {
+				token,
+				path,
+				name,
+			})
+		}
 
-    private generateIframeElement(content: string) {
-        const iframeElement = $<HTMLFrameElement>('<iframe>');
-        iframeElement.width(0);
-        iframeElement.height(0);
-        iframeElement.on('load', () => {
-            const innerHeight = iframeElement.get(0)?.contentDocument?.documentElement?.scrollHeight;
-            const innerWidth = iframeElement.get(0)?.contentDocument?.documentElement?.scrollWidth;
+		return source
+	}
 
-            innerHeight && iframeElement.height(innerHeight);
-            innerWidth && iframeElement.width(innerWidth);
-        });
-        iframeElement.attr('srcdoc', content);
+	private generateIframeElement(content: string): HTMLIFrameElement {
+		const iframe = document.createElement('iframe')
+		iframe.width = '0'
+		iframe.height = '0'
+		iframe.addEventListener('load', () => {
+			const innerHeight = iframe.contentDocument?.documentElement?.scrollHeight
+			const innerWidth = iframe.contentDocument?.documentElement?.scrollWidth
+			if (innerHeight) iframe.height = String(innerHeight)
+			if (innerWidth) iframe.width = String(innerWidth)
+		})
+		iframe.srcdoc = content
+		return iframe
+	}
 
-        return iframeElement
-    }
 }
 
 /**
  * Searches for a securemail file, and, when found, display its sanitized content below the file list
  */
 async function onFileListUpdated() {
+	const wait = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms))
 
-    // function to block script execution
-    const wait = t => new Promise((resolve, reject) => setTimeout(resolve, t))
+	let fileList: Array<{ type: string; basename: string; name?: string; path: string; source: string }>
+	if (OCA.Sharing?.PublicApp) {
+		await wait(1500)
+		fileList = OCA.Sharing.PublicApp.fileList.files.map((f: { name: string; basename?: string }) => {
+			f.basename = f.name
+			return f
+		})
+	} else {
+		const currentPath = OCP.Files.Router.query.dir ?? '/'
+		const view = getNavigation().active
+		const content = await view?.getContents(currentPath)
+		fileList = content?.contents ?? []
+	}
 
-    let fileList;
-    if (OCA.Sharing?.PublicApp) {
-        await wait(1500);
-        fileList = OCA.Sharing.PublicApp.fileList.files.map((f) => {
-            f.basename = f.name;
-            return f;
-        });
-    } else {
-        const currentPath = OCP.Files.Router.query.dir ?? '/';
-        const view = getNavigation().active;
-        const content = await view?.getContents(currentPath);
-        fileList = content?.contents ?? [];
-    }
-
-    for (const file of fileList ?? []) {
-        if (file.type === 'file' && file.basename === FOOTER_NAME) {
-            const footerFile = new FooterFile(file);
-            footerFile.appendBelowFiles();
-        }
-    }
-
+	for (const file of fileList ?? []) {
+		if (file.type === 'file' && file.basename === FOOTER_NAME) {
+			const footerFile = new FooterFile(file as unknown as NCNode)
+			footerFile.appendBelowFiles()
+		}
+	}
 }
 
 /**
  * Initializes the securemail previewer
  */
 function initSecureMailPreviewer() {
-    console.log('sendent: initialising securemail previewer')
-    subscribe('files:list:updated', (node: NCNode) => onFileListUpdated())
-    onFileListUpdated();
+	// eslint-disable-next-line no-console
+	console.log('sendent: initialising securemail previewer')
+	subscribe('files:list:updated', () => onFileListUpdated())
+	onFileListUpdated()
 }
 
 /**
- * entry point
+ * Entry point
  */
 if (document.readyState === 'complete') {
-    initSecureMailPreviewer();
+	initSecureMailPreviewer()
 } else {
-    document.addEventListener('DOMContentLoaded', initSecureMailPreviewer);
+	document.addEventListener('DOMContentLoaded', initSecureMailPreviewer)
 }

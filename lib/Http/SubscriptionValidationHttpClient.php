@@ -3,9 +3,9 @@
 namespace OCA\Sendent\Http;
 
 use Exception;
+use OCA\Sendent\Db\License;
 use OCA\Sendent\Http\Dto\SubscriptionIn;
 use OCA\Sendent\Service\ConnectedUserService;
-use OCA\Sendent\Db\License;
 use Psr\Log\LoggerInterface;
 
 class SubscriptionValidationHttpClient {
@@ -28,7 +28,7 @@ class SubscriptionValidationHttpClient {
 		$this->logger->info('SUBSCRIPTIONVALIDATIONHTTPCLIENT-VALIDATE');
 		error_log(print_r('SUBSCRIPTIONVALIDATIONHTTPCLIENT-VALIDATE', true));
 
-		if ($licenseData->getLicensekey() === "" || $licenseData->getEmail() === "") {
+		if ($licenseData->getLicensekey() === '' || $licenseData->getEmail() === '') {
 			$this->logger->info('SUBSCRIPTIONVALIDATIONHTTPCLIENT-VALIDATE: No key or email information found for license');
 			error_log(print_r('SUBSCRIPTIONVALIDATIONHTTPCLIENT-VALIDATE: No key or email information found for license', true));
 			return null;
@@ -46,20 +46,20 @@ class SubscriptionValidationHttpClient {
 		$validatedLicense->setLicensekey($licenseData->getLicensekey());
 		$validatedLicense->setEmail($licenseData->getEmail());
 		$validatedLicense->setNcgroup($licenseData->getNcgroup());
-		
+
 		try {
 			$result = $this->licenseHttpClient->post('subscription/validate', $data);
 
 			if (isset($result) && $result != null) {
 				$validatedLicense->setLevel($result->level);
-				
-				$validatedLicense->setDategraceperiodend(date_format(date_create($result->gracePeriodEnd), "Y-m-d"));
-				$validatedLicense->setDatelicenseend(date_format(date_create($result->expirationDate), "Y-m-d"));
+
+				$validatedLicense->setDategraceperiodend(date_format(date_create($result->gracePeriodEnd), 'Y-m-d'));
+				$validatedLicense->setDatelicenseend(date_format(date_create($result->expirationDate), 'Y-m-d'));
 				$validatedLicense->setMaxusers($result->amountUsers);
 				$validatedLicense->setLicensekeytoken($result->key);
 				$validatedLicense->setSubscriptionstatus($result->subscriptionStatus);
 				$validatedLicense->setMaxgraceusers($result->amountUsersMax);
-				$validatedLicense->setDatelastchecked(date_format(date_create("now"), "Y-m-d"));
+				$validatedLicense->setDatelastchecked(date_format(date_create('now'), 'Y-m-d'));
 				$validatedLicense->setIstrial($result->isTrial);
 				$validatedLicense->setTechnicallevel($result->technicalProductLevel);
 				$validatedLicense->setProduct($result->product);
@@ -71,15 +71,13 @@ class SubscriptionValidationHttpClient {
 				error_log(print_r('SUBSCRIPTIONVALIDATIONHTTPCLIENT-LEVEL=		' . $result->level, true));
 
 				return $validatedLicense;
-			}
-			else
-			{
+			} else {
 				$validatedLicense->setLevel(License::ERROR_VALIDATING);
 				$validatedLicense->setSubscriptionstatus(License::ERROR_VALIDATING);
 				$validatedLicense->setIstrial(-1);
 				$validatedLicense->setTechnicallevel(License::ERROR_VALIDATING);
 				$validatedLicense->setProduct(License::ERROR_VALIDATING);
-				error_log(print_r("SUBSCRIPTIONVALIDATIONHTTPCLIENT-VALIDATE SETTING LEVEL TO ERROR_VALIDATING", true));
+				error_log(print_r('SUBSCRIPTIONVALIDATIONHTTPCLIENT-VALIDATE SETTING LEVEL TO ERROR_VALIDATING', true));
 
 			}
 		} catch (Exception $e) {

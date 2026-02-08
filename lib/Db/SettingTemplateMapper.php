@@ -4,9 +4,9 @@
 
 namespace OCA\Sendent\Db;
 
+use OCP\AppFramework\Db\QBMapper;
 use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\IDBConnection;
-use OCP\AppFramework\Db\QBMapper;
 
 class SettingTemplateMapper extends QBMapper {
 	public function __construct(IDBConnection $db) {
@@ -23,10 +23,10 @@ class SettingTemplateMapper extends QBMapper {
 		$qb = $this->db->getQueryBuilder();
 
 		$qb->select('*')
-		   ->from('sndnt_stngtmplt')
-		   ->where(
-			   $qb->expr()->eq('id', $qb->createNamedParameter($id, IQueryBuilder::PARAM_INT))
-		   );
+			->from('sndnt_stngtmplt')
+			->where(
+				$qb->expr()->eq('id', $qb->createNamedParameter($id, IQueryBuilder::PARAM_INT))
+			);
 
 		return $this->findEntity($qb);
 	}
@@ -40,10 +40,10 @@ class SettingTemplateMapper extends QBMapper {
 		$qb = $this->db->getQueryBuilder();
 
 		$qb->select('*')
-		   ->from('sndnt_stngtmplt')
-		   ->where(
-			   $qb->expr()->eq('templatekey', $qb->createNamedParameter($templatekey, IQueryBuilder::PARAM_STR))
-		   );
+			->from('sndnt_stngtmplt')
+			->where(
+				$qb->expr()->eq('templatekey', $qb->createNamedParameter($templatekey, IQueryBuilder::PARAM_STR))
+			);
 
 		return $this->findEntity($qb);
 	}
@@ -56,9 +56,9 @@ class SettingTemplateMapper extends QBMapper {
 		$qb = $this->db->getQueryBuilder();
 
 		$qb->select('*')
-		   ->from('sndnt_stngtmplt')
-		   ->setMaxResults($limit)
-		   ->setFirstResult($offset);
+			->from('sndnt_stngtmplt')
+			->setMaxResults($limit)
+			->setFirstResult($offset);
 
 		return $this->findEntities($qb);
 	}
@@ -67,12 +67,12 @@ class SettingTemplateMapper extends QBMapper {
 		$qb = $this->db->getQueryBuilder();
 
 		$qb->selectAlias($qb->createFunction('COUNT(*)'), 'count')
-		   ->from('sndnt_stngtmplt')
-		   ->where(
-			   $qb->expr()->eq('templatekey', $qb->createNamedParameter($templatekey, IQueryBuilder::PARAM_STR))
-		   );
+			->from('sndnt_stngtmplt')
+			->where(
+				$qb->expr()->eq('templatekey', $qb->createNamedParameter($templatekey, IQueryBuilder::PARAM_STR))
+			);
 
-		$cursor = $qb->execute();
+		$cursor = $qb->executeQuery();
 		$row = $cursor->fetch();
 		$cursor->closeCursor();
 

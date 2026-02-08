@@ -4,9 +4,9 @@
 
 namespace OCA\Sendent\Db;
 
+use OCP\AppFramework\Db\QBMapper;
 use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\IDBConnection;
-use OCP\AppFramework\Db\QBMapper;
 
 class ConnectedUserMapper extends QBMapper {
 	public function __construct(IDBConnection $db) {
@@ -22,10 +22,10 @@ class ConnectedUserMapper extends QBMapper {
 		$qb = $this->db->getQueryBuilder();
 
 		$qb->select('*')
-		   ->from('sndnt_connuser')
-		   ->where(
-			   $qb->expr()->eq('id', $qb->createNamedParameter($id, IQueryBuilder::PARAM_INT))
-		   );
+			->from('sndnt_connuser')
+			->where(
+				$qb->expr()->eq('id', $qb->createNamedParameter($id, IQueryBuilder::PARAM_INT))
+			);
 
 		return $this->findEntity($qb);
 	}
@@ -39,10 +39,10 @@ class ConnectedUserMapper extends QBMapper {
 		$qb = $this->db->getQueryBuilder();
 
 		$qb->select('*')
-		   ->from('sndnt_connuser')
-		   ->where(
-			   $qb->expr()->eq('userid', $qb->createNamedParameter($userId, IQueryBuilder::PARAM_STR))
-		   );
+			->from('sndnt_connuser')
+			->where(
+				$qb->expr()->eq('userid', $qb->createNamedParameter($userId, IQueryBuilder::PARAM_STR))
+			);
 
 		return $this->findEntity($qb);
 	}
@@ -55,9 +55,9 @@ class ConnectedUserMapper extends QBMapper {
 		$qb = $this->db->getQueryBuilder();
 
 		$qb->select('*')
-		   ->from('sndnt_connuser')
-		   ->setMaxResults($limit)
-		   ->setFirstResult($offset);
+			->from('sndnt_connuser')
+			->setMaxResults($limit)
+			->setFirstResult($offset);
 
 		return $this->findEntities($qb);
 	}
@@ -71,7 +71,7 @@ class ConnectedUserMapper extends QBMapper {
 				$qb->expr()->eq('licenseid', $qb->createNamedParameter($licenseId, IQueryBuilder::PARAM_STR))
 			);
 
-		$cursor = $qb->execute();
+		$cursor = $qb->executeQuery();
 		$row = $cursor->fetch();
 		$cursor->closeCursor();
 

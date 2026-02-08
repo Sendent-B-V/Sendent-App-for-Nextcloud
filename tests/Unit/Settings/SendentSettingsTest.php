@@ -3,9 +3,9 @@
 namespace OCA\Sendent\Tests\Unit\Settings;
 
 use OCA\Sendent\Constants;
-use OCA\Sendent\Settings\SendentSettings;
 use OCA\Sendent\Service\LicenseManager;
 use OCA\Sendent\Service\LicenseService;
+use OCA\Sendent\Settings\SendentSettings;
 use OCP\App\IAppManager;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\AppFramework\Services\IAppConfig;
@@ -57,14 +57,14 @@ class SendentSettingsTest extends TestCase {
 		$this->l = $this->getMockBuilder(IL10N::class)->getMock();
 		/** @var LicenseManager */
 		$this->licenseManager = $this->getMockBuilder(LicenseManager::class)
-										->disableOriginalConstructor()
-										->getMock();
+			->disableOriginalConstructor()
+			->getMock();
 		/** @var LicenseService */
 		$this->licenseService = $this->getMockBuilder(LicenseService::class)
-										->disableOriginalConstructor()
-										->getMock();
+			->disableOriginalConstructor()
+			->getMock();
 		$this->licenseService->method('findByGroup')
-								->willReturn([]);
+			->willReturn([]);
 
 		$this->settings = new SendentSettings(
 			$this->appManager,
@@ -73,8 +73,8 @@ class SendentSettingsTest extends TestCase {
 			$this->appConfig,
 			$this->tagManager,
 			$this->l,
-       		$this->licenseManager,
-       		$this->licenseService
+			$this->licenseManager,
+			$this->licenseService
 		);
 	}
 
@@ -117,19 +117,8 @@ class SendentSettingsTest extends TestCase {
 			}));
 
 		$this->initialState
-			->expects($this->exactly(2))
-			->method('provideInitialState')
-			->will($this->returnValueMap([
-				['apps', [
-					'files_retention' => '1.2.3',
-					'files_automatedtagging' => false,
-				]],
-				['tags', [
-					Constants::CONFIG_UPLOAD_TAG => -1,
-					Constants::CONFIG_EXPIRED_TAG => -1,
-					Constants::CONFIG_REMOVED_TAG => 42,
-				]],
-			]));
+			->expects($this->exactly(5))
+			->method('provideInitialState');
 
 		$response = $this->settings->getForm();
 

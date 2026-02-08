@@ -23,7 +23,7 @@ class ShareCreatedListener implements IEventListener {
 	public function __construct(
 		LoggerInterface $logger,
 		ISystemTagObjectMapper $tagObjectMapper,
-		IAppConfig $appConfig
+		IAppConfig $appConfig,
 	) {
 		$this->logger = $logger;
 		$this->tagObjectMapper = $tagObjectMapper;

@@ -4,11 +4,11 @@ namespace OCA\Sendent\Service;
 
 use Exception;
 
-use OCP\AppFramework\Db\DoesNotExistException;
-use OCP\AppFramework\Db\MultipleObjectsReturnedException;
-
 use OCA\Sendent\Db\SettingKey;
 use OCA\Sendent\Db\SettingKeyMapper;
+
+use OCP\AppFramework\Db\DoesNotExistException;
+use OCP\AppFramework\Db\MultipleObjectsReturnedException;
 
 class SettingKeyService {
 	private $mapper;
@@ -25,8 +25,8 @@ class SettingKeyService {
 	 * @return never
 	 */
 	private function handleException(Exception $e) {
-		if ($e instanceof DoesNotExistException ||
-			$e instanceof MultipleObjectsReturnedException) {
+		if ($e instanceof DoesNotExistException
+			|| $e instanceof MultipleObjectsReturnedException) {
 			throw new NotFoundException($e->getMessage());
 		} else {
 			throw $e;
@@ -48,9 +48,9 @@ class SettingKeyService {
 			return $this->mapper->find($id);
 
 			// in order to be able to plug in different storage backends like files
-		// for instance it is a good idea to turn storage related exceptions
-		// into service related exceptions so controllers and service users
-		// have to deal with only one type of exception
+			// for instance it is a good idea to turn storage related exceptions
+			// into service related exceptions so controllers and service users
+			// have to deal with only one type of exception
 		} catch (Exception $e) {
 			$this->handleException($e);
 		}

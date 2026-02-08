@@ -2,17 +2,17 @@
 
 namespace OCA\Sendent\Controller;
 
+use OCA\Sendent\Db\SettingGroupValueMapper;
 use OCP\AppFramework\ApiController;
 use OCP\AppFramework\Services\IAppConfig;
 use OCP\IRequest;
-use OCA\Sendent\Db\SettingGroupValueMapper;
 
 class SettingGroupsManagementController extends ApiController {
 
 	/** @var IAppConfig */
 	private $appConfig;
 
-	/** @var SettingGroupValueMapper*/
+	/** @var SettingGroupValueMapper */
 	private $mapper;
 
 	public function __construct($appName, IAppConfig $appConfig, IRequest $request, SettingGroupValueMapper $mapper) {

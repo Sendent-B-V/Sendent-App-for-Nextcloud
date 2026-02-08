@@ -2,10 +2,10 @@
 
 namespace OCA\Sendent\Controller;
 
-use OCP\IRequest;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
+use OCP\IRequest;
 use OCP\SystemTag\ISystemTag;
 use OCP\SystemTag\ISystemTagManager;
 use OCP\SystemTag\TagAlreadyExistsException;
@@ -48,10 +48,10 @@ class TagController extends Controller {
 	 */
 	private function serializeTag(ISystemTag $tag): array {
 		return [
-			"id" => (int)$tag->getId(),
-			"name" => $tag->getName(),
-			"isVisible" => $tag->isUserVisible(),
-			"isAssignable" => $tag->isUserAssignable(),
+			'id' => (int)$tag->getId(),
+			'name' => $tag->getName(),
+			'isVisible' => $tag->isUserVisible(),
+			'isAssignable' => $tag->isUserAssignable(),
 		];
 	}
 }

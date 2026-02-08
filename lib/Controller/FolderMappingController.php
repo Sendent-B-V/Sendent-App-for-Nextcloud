@@ -2,13 +2,13 @@
 
 namespace OCA\Sendent\Controller;
 
-use OCP\AppFramework\ApiController;
-use OCP\AppFramework\Http\JSONResponse;
-use OCP\AppFramework\Http\DataResponse;
-use OCP\AppFramework\Http\Attribute\NoAdminRequired;
-use OCP\IRequest;
-use OCP\AppFramework\Http;
 use OCA\Sendent\Service\FolderMappingService;
+use OCP\AppFramework\ApiController;
+use OCP\AppFramework\Http;
+use OCP\AppFramework\Http\Attribute\NoAdminRequired;
+use OCP\AppFramework\Http\DataResponse;
+use OCP\AppFramework\Http\JSONResponse;
+use OCP\IRequest;
 
 class FolderMappingController extends ApiController {
 
@@ -17,20 +17,20 @@ class FolderMappingController extends ApiController {
 	public function __construct(
 		string $appName,
 		IRequest $request,
-		FolderMappingService $service
+		FolderMappingService $service,
 	) {
 		parent::__construct($appName, $request);
 		$this->service = $service;
 	}
 
-    #[NoAdminRequired]
+	#[NoAdminRequired]
 	public function getFolderIdByMsId(string $msId): DataResponse {
 		$result = $this->service->getByMsId($msId);
 		return $result ? new DataResponse($result)
-		               : new DataResponse(['error' => 'Mapping not found'], Http::STATUS_NOT_FOUND);
+					   : new DataResponse(['error' => 'Mapping not found'], Http::STATUS_NOT_FOUND);
 	}
 
-    #[NoAdminRequired]
+	#[NoAdminRequired]
 	public function createMapping(string $msId, string $folderId, string $type, ?string $nextcloudTeamId = null): JSONResponse {
 		if (!in_array($type, ['channel', 'team'], true)) {
 			return new JSONResponse(['error' => 'Invalid type'], Http::STATUS_BAD_REQUEST);
@@ -39,7 +39,7 @@ class FolderMappingController extends ApiController {
 		return new JSONResponse(['status' => 'success']);
 	}
 
-    #[NoAdminRequired]
+	#[NoAdminRequired]
 	public function updateMapping(string $msId, string $folderId, string $type, ?string $nextcloudTeamId = null): JSONResponse {
 		if (!in_array($type, ['channel', 'team'], true)) {
 			return new JSONResponse(['error' => 'Invalid type'], Http::STATUS_BAD_REQUEST);
@@ -53,7 +53,7 @@ class FolderMappingController extends ApiController {
 		return new JSONResponse(['status' => 'updated']);
 	}
 
-    #[NoAdminRequired]
+	#[NoAdminRequired]
 	public function deleteMapping(string $msId): JSONResponse {
 		$deleted = $this->service->deleteByMsId($msId);
 		return $deleted === 0

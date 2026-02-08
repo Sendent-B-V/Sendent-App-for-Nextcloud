@@ -6,7 +6,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@master
+      uses: actions/checkout@v4
     - name: Download schema
       run: wget https://apps.nextcloud.com/schema/apps/info.xsd
     - name: Lint info.xml
@@ -19,13 +19,13 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php-versions: [7.2, 7.3, 7.4, 8.0]
+        php-versions: ['8.0', '8.1', '8.2', '8.3']
     name: php${{ matrix.php-versions }} lint
     steps:
     - name: Checkout
-      uses: actions/checkout@master
+      uses: actions/checkout@v4
     - name: Set up php${{ matrix.php-versions }}
-      uses: shivammathur/setup-php@master
+      uses: shivammathur/setup-php@v2
       with:
         php-version: ${{ matrix.php-versions }}
         coverage: none
@@ -37,11 +37,11 @@ jobs:
     name: JavaScript Linter
     steps:
         - name: Checkout
-          uses: actions/checkout@master
-        - uses: actions/setup-node@v2
+          uses: actions/checkout@v4
+        - uses: actions/setup-node@v4
           with:
-            node-version: '14'
+            node-version: '20'
         - name: Install dependencies
-          run: yarn install
-        - name: Build bundle
-          run: yarn lint:script
+          run: npm ci
+        - name: Lint
+          run: npm run lint:script

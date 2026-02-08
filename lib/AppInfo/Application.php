@@ -44,7 +44,7 @@ class Application extends App implements IBootstrap {
 
 		// The corresponding WebDAV tag becomes <nc:metadata-sendent-folder-channel-id/>.
 		$metadataManager->initMetadata(
-			'sendent-msteams-folder-id', 
+			'sendent-msteams-folder-id',
 			IMetadataValueWrapper::TYPE_STRING,
 			true,                              // index for SearchDAV
 			IMetadataValueWrapper::EDIT_REQ_OWNERSHIP

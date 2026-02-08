@@ -26,10 +26,10 @@ class SettingKeyMapper extends QBMapper {
 		$qb = $this->db->getQueryBuilder();
 
 		$qb->select('*')
-		   ->from('sndnt_stngky')
-		   ->where(
-			   $qb->expr()->eq('key', $qb->createNamedParameter($id, IQueryBuilder::PARAM_INT))
-		   );
+			->from('sndnt_stngky')
+			->where(
+				$qb->expr()->eq('key', $qb->createNamedParameter($id, IQueryBuilder::PARAM_INT))
+			);
 
 		return $this->findEntity($qb);
 	}
@@ -44,10 +44,10 @@ class SettingKeyMapper extends QBMapper {
 		$qb = $this->db->getQueryBuilder();
 
 		$qb->select('*')
-		   ->from('sndnt_stngky')
-		   ->where(
-			   $qb->expr()->eq('id', $qb->createNamedParameter($id, IQueryBuilder::PARAM_INT))
-		   );
+			->from('sndnt_stngky')
+			->where(
+				$qb->expr()->eq('id', $qb->createNamedParameter($id, IQueryBuilder::PARAM_INT))
+			);
 
 		return $this->findEntity($qb);
 	}
@@ -62,10 +62,10 @@ class SettingKeyMapper extends QBMapper {
 		$qb = $this->db->getQueryBuilder();
 
 		$qb->select('*')
-		   ->from('sndnt_stngky')
-		   ->where(
-			   $qb->expr()->eq('key', $qb->createNamedParameter($key, IQueryBuilder::PARAM_INT))
-		   );
+			->from('sndnt_stngky')
+			->where(
+				$qb->expr()->eq('key', $qb->createNamedParameter($key, IQueryBuilder::PARAM_INT))
+			);
 
 		return $this->findEntity($qb);
 	}
@@ -82,10 +82,10 @@ class SettingKeyMapper extends QBMapper {
 		$qb = $this->db->getQueryBuilder();
 
 		$qb->select('*')
-		   ->from('sndnt_stngky')
-		   ->where(
-			   $qb->expr()->eq('templateid', $qb->createNamedParameter($id, IQueryBuilder::PARAM_INT))
-		   );
+			->from('sndnt_stngky')
+			->where(
+				$qb->expr()->eq('templateid', $qb->createNamedParameter($id, IQueryBuilder::PARAM_INT))
+			);
 
 		return $this->findEntities($qb);
 	}
@@ -98,9 +98,9 @@ class SettingKeyMapper extends QBMapper {
 		$qb = $this->db->getQueryBuilder();
 
 		$qb->select('*')
-		   ->from('sndnt_stngky')
-		   ->setMaxResults($limit)
-		   ->setFirstResult($offset);
+			->from('sndnt_stngky')
+			->setMaxResults($limit)
+			->setFirstResult($offset);
 
 		return $this->findEntities($qb);
 	}
@@ -109,12 +109,12 @@ class SettingKeyMapper extends QBMapper {
 		$qb = $this->db->getQueryBuilder();
 
 		$qb->selectAlias($qb->createFunction('COUNT(*)'), 'count')
-		   ->from('sndnt_stngky')
-		   ->where(
-			   $qb->expr()->eq('key', $qb->createNamedParameter($key, IQueryBuilder::PARAM_STR))
-		   );
+			->from('sndnt_stngky')
+			->where(
+				$qb->expr()->eq('key', $qb->createNamedParameter($key, IQueryBuilder::PARAM_STR))
+			);
 
-		$cursor = $qb->execute();
+		$cursor = $qb->executeQuery();
 		$row = $cursor->fetch();
 		$cursor->closeCursor();
 

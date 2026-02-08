@@ -4,7 +4,7 @@
 node_modules/
 /.env
 /.vscode/
-.php_cs.cache
+.php-cs-fixer.cache
 .phpunit.result.cache
 /js/filelist.js*
 /js/retentionAssistant.js*

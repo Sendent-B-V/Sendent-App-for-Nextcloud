@@ -4,10 +4,10 @@ namespace OCA\Sendent\Controller;
 
 use Closure;
 
-use OCP\AppFramework\Http;
-use OCP\AppFramework\Http\DataResponse;
-
 use OCA\Sendent\Service\NotFoundException;
+use OCP\AppFramework\Http;
+
+use OCP\AppFramework\Http\DataResponse;
 
 trait errors {
 	protected function handleNotFound(Closure $callback) {

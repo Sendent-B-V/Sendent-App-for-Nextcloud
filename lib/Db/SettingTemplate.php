@@ -3,8 +3,8 @@
 // db/author.php
 namespace OCA\Sendent\Db;
 
-use OCP\AppFramework\Db\Entity;
 use JsonSerializable;
+use OCP\AppFramework\Db\Entity;
 
 class SettingTemplate extends Entity implements JsonSerializable {
 	protected $templatename;

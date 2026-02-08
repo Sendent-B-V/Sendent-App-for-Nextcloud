@@ -3,8 +3,8 @@
 namespace OCA\Sendent\Http;
 
 use Exception;
-use Psr\Log\LoggerInterface;
 use OCA\Sendent\Http\Dto\AppVersionResponse;
+use Psr\Log\LoggerInterface;
 
 class AppVersionHttpClient {
 	/** @var LicenseHttpClient */
@@ -31,7 +31,7 @@ class AppVersionHttpClient {
 				$appVersionResponse = new AppVersionResponse();
 				$appVersionResponse->applicationName = $result->applicationName;
 				$appVersionResponse->version = $result->version;
-				$appVersionResponse->releaseDate = date_format(date_create($result->releaseDate), "Y-m-d");
+				$appVersionResponse->releaseDate = date_format(date_create($result->releaseDate), 'Y-m-d');
 				$appVersionResponse->urlManual = $result->urlManual;
 				$appVersionResponse->urlReleaseNotes = $result->urlReleaseNotes;
 				$appVersionResponse->urlBinary = $result->urlBinary;
@@ -39,8 +39,7 @@ class AppVersionHttpClient {
 				$appVersionResponse->applicationId = $result->applicationId;
 
 				return $appVersionResponse;
-			}
-			else{
+			} else {
 				return new AppVersionResponse();
 			}
 		} catch (Exception $e) {

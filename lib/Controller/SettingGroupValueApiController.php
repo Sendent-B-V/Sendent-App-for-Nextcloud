@@ -3,17 +3,17 @@
 namespace OCA\Sendent\Controller;
 
 use Exception;
-use OCP\IGroupManager;
-use OCP\IRequest;
-use OCP\IUserManager;
-use OCP\AppFramework\Services\IAppConfig;
-use OCP\AppFramework\Http;
-use OCP\AppFramework\Http\DataResponse;
-use OCP\AppFramework\ApiController;
-
 use OCA\Sendent\Db\SettingGroupValue;
 use OCA\Sendent\Db\SettingGroupValueMapper;
 use OCA\Sendent\Service\SendentFileStorageManager;
+use OCP\AppFramework\ApiController;
+use OCP\AppFramework\Http;
+use OCP\AppFramework\Http\DataResponse;
+use OCP\AppFramework\Services\IAppConfig;
+
+use OCP\IGroupManager;
+use OCP\IRequest;
+use OCP\IUserManager;
 
 class SettingGroupValueApiController extends ApiController {
 	private $appConfig;
@@ -24,9 +24,9 @@ class SettingGroupValueApiController extends ApiController {
 	private $userManager;
 
 	public function __construct(IAppConfig $appConfig, IRequest $request, SettingGroupValueMapper $mapper,
-	 SendentFileStorageManager $FileStorageManager, IGroupManager $groupManager, IUserManager $userManager, $userId) {
+		SendentFileStorageManager $FileStorageManager, IGroupManager $groupManager, IUserManager $userManager, $userId) {
 		parent::__construct(
-			"sendent",
+			'sendent',
 			$request,
 			'PUT, POST, GET, DELETE, PATCH',
 			'Authorization, Content-Type, Accept',
@@ -46,10 +46,10 @@ class SettingGroupValueApiController extends ApiController {
 	 * Gets settings for a specific user
 	 *
 	 * @param int $templateId
-	 * 
+	 *
 	 * @return DataResponse
 	 */
-	public function index(int $templateId = null): DataResponse {
+	public function index(?int $templateId = null): DataResponse {
 
 		// Gets groups for which specific settings and/or license are defined
 		// Groups are ordered from highest priority to lowest
@@ -81,13 +81,12 @@ class SettingGroupValueApiController extends ApiController {
 	 * Gets settings for a specific user
 	 *
 	 * @param int $templateId
-	 * 
+	 *
 	 * @return DataResponse
 	 */
-	public function byTemplate(int $templateId = NULL): DataResponse {
+	public function byTemplate(?int $templateId = null): DataResponse {
 
-		if(!isset($templateId) || $templateId == NULL)
-		{
+		if (!isset($templateId) || $templateId == null) {
 			return $this->index();
 		}
 		// Gets groups for which specific settings and/or license are defined
@@ -135,7 +134,7 @@ class SettingGroupValueApiController extends ApiController {
 	 * @param int $templateId
 	 * @return DataResponse
 	 */
-	public function getForNCGroup(string $ncgroup = '', int $templateId = NULL, bool $wantUserSettings = false): DataResponse {
+	public function getForNCGroup(string $ncgroup = '', ?int $templateId = null, bool $wantUserSettings = false): DataResponse {
 
 		// Gets settings for group
 		$list = $this->mapper->findSettingsForNCGroup($ncgroup);
@@ -144,14 +143,14 @@ class SettingGroupValueApiController extends ApiController {
 				$result->setValue($this->FileStorageManager->getContent($result->getGroupid(), $result->getSettingkeyid(), $ncgroup));
 			}
 		}
-		
-				// Merges settings from default group
+
+		// Merges settings from default group
 		if ($ncgroup !== '') {
 			// Gets a list of all settings defined for the group
 			$settingkeyidList = array_map(function ($setting) {
 				return $setting->getSettingkeyid();
 			}, $list);
-			
+
 			// Gets settings for the default group
 			$defaults = $this->mapper->findSettingsForNCGroup();
 
@@ -179,18 +178,18 @@ class SettingGroupValueApiController extends ApiController {
 							}
 						}
 						return $setting;
-					},$list);
+					}, $list);
 				}
 			}
 		}
-		if(isset($templateId) && $templateId != NULL)
-		{
-			$list = array_filter($list, function($objf) use ($templateId) {
-				if ($objf->getGroupid() !== NULL) {
+		if (isset($templateId) && $templateId != null) {
+			$list = array_filter($list, function ($objf) use ($templateId) {
+				if ($objf->getGroupid() !== null) {
 					return $objf->getGroupid() == $templateId;
-				}});
+				}
+			});
 		}
-	
+
 		return new DataResponse($list);
 	}
 
@@ -231,7 +230,7 @@ class SettingGroupValueApiController extends ApiController {
 			return new DataResponse([], Http::STATUS_NOT_FOUND);
 		}
 	}
-	
+
 	/**
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
@@ -294,18 +293,18 @@ class SettingGroupValueApiController extends ApiController {
 	public function findByTemplateId(int $templateId): DataResponse {
 		try {
 
-				$result = $this->mapper->findByGroupId($templateId);
-				foreach ($result as $item) {
-					if ($this->valueIsSettingGroupValueFilePath($item->getValue()) !== false) {
-						$item->setValue($this->FileStorageManager->getContent($item->getGroupid(), $item->getSettingkeyid(), $item->getNcgroup()));
-					}
+			$result = $this->mapper->findByGroupId($templateId);
+			foreach ($result as $item) {
+				if ($this->valueIsSettingGroupValueFilePath($item->getValue()) !== false) {
+					$item->setValue($this->FileStorageManager->getContent($item->getGroupid(), $item->getSettingkeyid(), $item->getNcgroup()));
 				}
-				return new DataResponse($result);
+			}
+			return new DataResponse($result);
 		} catch (Exception $e) {
 			return new DataResponse([], Http::STATUS_NOT_FOUND);
 		}
 	}
-	
+
 	private function valueIsSettingGroupValueFilePath($value): bool {
 		if (strpos($value, 'settinggroupvaluefile') !== false) {
 			return true;
@@ -345,7 +344,7 @@ class SettingGroupValueApiController extends ApiController {
 	 * @param string $group
 	 * @return DataResponse
 	 */
-	public function update(int $id,int $settingkeyid, int $groupid, string $value, string $group = '') {
+	public function update(int $id, int $settingkeyid, int $groupid, string $value, string $group = '') {
 		try {
 			if ($this->valueSizeForDb($value) === false) {
 				$value = $this->FileStorageManager->writeTxt($groupid, $settingkeyid, $value, $group);

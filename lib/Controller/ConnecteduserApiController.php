@@ -4,14 +4,14 @@ namespace OCA\Sendent\Controller;
 
 use Exception;
 
-use OCP\IRequest;
-use OCP\IUserManager;
-use OCP\AppFramework\Http\DataResponse;
-use OCP\AppFramework\ApiController;
-use Psr\Log\LoggerInterface;
-
-use OCA\Sendent\Service\LicenseService;
 use OCA\Sendent\Service\ConnectedUserService;
+use OCA\Sendent\Service\LicenseService;
+use OCP\AppFramework\ApiController;
+use OCP\AppFramework\Http\DataResponse;
+use OCP\IRequest;
+
+use OCP\IUserManager;
+use Psr\Log\LoggerInterface;
 
 class ConnecteduserApiController extends ApiController {
 	private $licenseService;
@@ -21,14 +21,14 @@ class ConnecteduserApiController extends ApiController {
 	private $userManager;
 
 	public function __construct(
-			  $appName,
-			  IRequest $request,
-			  LicenseService $licenseService,
-			  LoggerInterface $logger,
-			  ConnectedUserService $service,
-			  IUserManager $userManager,
-			  $userId
-	   ) {
+		$appName,
+		IRequest $request,
+		LicenseService $licenseService,
+		LoggerInterface $logger,
+		ConnectedUserService $service,
+		IUserManager $userManager,
+		$userId,
+	) {
 		parent::__construct($appName, $request);
 		$this->licenseService = $licenseService;
 		$this->logger = $logger;
@@ -56,10 +56,10 @@ class ConnecteduserApiController extends ApiController {
 
 		// Creates or updates the connected user entry
 		try {
-			$user = $this->service->create($this->userId, date_create("now"), $licenseId);
+			$user = $this->service->create($this->userId, date_create('now'), $licenseId);
 		} catch (Exception $e) {
 			$user = $this->service->findByUserId($this->userId);
-			$this->service->update($user->getId(), $this->userId, date_create("now"), $licenseId);
+			$this->service->update($user->getId(), $this->userId, date_create('now'), $licenseId);
 		}
 
 		return new DataResponse($user);

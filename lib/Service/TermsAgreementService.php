@@ -4,11 +4,11 @@ namespace OCA\Sendent\Service;
 
 use Exception;
 
-use OCP\AppFramework\Db\DoesNotExistException;
-use OCP\AppFramework\Db\MultipleObjectsReturnedException;
-
 use OCA\Sendent\Db\TermsAgreement;
 use OCA\Sendent\Db\TermsAgreementMapper;
+
+use OCP\AppFramework\Db\DoesNotExistException;
+use OCP\AppFramework\Db\MultipleObjectsReturnedException;
 
 class TermsAgreementService {
 	private $mapper;
@@ -25,8 +25,8 @@ class TermsAgreementService {
 	 * @return never
 	 */
 	private function handleException(Exception $e) {
-		if ($e instanceof DoesNotExistException ||
-			$e instanceof MultipleObjectsReturnedException) {
+		if ($e instanceof DoesNotExistException
+			|| $e instanceof MultipleObjectsReturnedException) {
 			throw new NotFoundException($e->getMessage());
 		} else {
 			throw $e;
@@ -49,16 +49,16 @@ class TermsAgreementService {
 	public function isAgreed(string $version) {
 		try {
 			$termsAgreed = $this->mapper->findByVersion($version);
-			if ($termsAgreed->getAgreed() == "yes") {
-				error_log(print_r("TERMSAGREEMENTSERVICE-IsAgreed-TRUE", true));
+			if ($termsAgreed->getAgreed() == 'yes') {
+				error_log(print_r('TERMSAGREEMENTSERVICE-IsAgreed-TRUE', true));
 				return $termsAgreed;
 			}
 
-			error_log(print_r("TERMSAGREEMENTSERVICE-IsAgreed-FALSE", true));
+			error_log(print_r('TERMSAGREEMENTSERVICE-IsAgreed-FALSE', true));
 			return $termsAgreed;
 		} catch (Exception $e) {
-			error_log(print_r("TERMSAGREEMENTSERVICE-IsAgreed-EXCEPTION=" . $e, true));
-			$termsAgreed = $this->create($version, "no");
+			error_log(print_r('TERMSAGREEMENTSERVICE-IsAgreed-EXCEPTION=' . $e, true));
+			$termsAgreed = $this->create($version, 'no');
 			return $termsAgreed;
 		}
 	}
@@ -66,16 +66,16 @@ class TermsAgreementService {
 	public function setToAgreed(string $version) {
 		try {
 			$termsAgreed = $this->mapper->findByVersion($version);
-			if (isset($termsAgreed) && $termsAgreed->getAgreed() == "yes") {
-				error_log(print_r("TERMSAGREEMENTSERVICE-SetToAgreed-TRUE", true));
+			if (isset($termsAgreed) && $termsAgreed->getAgreed() == 'yes') {
+				error_log(print_r('TERMSAGREEMENTSERVICE-SetToAgreed-TRUE', true));
 				return $termsAgreed;
 			}
 
-			error_log(print_r("TERMSAGREEMENTSERVICE-SetToAgreed-FALSE", true));
+			error_log(print_r('TERMSAGREEMENTSERVICE-SetToAgreed-FALSE', true));
 			return $termsAgreed;
 		} catch (Exception $e) {
-			error_log(print_r("TERMSAGREEMENTSERVICE-SetToAgreed-EXCEPTION=" . $e, true));
-			$termsAgreed = $this->create($version, "yes");
+			error_log(print_r('TERMSAGREEMENTSERVICE-SetToAgreed-EXCEPTION=' . $e, true));
+			$termsAgreed = $this->create($version, 'yes');
 			return $termsAgreed;
 		}
 	}
@@ -88,7 +88,7 @@ class TermsAgreementService {
 		return $this->mapper->insert($termsAgreed);
 	}
 
-	public function update(string $version,string $agreed): \OCP\AppFramework\Db\Entity {
+	public function update(string $version, string $agreed): \OCP\AppFramework\Db\Entity {
 		try {
 			$termsAgreed = $this->mapper->findByVersion($version);
 			$termsAgreed->setAgreed($agreed);

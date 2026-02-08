@@ -62,14 +62,14 @@ class Version000020Date20241019100000 extends SimpleMigrationStep {
 		if ($schema->hasTable('sndnt_stngtmplt')) {
 			// Adds a column to store templatekey
 			$table = $schema->getTable('sndnt_stngtmplt');
-				$table->addColumn('templatekey', \OCP\DB\Types::STRING, [
-					'notnull' => false,
-					'default' => '-1'
-				]);
-			
+			$table->addColumn('templatekey', \OCP\DB\Types::STRING, [
+				'notnull' => false,
+				'default' => '-1'
+			]);
+
 			//$table->addUniqueIndex(['templatekey'], 'sendent_templatekey_index');
 		}
-		
+
 
 		return $schema;
 	}
@@ -80,6 +80,6 @@ class Version000020Date20241019100000 extends SimpleMigrationStep {
 	 * @param array $options
 	 */
 	public function postSchemaChange(IOutput $output, Closure $schemaClosure, array $options): void {
-		
+
 	}
 }

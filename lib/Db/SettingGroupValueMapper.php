@@ -4,9 +4,9 @@
 
 namespace OCA\Sendent\Db;
 
+use OCP\AppFramework\Db\QBMapper;
 use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\IDBConnection;
-use OCP\AppFramework\Db\QBMapper;
 
 class SettingGroupValueMapper extends QBMapper {
 	public function __construct(IDBConnection $db) {
@@ -23,11 +23,11 @@ class SettingGroupValueMapper extends QBMapper {
 		$qb = $this->db->getQueryBuilder();
 
 		$qb->select('*')
-		   ->from('sndnt_stnggrval')
-		   ->where(
-			   $qb->expr()->eq('settingkeyid', $qb->createNamedParameter($id, IQueryBuilder::PARAM_INT)),
-			   $qb->expr()->eq('ncgroup', $qb->createNamedParameter($gid, IQueryBuilder::PARAM_STR))
-		   );
+			->from('sndnt_stnggrval')
+			->where(
+				$qb->expr()->eq('settingkeyid', $qb->createNamedParameter($id, IQueryBuilder::PARAM_INT)),
+				$qb->expr()->eq('ncgroup', $qb->createNamedParameter($gid, IQueryBuilder::PARAM_STR))
+			);
 
 		return $this->findEntity($qb);
 	}
@@ -40,13 +40,13 @@ class SettingGroupValueMapper extends QBMapper {
 	 */
 	public function findBySettingKeyId(int $settingkeyid, string $gid = ''): \OCP\AppFramework\Db\Entity {
 		$qb = $this->db->getQueryBuilder();
-		
+
 		$qb->select('*')
-		   ->from('sndnt_stnggrval')
-		   ->where(
-			   $qb->expr()->eq('settingkeyid', $qb->createNamedParameter($settingkeyid, IQueryBuilder::PARAM_INT)),
-			   $qb->expr()->eq('ncgroup', $qb->createNamedParameter($gid, IQueryBuilder::PARAM_STR))
-		   );
+			->from('sndnt_stnggrval')
+			->where(
+				$qb->expr()->eq('settingkeyid', $qb->createNamedParameter($settingkeyid, IQueryBuilder::PARAM_INT)),
+				$qb->expr()->eq('ncgroup', $qb->createNamedParameter($gid, IQueryBuilder::PARAM_STR))
+			);
 
 		return $this->findEntity($qb);
 	}
@@ -61,12 +61,12 @@ class SettingGroupValueMapper extends QBMapper {
 	 */
 	public function findByGroupId(int $groupId): array {
 		$qb = $this->db->getQueryBuilder();
-		
+
 		$qb->select('*')
-		   ->from('sndnt_stnggrval')
-		   ->where(
-			   $qb->expr()->eq('groupid', $qb->createNamedParameter($groupId, IQueryBuilder::PARAM_INT))
-		   );
+			->from('sndnt_stnggrval')
+			->where(
+				$qb->expr()->eq('groupid', $qb->createNamedParameter($groupId, IQueryBuilder::PARAM_INT))
+			);
 
 		return $this->findEntities($qb);
 	}
@@ -80,9 +80,9 @@ class SettingGroupValueMapper extends QBMapper {
 		$qb = $this->db->getQueryBuilder();
 
 		$qb->select('*')
-		   ->from('sndnt_stnggrval')
-		   ->setMaxResults($limit)
-		   ->setFirstResult($offset);
+			->from('sndnt_stnggrval')
+			->setMaxResults($limit)
+			->setFirstResult($offset);
 
 		return $this->findEntities($qb);
 	}
@@ -116,12 +116,12 @@ class SettingGroupValueMapper extends QBMapper {
 		$qb = $this->db->getQueryBuilder();
 
 		$qb->selectAlias($qb->createFunction('COUNT(*)'), 'count')
-		   ->from('sndnt_stnggrval')
-		   ->where(
-			   $qb->expr()->eq('groupid', $qb->createNamedParameter($groupid, IQueryBuilder::PARAM_STR))
-		   );
+			->from('sndnt_stnggrval')
+			->where(
+				$qb->expr()->eq('groupid', $qb->createNamedParameter($groupid, IQueryBuilder::PARAM_STR))
+			);
 
-		$cursor = $qb->execute();
+		$cursor = $qb->executeQuery();
 		$row = $cursor->fetch();
 		$cursor->closeCursor();
 

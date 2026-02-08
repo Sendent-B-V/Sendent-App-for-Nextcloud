@@ -20,9 +20,9 @@ class LicenseHttpClient {
 	/** @var string */
 	protected $baseUrl;
 
-	public function __construct(IClientService $clientService, LoggerInterface $logger, string $baseUrl = "https://api.scwcloud.sendent.nl/") {
-	//public function __construct(IClientService $clientService, LoggerInterface $logger, string $baseUrl = "https://api.scwcloud.sendent.dev/") {
-	//public function __construct(IClientService $clientService, LoggerInterface $logger, string $baseUrl = "http://127.0.0.1:8085/") {
+	public function __construct(IClientService $clientService, LoggerInterface $logger, string $baseUrl = 'https://api.scwcloud.sendent.nl/') {
+		//public function __construct(IClientService $clientService, LoggerInterface $logger, string $baseUrl = "https://api.scwcloud.sendent.dev/") {
+		//public function __construct(IClientService $clientService, LoggerInterface $logger, string $baseUrl = "http://127.0.0.1:8085/") {
 		$this->client = $clientService->newClient();
 		$this->logger = $logger;
 		$this->baseUrl = $baseUrl;
@@ -48,31 +48,29 @@ class LicenseHttpClient {
 				],
 			]);
 		} catch (BadResponseException $e) {
-			$this->logger->warning('License client received error response with status '. $e->getResponse()->getStatusCode());
+			$this->logger->warning('License client received error response with status ' . $e->getResponse()->getStatusCode());
 
 			return null;
 		} catch (TransferException $e) {
 			$this->logger->error('License client could not connect to license server: ' . $e->getMessage());
 
 			return null;
-		} catch(Exception $e){
+		} catch (Exception $e) {
 			$this->logger->error('License client could not connect to license server. There was an undefined error: ' . $e->getMessage());
 			return null;
 		}
-		try{
-		if ($response->getStatusCode() === Http::STATUS_OK) {
-			$this->logger->info('Successfully contacted license server');
+		try {
+			if ($response->getStatusCode() === Http::STATUS_OK) {
+				$this->logger->info('Successfully contacted license server');
 
-			return json_decode($response->getBody());
+				return json_decode($response->getBody());
+			}
+		} catch (Exception $e) {
+			$this->logger->error('Unknown error from license client: ' . $response->getStatusCode() . ' ' . $response->getBody() . $e->getMessage());
 		}
-	}
-	catch(Exception $e)
-	{
-		$this->logger->error('Unknown error from license client: ' . $response->getStatusCode() . ' ' . $response->getBody() . $e->getMessage());
-	}
 		return null;
 	}
-	
+
 	public function put(string $request, $data): bool {
 		$uri = $this->baseUrl . $request;
 

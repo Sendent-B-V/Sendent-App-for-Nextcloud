@@ -62,13 +62,13 @@ class Version000020Date20231017192200 extends SimpleMigrationStep {
 		if ($schema->hasTable('sndnt_license')) {
 			// Adds a column to store the license used by a connected user
 			$table = $schema->getTable('sndnt_license');
-						$table->addColumn('licensekeytoken', \OCP\DB\Types::STRING, [
+			$table->addColumn('licensekeytoken', \OCP\DB\Types::STRING, [
 				'notnull' => false
 			]);
-		
-		
+
+
 		}
-		
+
 
 		return $schema;
 	}
@@ -79,6 +79,6 @@ class Version000020Date20231017192200 extends SimpleMigrationStep {
 	 * @param array $options
 	 */
 	public function postSchemaChange(IOutput $output, Closure $schemaClosure, array $options): void {
-		
+
 	}
 }

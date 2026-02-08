@@ -4,9 +4,9 @@
 
 namespace OCA\Sendent\Db;
 
+use OCP\AppFramework\Db\QBMapper;
 use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\IDBConnection;
-use OCP\AppFramework\Db\QBMapper;
 
 class LicenseMapper extends QBMapper {
 	public function __construct(IDBConnection $db) {
@@ -23,10 +23,10 @@ class LicenseMapper extends QBMapper {
 		$qb = $this->db->getQueryBuilder();
 
 		$qb->select('*')
-		   ->from('sndnt_license')
-		   ->where(
-			   $qb->expr()->eq('id', $qb->createNamedParameter($id, IQueryBuilder::PARAM_INT))
-		   );
+			->from('sndnt_license')
+			->where(
+				$qb->expr()->eq('id', $qb->createNamedParameter($id, IQueryBuilder::PARAM_INT))
+			);
 
 		return $this->findEntity($qb);
 	}
@@ -35,10 +35,10 @@ class LicenseMapper extends QBMapper {
 		$qb = $this->db->getQueryBuilder();
 
 		$qb->select('*')
-		   ->from('sndnt_license')
-		   ->where(
-			   $qb->expr()->eq('licensekey', $qb->createNamedParameter($key, IQueryBuilder::PARAM_STR))
-		   );
+			->from('sndnt_license')
+			->where(
+				$qb->expr()->eq('licensekey', $qb->createNamedParameter($key, IQueryBuilder::PARAM_STR))
+			);
 
 		return $this->findEntity($qb);
 	}
@@ -52,9 +52,9 @@ class LicenseMapper extends QBMapper {
 		$qb = $this->db->getQueryBuilder();
 
 		$qb->select('*')
-		   ->from('sndnt_license')
-		   ->setMaxResults($limit)
-		   ->setFirstResult($offset);
+			->from('sndnt_license')
+			->setMaxResults($limit)
+			->setFirstResult($offset);
 
 		return $this->findEntities($qb);
 	}
@@ -68,12 +68,12 @@ class LicenseMapper extends QBMapper {
 		$qb = $this->db->getQueryBuilder();
 
 		$qb->select('*')
-		   ->from('sndnt_license')
-		   ->where(
-			$qb->expr()->eq('ncgroup', $qb->createNamedParameter($gid, IQueryBuilder::PARAM_STR))
-		)
-		->setMaxResults($limit)
-		->setFirstResult($offset);
+			->from('sndnt_license')
+			->where(
+				$qb->expr()->eq('ncgroup', $qb->createNamedParameter($gid, IQueryBuilder::PARAM_STR))
+			)
+			->setMaxResults($limit)
+			->setFirstResult($offset);
 
 		return $this->findEntities($qb);
 	}

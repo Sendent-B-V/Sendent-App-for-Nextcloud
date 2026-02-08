@@ -75,9 +75,9 @@ class Version000020Date20231209100000 extends SimpleMigrationStep {
 				'notnull' => false,
 				'default' => -1
 			]);
-		
+
 		}
-		
+
 
 		return $schema;
 	}
@@ -88,6 +88,6 @@ class Version000020Date20231209100000 extends SimpleMigrationStep {
 	 * @param array $options
 	 */
 	public function postSchemaChange(IOutput $output, Closure $schemaClosure, array $options): void {
-		
+
 	}
 }

@@ -4,20 +4,20 @@ namespace OCA\Sendent\Controller;
 
 use Exception;
 
-use OCP\IRequest;
-use OCP\AppFramework\Http\DataResponse;
-use OCP\AppFramework\ApiController;
-
 use OCA\Sendent\Service\TermsAgreementService;
+use OCP\AppFramework\ApiController;
+use OCP\AppFramework\Http\DataResponse;
+
+use OCP\IRequest;
 
 class TermsAgreementApiController extends ApiController {
 	private $service;
 
 	public function __construct(
-			  $appName,
-			  IRequest $request,
-			  TermsAgreementService $service
-	   ) {
+		$appName,
+		IRequest $request,
+		TermsAgreementService $service,
+	) {
 		parent::__construct($appName, $request);
 		$this->service = $service;
 	}
@@ -31,10 +31,10 @@ class TermsAgreementApiController extends ApiController {
 	 */
 	public function agree($version): DataResponse {
 		try {
-			$termsAgreed = $this->service->update($version, "yes");
+			$termsAgreed = $this->service->update($version, 'yes');
 			return new DataResponse($termsAgreed);
 		} catch (Exception $e) {
-			error_log(print_r("TermsAgreementApiController-Agree-EXCEPTION=" . $e, true));
+			error_log(print_r('TermsAgreementApiController-Agree-EXCEPTION=' . $e, true));
 			return new DataResponse(null);
 		}
 	}
@@ -51,7 +51,7 @@ class TermsAgreementApiController extends ApiController {
 			$termsAgreed = $this->service->isAgreed($version);
 			return new DataResponse($termsAgreed);
 		} catch (Exception $e) {
-			error_log(print_r("TermsAgreementApiController-IsAgreed-EXCEPTION=" . $e, true));
+			error_log(print_r('TermsAgreementApiController-IsAgreed-EXCEPTION=' . $e, true));
 			return new DataResponse(null);
 		}
 	}

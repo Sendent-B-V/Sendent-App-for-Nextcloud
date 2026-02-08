@@ -31,7 +31,7 @@ class Version000022Date20251002120000 extends SimpleMigrationStep {
 			if (!$table->hasColumn('nextcloud_team_id')) {
 				// Adjust length if you expect longer IDs; 64–255 are typical
 				$table->addColumn('nextcloud_team_id', 'string', [
-					'length'  => 255,
+					'length' => 255,
 					'notnull' => false,
 				]);
 			}

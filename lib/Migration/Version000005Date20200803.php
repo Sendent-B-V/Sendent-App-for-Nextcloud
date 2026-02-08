@@ -4,17 +4,17 @@ namespace OCA\Sendent\migration;
 
 use Closure;
 use OCP\DB\ISchemaWrapper;
-use OCP\Migration\SimpleMigrationStep;
 use OCP\Migration\IOutput;
+use OCP\Migration\SimpleMigrationStep;
 
 class Version000005Date20200803 extends SimpleMigrationStep {
 
-  /**
-   * @param IOutput $output
-   * @param Closure $schemaClosure The `\Closure` returns a `ISchemaWrapper`
-   * @param array $options
-   * @return null|ISchemaWrapper
-   */
+	/**
+	 * @param IOutput $output
+	 * @param Closure $schemaClosure The `\Closure` returns a `ISchemaWrapper`
+	 * @param array $options
+	 * @return null|ISchemaWrapper
+	 */
 	public function changeSchema(IOutput $output, Closure $schemaClosure, array $options) {
 		/** @var ISchemaWrapper $schema */
 		$schema = $schemaClosure();

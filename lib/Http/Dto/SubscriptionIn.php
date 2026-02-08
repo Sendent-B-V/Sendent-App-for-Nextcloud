@@ -2,8 +2,8 @@
 
 namespace OCA\Sendent\Http\Dto;
 
-use OCA\Sendent\Db\License;
 use JsonSerializable;
+use OCA\Sendent\Db\License;
 
 class SubscriptionIn implements JsonSerializable {
 	protected $key;

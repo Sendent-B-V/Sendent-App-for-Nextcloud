@@ -1,0 +1,146 @@
+<template>
+	<div v-if="visible"
+		class="setting-field"
+		:class="{ 'setting-field--block': isBlockInput }">
+		<div class="setting-field__header">
+			<label class="setting-field__label">{{ label }}</label>
+			<SaveIndicator :saving="saving" :saved="saved" />
+		</div>
+		<div class="setting-field__input">
+			<select v-if="definition.inputType === 'select'"
+				v-model="localValue"
+				:disabled="disabled"
+				@change="save">
+				<option v-for="opt in definition.options"
+					:key="opt.value"
+					:value="opt.value">
+					{{ opt.label }}
+				</option>
+			</select>
+			<input v-else-if="definition.inputType === 'text'"
+				v-model="localValue"
+				type="text"
+				:disabled="disabled"
+				@change="save">
+			<input v-else-if="definition.inputType === 'numeric'"
+				v-model="localValue"
+				type="number"
+				:disabled="disabled"
+				@change="save">
+			<input v-else-if="definition.inputType === 'color'"
+				v-model="localValue"
+				type="color"
+				:disabled="disabled"
+				class="setting-field__color"
+				@change="save">
+			<MultiInputList v-else-if="definition.inputType === 'multiInput'"
+				v-model="localValue"
+				:disabled="disabled"
+				@update:model-value="save" />
+			<SettingTextarea v-else-if="definition.inputType === 'textarea'"
+				:model-value="localValue"
+				:disabled="disabled"
+				@save="onTextareaSave" />
+		</div>
+		<InheritanceCheckbox :inherited="inherited"
+			:show-checkbox="isGroupSelected"
+			@toggle="toggleInheritance" />
+	</div>
+</template>
+
+<script setup lang="ts">
+import { computed } from 'vue'
+import type { SettingDefinition } from '../../types/settings'
+import { useSettingField } from '../../composables/useSettingField'
+import SaveIndicator from './SaveIndicator.vue'
+import InheritanceCheckbox from './InheritanceCheckbox.vue'
+import MultiInputList from './MultiInputList.vue'
+import SettingTextarea from './SettingTextarea.vue'
+
+const props = defineProps<{
+	definition: SettingDefinition
+	label: string
+}>()
+
+const {
+	localValue,
+	inherited,
+	saving,
+	saved,
+	visible,
+	isGroupSelected,
+	disabled,
+	save,
+	toggleInheritance,
+} = useSettingField(props.definition)
+
+const isBlockInput = computed(() =>
+	props.definition.inputType === 'textarea' || props.definition.inputType === 'multiInput',
+)
+
+/**
+ *
+ * @param content
+ */
+function onTextareaSave(content: string) {
+	localValue.value = content
+	save()
+}
+</script>
+
+<style scoped>
+.setting-field {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin-bottom: 12px;
+}
+
+.setting-field__header {
+	display: flex;
+	align-items: center;
+	min-width: 250px;
+	flex-shrink: 0;
+}
+
+.setting-field__label {
+	font-weight: 500;
+	font-size: 14px;
+}
+
+.setting-field__input {
+	flex: 1;
+	min-width: 0;
+}
+
+.setting-field__input select,
+.setting-field__input input[type="text"],
+.setting-field__input input[type="number"] {
+	width: 100%;
+	max-width: 400px;
+}
+
+.setting-field__color {
+	width: 60px !important;
+	height: 34px;
+	padding: 2px;
+	cursor: pointer;
+}
+
+.setting-field__input select:disabled,
+.setting-field__input input:disabled,
+.setting-field__input textarea:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+}
+
+/* Block layout for textarea and multiInput (inherently multi-line) */
+.setting-field--block {
+	flex-wrap: wrap;
+}
+
+.setting-field--block .setting-field__input {
+	flex-basis: 100%;
+	max-width: 600px;
+}
+</style>

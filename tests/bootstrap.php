@@ -11,7 +11,9 @@ if (!($ncRoot = getenv('NEXTCLOUD_ROOT'))) {
 require_once $ncRoot . '/lib/base.php';
 
 // Fix for "Autoload path not allowed: .../tests/lib/testcase.php"
-\OC::$loader->addValidRoot(OC::$SERVERROOT . '/tests');
+if (property_exists(OC::class, 'loader') && \OC::$loader !== null) {
+	\OC::$loader->addValidRoot(OC::$SERVERROOT . '/tests');
+}
 
 // Fix for "Autoload path not allowed: .../Sendent/tests/testcase.php"
-\OC_App::loadApp('Sendent');
+\OC_App::loadApp('sendent');

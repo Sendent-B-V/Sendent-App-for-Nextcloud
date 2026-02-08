@@ -2,8 +2,8 @@
 
 namespace OCA\Sendent\Db;
 
-use OCP\AppFramework\Db\Entity;
 use JsonSerializable;
+use OCP\AppFramework\Db\Entity;
 
 class TermsAgreement extends Entity implements JsonSerializable {
 	protected $version;

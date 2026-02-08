@@ -82,6 +82,6 @@ class Version000021Date20250728100000 extends SimpleMigrationStep {
 	 * @param array $options
 	 */
 	public function postSchemaChange(IOutput $output, Closure $schemaClosure, array $options): void {
-		
+
 	}
 }

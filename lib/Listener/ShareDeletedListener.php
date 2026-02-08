@@ -31,7 +31,7 @@ class ShareDeletedListener implements IEventListener {
 		LoggerInterface $logger,
 		ISystemTagObjectMapper $tagObjectMapper,
 		IManager $shareManager,
-		IAppConfig $appConfig
+		IAppConfig $appConfig,
 	) {
 		$this->logger = $logger;
 		$this->tagObjectMapper = $tagObjectMapper;

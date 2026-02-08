@@ -31,7 +31,7 @@ return [
 			'requirements' => ['path' => '.+']
 		],
 		['name' => 'setting_group_value_api#index', 'url' => '/api/1.0/settinggroupvalue/index', 'verb' => 'GET'],
-		['name' => 'setting_group_value_api#byTemplate', 'url' => '/api/1.0/settinggroupvalue/index/byTemplate/{templateId}', 'verb' => 'GET', 'defaults' => array('templateId' => NULL)],
+		['name' => 'setting_group_value_api#byTemplate', 'url' => '/api/1.0/settinggroupvalue/index/byTemplate/{templateId}', 'verb' => 'GET', 'defaults' => ['templateId' => null]],
 		['name' => 'setting_group_value_api#getForDefaultGroup', 'url' => '/api/1.0/settinggroupvalue/getForDefaultGroup', 'verb' => 'GET'],
 		['name' => 'setting_group_value_api#getForNCGroup', 'url' => '/api/1.0/settinggroupvalue/getForNCGroup/{ncgroup}', 'verb' => 'GET'],
 		['name' => 'setting_group_value_api#show', 'url' => '/api/1.0/settinggroupvalue/{id}', 'verb' => 'GET'],
@@ -87,6 +87,7 @@ return [
 		['name' => 'status_api#index', 'url' => '/api/1.0/status', 'verb' => 'GET'],
 		['name' => 'tag#show', 'url' => '/api/1.0/tag/{id}', 'verb' => 'GET'],
 		['name' => 'tag#create', 'url' => '/api/1.0/tag', 'verb' => 'POST'],
+
 		['name' => 'termsagreement_api#agree', 'url' => '/api/1.0/termsagreement/agree/{version}', 'verb' => 'GET'],
 		['name' => 'termsagreement_api#isAgreed', 'url' => '/api/1.0/termsagreement/isagreed/{version}', 'verb' => 'GET'],
 
@@ -109,5 +110,5 @@ return [
 		['name' => 'folder_mapping#deleteMapping',      'url' => '/api/1.0/mapping/{msId}',  'verb' => 'DELETE', 'requirements' => ['msId' => '.+']],
 	]
 ];
-	?>
+?>
 

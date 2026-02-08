@@ -2,16 +2,16 @@
 
 namespace OCA\Sendent\Service;
 
-use DateTime;
 use DateInterval;
+use DateTime;
 use Exception;
-
-use OCP\AppFramework\Db\DoesNotExistException;
-use OCP\AppFramework\Db\MultipleObjectsReturnedException;
-use Psr\Log\LoggerInterface;
 
 use OCA\Sendent\Db\ConnectedUser;
 use OCA\Sendent\Db\ConnectedUserMapper;
+use OCP\AppFramework\Db\DoesNotExistException;
+
+use OCP\AppFramework\Db\MultipleObjectsReturnedException;
+use Psr\Log\LoggerInterface;
 
 class ConnectedUserService {
 	private $mapper;
@@ -33,8 +33,8 @@ class ConnectedUserService {
 	 */
 	private function handleException(Exception $e) {
 		$this->logger->error($e->getMessage());
-		if ($e instanceof DoesNotExistException ||
-			$e instanceof MultipleObjectsReturnedException) {
+		if ($e instanceof DoesNotExistException
+			|| $e instanceof MultipleObjectsReturnedException) {
 			throw new NotFoundException($e->getMessage());
 		} else {
 			throw $e;
@@ -46,9 +46,9 @@ class ConnectedUserService {
 			return $this->mapper->find($id);
 
 			// in order to be able to plug in different storage backends like files
-		// for instance it is a good idea to turn storage related exceptions
-		// into service related exceptions so controllers and service users
-		// have to deal with only one type of exception
+			// for instance it is a good idea to turn storage related exceptions
+			// into service related exceptions so controllers and service users
+			// have to deal with only one type of exception
 		} catch (Exception $e) {
 			$this->handleException($e);
 		}
@@ -58,9 +58,9 @@ class ConnectedUserService {
 			return $this->mapper->findByUserId($userId);
 
 			// in order to be able to plug in different storage backends like files
-		// for instance it is a good idea to turn storage related exceptions
-		// into service related exceptions so controllers and service users
-		// have to deal with only one type of exception
+			// for instance it is a good idea to turn storage related exceptions
+			// into service related exceptions so controllers and service users
+			// have to deal with only one type of exception
 		} catch (Exception $e) {
 			$this->handleException($e);
 		}
@@ -72,9 +72,9 @@ class ConnectedUserService {
 			return $this->mapper->getCount($licenseId);
 
 			// in order to be able to plug in different storage backends like files
-		// for instance it is a good idea to turn storage related exceptions
-		// into service related exceptions so controllers and service users
-		// have to deal with only one type of exception
+			// for instance it is a good idea to turn storage related exceptions
+			// into service related exceptions so controllers and service users
+			// have to deal with only one type of exception
 		} catch (Exception $e) {
 			$this->logger->error('Could not get user count for license ' . $licenseId);
 			$this->handleException($e);
@@ -85,12 +85,12 @@ class ConnectedUserService {
 		$this->cleanup();
 		$connecteduser = new ConnectedUser();
 		$connecteduser->setUserid($userid);
-		$connecteduser->setDateconnected(date_format($dateconnected,"Y-m-d H:i:s"));
+		$connecteduser->setDateconnected(date_format($dateconnected, 'Y-m-d H:i:s'));
 		$connecteduser->setLicenseid($licenseId);
 		return $this->mapper->insert($connecteduser);
 	}
 
-	public function update(int $id,string $userid, DateTime $dateconnected, int $licenseId): \OCP\AppFramework\Db\Entity {
+	public function update(int $id, string $userid, DateTime $dateconnected, int $licenseId): \OCP\AppFramework\Db\Entity {
 		$this->cleanup();
 		try {
 			$connecteduser = $this->mapper->find($id);
@@ -98,11 +98,11 @@ class ConnectedUserService {
 			$this->handleException($e);
 		}
 		$connecteduser->setUserid($userid);
-		$connecteduser->setDateconnected(date_format($dateconnected,"Y-m-d H:i:s"));
+		$connecteduser->setDateconnected(date_format($dateconnected, 'Y-m-d H:i:s'));
 		$connecteduser->setLicenseid($licenseId);
 		return $this->mapper->update($connecteduser);
 	}
-	
+
 	public function cleanup(): void {
 		try {
 			$connectedUsers = $this->mapper->findAll();
