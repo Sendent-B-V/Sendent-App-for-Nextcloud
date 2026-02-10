@@ -36,6 +36,6 @@ class LoadAdditionalScriptsListener implements IEventListener {
 			return;
 		}
 
-		\OCP\Util::addScript(Application::APPID, 'filelist');
+		\OCP\Util::addScript(Application::APPID, 'sendent-filelist');
 	}
 }
