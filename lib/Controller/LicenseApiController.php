@@ -1,5 +1,26 @@
 <?php
 
+/**
+ * @copyright Copyright (c) 2026 Sendent B.V.
+ *
+ * @author Sendent B.V. <info@sendent.com>
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 namespace OCA\Sendent\Controller;
 
 use Exception;
@@ -11,6 +32,8 @@ use OCA\Sendent\Service\NotFoundException;
 use OCP\AppFramework\ApiController;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Db\MultipleObjectsReturnedException;
+use OCP\AppFramework\Http\Attribute\NoAdminRequired;
+use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\Services\IAppConfig;
 use OCP\IGroupManager;
@@ -71,13 +94,12 @@ class LicenseApiController extends ApiController {
 	}
 
 	/**
-	 * @NoAdminRequired
-	 * @NoCSRFRequired
-	 *
 	 * Returns license status for current user
 	 *
 	 * @return DataResponse
 	 */
+	#[NoAdminRequired]
+	#[NoCSRFRequired]
 	public function show(): DataResponse {
 
 		$this->logger->info('Getting license information for user ' . $this->userId);
@@ -108,13 +130,12 @@ class LicenseApiController extends ApiController {
 
 	}
 	/**
-	 * @NoAdminRequired
-	 * @NoCSRFRequired
-	 *
 	 * Returns license status for current user
 	 *
 	 * @return DataResponse
 	 */
+	#[NoAdminRequired]
+	#[NoCSRFRequired]
 	public function showInternal(): DataResponse {
 
 		$this->logger->info('Getting license information for user ' . $this->userId);
@@ -145,14 +166,13 @@ class LicenseApiController extends ApiController {
 
 	}
 	/**
-	 * @NoAdminRequired
-	 * @NoCSRFRequired
-	 *
 	 * Returns license status for group $ncgroup
 	 *
 	 * @param string $ncgroup
 	 * @return DataResponse
 	 */
+	#[NoAdminRequired]
+	#[NoCSRFRequired]
 	public function showForNCGroup(string $ncgroup = ''): DataResponse {
 
 		if ($ncgroup === '') {
@@ -271,14 +291,13 @@ class LicenseApiController extends ApiController {
 		}
 	}
 	/**
-	 * @NoAdminRequired
-	 * @NoCSRFRequired
-	 *
 	 * Returns license status for group $ncgroup
 	 *
 	 * @param string $ncgroup
 	 * @return DataResponse
 	 */
+	#[NoAdminRequired]
+	#[NoCSRFRequired]
 	public function showForNCGroupInternal(string $ncgroup = ''): DataResponse {
 
 		if ($ncgroup === '') {
@@ -416,6 +435,8 @@ class LicenseApiController extends ApiController {
 		}
 	}
 	/**
+	 * Admin-only: creates a new license
+	 *
 	 * @param string $license
 	 * @param string $email
 	 * @param string $ncgroup
@@ -425,6 +446,8 @@ class LicenseApiController extends ApiController {
 	}
 
 	/**
+	 * Admin-only: deletes a license for a group
+	 *
 	 * @param string $group
 	 */
 	public function delete(string $group) {
@@ -432,10 +455,8 @@ class LicenseApiController extends ApiController {
 		return $this->licensemanager->deleteLicense($group);
 	}
 
-	/**
-	 * @NoAdminRequired
-	 * @NoCSRFRequired
-	 */
+	#[NoAdminRequired]
+	#[NoCSRFRequired]
 	public function renew() {
 		// Finds out user's license
 		$license = $this->service->findUserLicense($this->userId);
@@ -443,10 +464,8 @@ class LicenseApiController extends ApiController {
 		$this->licensemanager->renewLicense($license);
 	}
 
-	/**
-	 * @NoAdminRequired
-	 * @NoCSRFRequired
-	 */
+	#[NoAdminRequired]
+	#[NoCSRFRequired]
 	public function validate() {
 		// Finds out user's license
 		$license = $this->service->findUserLicense($this->userId);
@@ -461,9 +480,7 @@ class LicenseApiController extends ApiController {
 	}
 
 	/**
-	 *
-	 * Generates a report of all licenses used
-	 *
+	 * Admin-only: generates a report of all licenses used
 	 */
 	public function report() {
 
