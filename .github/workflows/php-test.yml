@@ -81,7 +81,7 @@ jobs:
         path: nextcloud/apps/sendent
     - name: Install dependencies
       working-directory: nextcloud/apps/sendent
-      run: composer install --no-interaction
+      run: composer update --no-interaction
     - name: Enable app
       run: php -f nextcloud/occ app:enable sendent
     - name: Run tests
