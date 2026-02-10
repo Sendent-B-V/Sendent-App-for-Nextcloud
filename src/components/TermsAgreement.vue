@@ -51,8 +51,6 @@ import { useTermsStore } from '../stores/terms'
 const termsStore = useTermsStore()
 const checked = ref(false)
 
-
-
 /**
  *
  */

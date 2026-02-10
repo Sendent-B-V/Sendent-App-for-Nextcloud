@@ -34,8 +34,11 @@ export function useSettingField(definition: SettingDefinition) {
 	/** The stored value */
 	const storedValue = computed(() => store.getValue(definition.key))
 
+	/** Local override: user unchecked "Use default" before API round-trip completes */
+	const overrideInherit = ref(false)
+
 	/** Whether this setting is inherited from the default group */
-	const inherited = computed(() => store.isInherited(definition.key))
+	const inherited = computed(() => store.isInherited(definition.key) && !overrideInherit.value)
 
 	/** Whether this setting is currently saving */
 	const saving = computed(() => store.isSaving(definition.key))
@@ -70,8 +73,10 @@ export function useSettingField(definition: SettingDefinition) {
 	 */
 	async function toggleInheritance(inherit: boolean) {
 		if (inherit) {
+			overrideInherit.value = false
 			await store.inheritSetting(definition.key)
 		} else {
+			overrideInherit.value = true
 			await store.overrideSetting(definition.key)
 		}
 	}

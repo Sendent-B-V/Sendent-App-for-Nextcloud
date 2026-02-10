@@ -30,7 +30,7 @@
 			<div v-if="groupsStore.selectedGroupId" class="license-section__inherit">
 				<label>
 					<input type="checkbox"
-						:checked="licenseStore.isInherited()"
+						:checked="licenseStore.isInherited() && !overrideInherit"
 						@change="onToggleInherit">
 					Use default group license
 				</label>
@@ -74,7 +74,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useLicenseStore } from '../../stores/license'
 import { useGroupsStore } from '../../stores/groups'
 import LicenseStatusDisplay from './LicenseStatusDisplay.vue'
@@ -82,8 +82,11 @@ import LicenseStatusDisplay from './LicenseStatusDisplay.vue'
 const licenseStore = useLicenseStore()
 const groupsStore = useGroupsStore()
 
+/** Local override: user unchecked "Use default" to enter group-specific license */
+const overrideInherit = ref(false)
+
 const isDisabled = computed(() =>
-	groupsStore.selectedGroupId !== '' && licenseStore.isInherited(),
+	groupsStore.selectedGroupId !== '' && licenseStore.isInherited() && !overrideInherit.value,
 )
 
 /**
@@ -107,8 +110,12 @@ async function onClear() {
 async function onToggleInherit(event: Event) {
 	const target = event.target as HTMLInputElement
 	if (target.checked) {
-		// Clear group-specific license to inherit default
+		// Re-inherit: clear group-specific license
+		overrideInherit.value = false
 		await licenseStore.clearLicense(groupsStore.selectedGroupId)
+	} else {
+		// Override: allow editing group-specific license
+		overrideInherit.value = true
 	}
 }
 </script>

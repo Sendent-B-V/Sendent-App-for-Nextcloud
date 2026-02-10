@@ -22,7 +22,7 @@
 	<div class="setting-textarea">
 		<div class="setting-textarea__toggle"
 			@click="expanded = !expanded">
-			<span class="setting-textarea__arrow">{{ expanded ? '&#x25BC;' : '&#x25B6;' }}</span>
+			<span class="setting-textarea__arrow">{{ expanded ? '▾' : '▸' }}</span>
 			<span>{{ expanded ? 'Hide editor' : 'Show editor' }}</span>
 		</div>
 		<div v-show="expanded" class="setting-textarea__editor">
@@ -74,7 +74,8 @@ useTinyMce({
 }
 
 .setting-textarea__arrow {
-	font-size: 10px;
+	font-size: 12px;
+	font-variant-emoji: text;
 }
 
 .setting-textarea__editor {

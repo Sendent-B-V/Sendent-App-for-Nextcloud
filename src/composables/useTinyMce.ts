@@ -24,10 +24,10 @@ import 'tinymce/models/dom'
 import 'tinymce/icons/default'
 import 'tinymce/themes/silver'
 
-// Skins (bundled via webpack asset rules)
+// UI skin (bundled via webpack) — only the UI chrome, not content CSS
+// content.min.css files are for TinyMCE's iframe and must NOT be imported
+// globally as they contain bare `body` and `table` selectors that leak
 import 'tinymce/skins/ui/oxide/skin.min.css'
-import 'tinymce/skins/ui/oxide/content.min.css'
-import 'tinymce/skins/content/default/content.min.css'
 
 // Plugins
 import 'tinymce/plugins/code'
@@ -60,12 +60,18 @@ const TEMPLATE_VARIABLES = [
 	'{LOGO}',
 ]
 
-/** Replace cid: logo with NC theming URL for preview */
+/**
+ * Replace cid: logo with NC theming URL for preview
+ * @param html
+ */
 function toPreview(html: string): string {
 	return html.replaceAll(CID_LOGO, NC_LOGO_URL)
 }
 
-/** Restore cid: logo reference for saving */
+/**
+ * Restore cid: logo reference for saving
+ * @param html
+ */
 function toStorage(html: string): string {
 	return html.replaceAll(NC_LOGO_URL, CID_LOGO)
 }
