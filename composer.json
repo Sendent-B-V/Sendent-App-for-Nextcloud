@@ -20,5 +20,8 @@
         "friendsofphp/php-cs-fixer": "^3.0",
         "nextcloud/ocp": "^28.0 || ^29.0 || ^30.0 || ^31.0 || ^32.0 || ^33.0",
         "vimeo/psalm": "^4.5"
+    },
+    "require": {
+        "php": ">=8.0 <=8.5"
     }
 }
