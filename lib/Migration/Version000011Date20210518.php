@@ -24,7 +24,7 @@
 namespace OCA\Sendent\migration;
 
 use Closure;
-use Exception;
+
 use OCP\DB\ISchemaWrapper;
 use OCP\Migration\IOutput;
 use OCP\Migration\SimpleMigrationStep;
