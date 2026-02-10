@@ -45,15 +45,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import { useTermsStore } from '../stores/terms'
 
 const termsStore = useTermsStore()
 const checked = ref(false)
 
-onMounted(() => {
-	termsStore.checkAgreement()
-})
+
 
 /**
  *
