@@ -141,6 +141,23 @@ export const useSettingsStore = defineStore('settings', () => {
 	}
 
 	/**
+	 * Reset a setting to its hardcoded default (works for any group, including default)
+	 * @param keyId
+	 */
+	async function resetSetting(keyId: number) {
+		savingKeys.value.add(keyId)
+		try {
+			const result = await api.deleteSettingValue(keyId, currentGroupId.value)
+			values.value.set(keyId, result)
+
+			savedKeys.value.add(keyId)
+			setTimeout(() => savedKeys.value.delete(keyId), 1500)
+		} finally {
+			savingKeys.value.delete(keyId)
+		}
+	}
+
+	/**
 	 * Create a group-specific override from the current inherited value
 	 * @param keyId
 	 */
@@ -182,6 +199,7 @@ export const useSettingsStore = defineStore('settings', () => {
 		loadSettings,
 		saveSetting,
 		inheritSetting,
+		resetSetting,
 		overrideSetting,
 		isVisible,
 	}

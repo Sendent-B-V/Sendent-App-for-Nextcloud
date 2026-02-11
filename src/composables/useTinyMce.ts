@@ -43,7 +43,7 @@ import type { Editor } from 'tinymce'
 
 /** NC theming logo URL used to preview cid:logo.png@logo in the editor */
 const CID_LOGO = 'cid:logo.png@logo'
-const NC_LOGO_URL = generateUrl('/apps/theming/image/logo')
+const NC_LOGO_URL = generateUrl('/apps/theming/image/logoheader')
 
 const TEMPLATE_VARIABLES = [
 	'{URL}',

@@ -60,7 +60,8 @@
 			<SettingTextarea v-else-if="definition.inputType === 'textarea'"
 				:model-value="localValue"
 				:disabled="disabled"
-				@save="onTextareaSave" />
+				@save="onTextareaSave"
+				@reset="onTextareaReset" />
 		</div>
 		<InheritanceCheckbox :inherited="inherited"
 			:show-checkbox="isGroupSelected"
@@ -72,6 +73,7 @@
 import { computed } from 'vue'
 import type { SettingDefinition } from '../../types/settings'
 import { useSettingField } from '../../composables/useSettingField'
+import { useSettingsStore } from '../../stores/settings'
 import SaveIndicator from './SaveIndicator.vue'
 import InheritanceCheckbox from './InheritanceCheckbox.vue'
 import MultiInputList from './MultiInputList.vue'
@@ -105,6 +107,11 @@ const isBlockInput = computed(() =>
 function onTextareaSave(content: string) {
 	localValue.value = content
 	save()
+}
+
+async function onTextareaReset() {
+	const store = useSettingsStore()
+	await store.resetSetting(props.definition.key)
 }
 </script>
 

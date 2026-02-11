@@ -20,10 +20,17 @@
   -->
 <template>
 	<div class="setting-textarea">
-		<div class="setting-textarea__toggle"
-			@click="expanded = !expanded">
-			<span class="setting-textarea__arrow">{{ expanded ? '▾' : '▸' }}</span>
-			<span>{{ expanded ? 'Hide editor' : 'Show editor' }}</span>
+		<div class="setting-textarea__actions">
+			<div class="setting-textarea__toggle"
+				@click="expanded = !expanded">
+				<span class="setting-textarea__arrow">{{ expanded ? '▾' : '▸' }}</span>
+				<span>{{ expanded ? 'Hide editor' : 'Show editor' }}</span>
+			</div>
+			<button class="setting-textarea__reset"
+				:disabled="disabled"
+				@click="$emit('reset')">
+				Reset to default
+			</button>
 		</div>
 		<div v-show="expanded" class="setting-textarea__editor">
 			<div ref="editorRef" />
@@ -42,6 +49,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
 	(e: 'save', content: string): void
+	(e: 'reset'): void
 }>()
 
 const expanded = ref(false)
@@ -58,6 +66,12 @@ useTinyMce({
 </script>
 
 <style scoped>
+.setting-textarea__actions {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+}
+
 .setting-textarea__toggle {
 	cursor: pointer;
 	display: inline-flex;
@@ -71,6 +85,26 @@ useTinyMce({
 
 .setting-textarea__toggle:hover {
 	text-decoration: underline;
+}
+
+.setting-textarea__reset {
+	padding: 4px 10px;
+	font-size: 13px;
+	color: var(--color-error);
+	background: none;
+	border: 1px solid var(--color-error);
+	border-radius: var(--border-radius);
+	cursor: pointer;
+}
+
+.setting-textarea__reset:hover:not(:disabled) {
+	background: var(--color-error);
+	color: white;
+}
+
+.setting-textarea__reset:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
 }
 
 .setting-textarea__arrow {
