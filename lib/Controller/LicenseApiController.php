@@ -272,22 +272,22 @@ class LicenseApiController extends ApiController {
 					$licensekey = $result[0]->getLicensekey();
 					$group = $result[0]->getNcgroup();
 					$status = $this->l->t('Missing (or incorrect) email address or license key. %1$sContact support%2$s to get your correct license information.', ["<a href='mailto:support@sendent.nl' style='color:blue'>", '</a>']);
-					return new DataResponse(new LicenseStatus($status, 'error_incomplete', '-', $licensekey, '-', '-', $email, '-', 0, $group));
+					return new DataResponse(new LicenseStatus($status, 'error_incomplete', '', $licensekey, '', '', $email, '', 0, $group));
 				} elseif (count($result) > 0 && $result[0]->getLevel() == License::ERROR_VALIDATING) {
 					$email = $result[0]->getEmail();
 					$licensekey = $result[0]->getLicensekey();
 					$group = $result[0]->getNcgroup();
 					$istrial = $result[0]->getIstrial();
-					return new DataResponse(new LicenseStatus($this->l->t("Cannot verify your license. Please make sure your licensekey and email address are correct before you try to 'Activate license'."), 'error_validating', '-', $licensekey, '-', '-', $email, '-', $istrial, $group));
+					return new DataResponse(new LicenseStatus($this->l->t("Cannot verify your license. Please make sure your licensekey and email address are correct before you try to 'Activate license'."), 'error_validating', '', $licensekey, '', '', $email, '', $istrial, $group));
 				} else {
-					return new DataResponse(new LicenseStatus($this->l->t('No license configured'), 'nolicense', '-', '-', '-', '-', '-', '-', 0, '-'));
+					return new DataResponse(new LicenseStatus($this->l->t('No license configured'), 'nolicense', '', '', '', '', '', '', 0, ''));
 				}
 			} else {
-				return new DataResponse(new LicenseStatus($this->l->t('No license configured'), 'nolicense', '-', '-', '-', '-', '-', '-', 0, '-'));
+				return new DataResponse(new LicenseStatus($this->l->t('No license configured'), 'nolicense', '', '', '', '', '', '', 0, ''));
 			}
 		} catch (Exception $e) {
 			$this->logger->error('Cannot verify license');
-			return new DataResponse(new LicenseStatus($this->l->t("Cannot verify your license. Please make sure your licensekey and email address are correct before you try to 'Activate license'."), 'fatal', '-', '-', '-', '-', '-', '-', 0, $ncgroup));
+			return new DataResponse(new LicenseStatus($this->l->t("Cannot verify your license. Please make sure your licensekey and email address are correct before you try to 'Activate license'."), 'fatal', '', '', '', '', '', '', 0, $ncgroup));
 		}
 	}
 	/**
@@ -402,7 +402,7 @@ class LicenseApiController extends ApiController {
 					$product = $result[0]->getProduct();
 					$istrial = $result[0]->getIstrial();
 					$status = $this->l->t('Missing (or incorrect) email address or license key. %1$sContact support%2$s to get your correct license information.', ["<a href='mailto:support@sendent.nl' style='color:blue'>", '</a>']);
-					return new DataResponse(new LicenseStatus($status, 'error_incomplete', '-', $licensekey, '-', '-', $email, '-', 0, $group));
+					return new DataResponse(new LicenseStatus($status, 'error_incomplete', '', $licensekey, '', '', $email, '', 0, $group));
 				} elseif (count($result) > 0 && $result[0]->getLevel() == License::ERROR_VALIDATING) {
 					$email = $result[0]->getEmail();
 					$licensekey = $result[0]->getLicensekey();
@@ -415,10 +415,10 @@ class LicenseApiController extends ApiController {
 					$istrial = $result[0]->getIstrial();
 					return new DataResponse(new LicenseStatus($this->l->t("Cannot verify your license. Please make sure your licensekey and email address are correct before you try to 'Activate license'."), 'error_validating', $level, $licensekey, $dateExpiration, $dateLastCheck, $email, $product, $istrial, $group));
 				} else {
-					return new DataResponse(new LicenseStatus($this->l->t('No license configured'), 'nolicense', '-', '-', '-', '-', '-', '-', 0, '-'));
+					return new DataResponse(new LicenseStatus($this->l->t('No license configured'), 'nolicense', '', '', '', '', '', '', 0, ''));
 				}
 			} else {
-				return new DataResponse(new LicenseStatus($this->l->t('No license configured'), 'nolicense', '-', '-', '-', '-', '-', '-', 0, '-'));
+				return new DataResponse(new LicenseStatus($this->l->t('No license configured'), 'nolicense', '', '', '', '', '', '', 0, ''));
 			}
 		} catch (Exception $e) {
 			$this->logger->error('Cannot verify license');

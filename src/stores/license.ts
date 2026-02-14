@@ -68,8 +68,8 @@ export const useLicenseStore = defineStore('license', () => {
 			addinVersion.value = appStatus.LatestVSTOAddinVersion ?? null
 
 			// Pre-fill email and key from fetched status
-			email.value = licenseStatus.email ?? ''
-			licenseKey.value = licenseStatus.licensekey ?? ''
+			email.value = licenseStatus.email || ''
+			licenseKey.value = licenseStatus.licensekey || ''
 		} catch {
 			status.value = null
 		} finally {
