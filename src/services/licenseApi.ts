@@ -25,10 +25,12 @@ import type { LicenseStatus, AppVersionStatus } from '../types/license'
 const baseUrl = '/apps/sendent/api/1.0'
 
 /**
+ * Registers a new license for a given Nextcloud group.
  *
- * @param email
- * @param license
- * @param ncgroup
+ * @param email - Email address associated with the license
+ * @param license - License key string
+ * @param ncgroup - Nextcloud group ID to assign the license to
+ * @return The resulting license status after creation
  */
 export async function createLicense(email: string, license: string, ncgroup: string): Promise<LicenseStatus> {
 	const url = generateUrl(`${baseUrl}/license`)
@@ -37,8 +39,9 @@ export async function createLicense(email: string, license: string, ncgroup: str
 }
 
 /**
+ * Deletes the license associated with a Nextcloud group.
  *
- * @param group
+ * @param group - Nextcloud group ID whose license should be removed
  */
 export async function deleteLicense(group: string): Promise<void> {
 	const url = generateUrl(`${baseUrl}/license`)
@@ -46,8 +49,10 @@ export async function deleteLicense(group: string): Promise<void> {
 }
 
 /**
+ * Fetches the current license status for a given Nextcloud group.
  *
- * @param ncgroup
+ * @param ncgroup - Nextcloud group ID to check the license for
+ * @return Current license status for the group
  */
 export async function fetchLicenseStatus(ncgroup: string): Promise<LicenseStatus> {
 	const url = generateUrl(`${baseUrl}/licensestatusForNCGroupinternal`)
@@ -56,7 +61,9 @@ export async function fetchLicenseStatus(ncgroup: string): Promise<LicenseStatus
 }
 
 /**
+ * Fetches the current app version and update status.
  *
+ * @return App version information including available updates
  */
 export async function fetchAppStatus(): Promise<AppVersionStatus> {
 	const url = generateUrl(`${baseUrl}/status`)
@@ -65,7 +72,9 @@ export async function fetchAppStatus(): Promise<AppVersionStatus> {
 }
 
 /**
+ * Fetches a summary report of all active licenses.
  *
+ * @return License report as a raw string
  */
 export async function fetchLicenseReport(): Promise<string> {
 	const url = generateUrl(`${baseUrl}/licensereport`)

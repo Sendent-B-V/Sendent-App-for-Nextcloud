@@ -57,8 +57,10 @@ export interface RetentionRule {
 const baseUrl = '/apps/sendent/api/1.0'
 
 /**
+ * Fetches a system tag by its ID.
  *
- * @param id
+ * @param id - The numeric ID of the tag to retrieve
+ * @return Tag data including visibility and assignability
  */
 export async function fetchTag(id: number): Promise<TagData> {
 	const url = generateUrl(`${baseUrl}/tag/{id}`, { id })
@@ -67,8 +69,10 @@ export async function fetchTag(id: number): Promise<TagData> {
 }
 
 /**
+ * Creates a new system tag with the given name.
  *
- * @param name
+ * @param name - Display name for the new tag
+ * @return The newly created tag data
  */
 export async function createTag(name: string): Promise<TagData> {
 	const url = generateUrl(`${baseUrl}/tag`)
@@ -77,7 +81,9 @@ export async function createTag(name: string): Promise<TagData> {
 }
 
 /**
+ * Fetches all global workflow definitions from the Nextcloud workflow engine.
  *
+ * @return A map of workflow class names to their workflow definitions
  */
 export async function fetchWorkflows(): Promise<Record<string, WorkflowData[]>> {
 	const url = generateUrl('/ocs/v2.php/apps/workflowengine/api/v1/workflows/global?format=json')
@@ -88,14 +94,16 @@ export async function fetchWorkflows(): Promise<Record<string, WorkflowData[]>> 
 }
 
 /**
+ * Creates a new global workflow rule in the Nextcloud workflow engine.
  *
- * @param workflow
- * @param workflow.checks
- * @param workflow.class
- * @param workflow.entity
- * @param workflow.events
- * @param workflow.name
- * @param workflow.operation
+ * @param workflow - Workflow configuration to create
+ * @param workflow.checks - Conditions that trigger the workflow
+ * @param workflow.class - The workflow operation class identifier
+ * @param workflow.entity - Entity type the workflow applies to (e.g. files)
+ * @param workflow.events - Events that trigger evaluation of the workflow
+ * @param workflow.name - Display name for the workflow rule
+ * @param workflow.operation - Operation-specific configuration string
+ * @return The newly created workflow definition
  */
 export async function createWorkflow(workflow: {
 	checks: WorkflowCheck[]
@@ -113,7 +121,9 @@ export async function createWorkflow(workflow: {
 }
 
 /**
+ * Fetches all file retention rules from the files_retention app.
  *
+ * @return List of configured retention rules
  */
 export async function fetchRetentions(): Promise<RetentionRule[]> {
 	const url = generateUrl('/ocs/v2.php/apps/files_retention/api/v1/retentions?format=json')
@@ -124,12 +134,14 @@ export async function fetchRetentions(): Promise<RetentionRule[]> {
 }
 
 /**
+ * Creates a new file retention rule linked to a system tag.
  *
- * @param retention
- * @param retention.tagid
- * @param retention.timeafter
- * @param retention.timeamount
- * @param retention.timeunit
+ * @param retention - Retention rule configuration
+ * @param retention.tagid - System tag ID that triggers this retention rule
+ * @param retention.timeafter - Time reference point (e.g. creation or modification date)
+ * @param retention.timeamount - Number of time units before files are removed
+ * @param retention.timeunit - Unit of time (e.g. days, weeks, months)
+ * @return The newly created retention rule
  */
 export async function createRetention(retention: {
 	tagid: number

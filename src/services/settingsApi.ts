@@ -25,7 +25,9 @@ import type { SettingValue } from '../types/settings'
 const baseUrl = '/apps/sendent/api/1.0'
 
 /**
+ * Fetches all setting values for the default (global) group.
  *
+ * @return List of setting values applied to the default group
  */
 export async function fetchSettingsForDefaultGroup(): Promise<SettingValue[]> {
 	const url = generateUrl(`${baseUrl}/settinggroupvalue/getForDefaultGroup`)
@@ -34,8 +36,10 @@ export async function fetchSettingsForDefaultGroup(): Promise<SettingValue[]> {
 }
 
 /**
+ * Fetches all setting values for a specific Nextcloud group.
  *
- * @param gid
+ * @param gid - Nextcloud group ID to fetch settings for
+ * @return List of setting values applied to the group
  */
 export async function fetchSettingsForGroup(gid: string): Promise<SettingValue[]> {
 	const url = generateUrl(`${baseUrl}/settinggroupvalue/getForNCGroup/{gid}`, { gid })
@@ -44,8 +48,10 @@ export async function fetchSettingsForGroup(gid: string): Promise<SettingValue[]
 }
 
 /**
+ * Fetches a single setting value by its setting key ID.
  *
- * @param settingkeyid
+ * @param settingkeyid - Numeric ID of the setting key to look up
+ * @return The matching setting value
  */
 export async function fetchSettingByKeyId(settingkeyid: number): Promise<SettingValue> {
 	const url = generateUrl(`${baseUrl}/settinggroupvalue/showbysettingkeyid/{id}`, { id: settingkeyid })
@@ -54,11 +60,13 @@ export async function fetchSettingByKeyId(settingkeyid: number): Promise<Setting
 }
 
 /**
+ * Creates a new setting value entry for a given group.
  *
- * @param settingkeyid
- * @param value
- * @param groupid
- * @param group
+ * @param settingkeyid - Numeric ID of the setting key
+ * @param value - The value to store
+ * @param groupid - Group ID to associate the setting with
+ * @param group - Optional group name for display purposes
+ * @return The newly created setting value
  */
 export async function createSettingValue(
 	settingkeyid: number,
@@ -72,11 +80,13 @@ export async function createSettingValue(
 }
 
 /**
+ * Updates an existing setting value for a given group.
  *
- * @param settingkeyid
- * @param value
- * @param groupid
- * @param group
+ * @param settingkeyid - Numeric ID of the setting key to update
+ * @param value - The new value to store
+ * @param groupid - Group ID the setting belongs to
+ * @param group - Optional group name for display purposes
+ * @return The updated setting value
  */
 export async function updateSettingValue(
 	settingkeyid: number,
@@ -90,9 +100,11 @@ export async function updateSettingValue(
 }
 
 /**
+ * Deletes a setting value, reverting it to the inherited/default value for the group.
  *
- * @param settingkeyid
- * @param ncgroup
+ * @param settingkeyid - Numeric ID of the setting key to delete
+ * @param ncgroup - Nextcloud group ID the setting belongs to
+ * @return The deleted setting value
  */
 export async function deleteSettingValue(settingkeyid: number, ncgroup: string): Promise<SettingValue> {
 	const url = generateUrl(`${baseUrl}/settinggroupvalue/{id}`, { id: settingkeyid })
@@ -101,11 +113,13 @@ export async function deleteSettingValue(settingkeyid: number, ncgroup: string):
 }
 
 /**
+ * Creates a new setting key definition in the system.
  *
- * @param name
- * @param key
- * @param valuetype
- * @param templateid
+ * @param name - Display name for the setting
+ * @param key - Unique key identifier string
+ * @param valuetype - Data type of the setting value (e.g. 'string', 'number')
+ * @param templateid - ID of the template this setting belongs to
+ * @return Object containing the newly created setting key ID
  */
 export async function createSettingKey(
 	name: string,

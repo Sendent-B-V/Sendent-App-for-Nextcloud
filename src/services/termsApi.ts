@@ -29,8 +29,10 @@ export interface TermsAgreement {
 }
 
 /**
+ * Checks whether the current user has agreed to a specific version of the terms.
  *
- * @param version
+ * @param version - Terms version string to check agreement for
+ * @return Agreement status including version and whether it was agreed to
  */
 export async function checkAgreement(version: string): Promise<TermsAgreement> {
 	const url = generateUrl(`${baseUrl}/termsagreement/isagreed/{version}`, { version })
@@ -39,8 +41,10 @@ export async function checkAgreement(version: string): Promise<TermsAgreement> {
 }
 
 /**
+ * Records that the current user has agreed to a specific version of the terms.
  *
- * @param version
+ * @param version - Terms version string to mark as agreed
+ * @return The resulting agreement record
  */
 export async function markAgreed(version: string): Promise<TermsAgreement> {
 	const url = generateUrl(`${baseUrl}/termsagreement/agree/{version}`, { version })
