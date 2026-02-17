@@ -38,16 +38,14 @@
 					:href="licenseStore.addinVersion.UrlManual"
 					target="_blank"
 					rel="noopener"
-					class="addon-info__link"
-				>
+					class="addon-info__link">
 					Manual ↗
 				</a>
 				<a v-if="licenseStore.addinVersion.UrlReleaseNotes"
 					:href="licenseStore.addinVersion.UrlReleaseNotes"
 					target="_blank"
 					rel="noopener"
-					class="addon-info__link"
-				>
+					class="addon-info__link">
 					Release Notes ↗
 				</a>
 			</div>
@@ -60,20 +58,9 @@
 
 <script setup lang="ts">
 import { useLicenseStore } from '../../stores/license'
+import { formatDate } from '../../utils/date-utils'
 
 const licenseStore = useLicenseStore()
-
-/**
- *
- * @param dateStr
- */
-function formatDate(dateStr: string): string {
-	try {
-		return new Date(dateStr).toLocaleDateString('nl-NL')
-	} catch {
-		return dateStr
-	}
-}
 </script>
 
 <style scoped>

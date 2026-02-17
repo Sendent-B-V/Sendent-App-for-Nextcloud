@@ -50,6 +50,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { LicenseStatus } from '../../types/license'
+import { formatDate } from '../../utils/date-utils';
 
 const props = defineProps<{
 	status: LicenseStatus | null
@@ -66,18 +67,6 @@ const statusClass = computed(() => {
 	default: return ''
 	}
 })
-
-/**
- *
- * @param dateStr
- */
-function formatDate(dateStr: string): string {
-	try {
-		return new Date(dateStr).toLocaleDateString('nl-NL')
-	} catch {
-		return dateStr
-	}
-}
 </script>
 
 <style scoped>
