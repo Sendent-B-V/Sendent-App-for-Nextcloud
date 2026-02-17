@@ -68,7 +68,7 @@
 					<button class="groups-management__remove"
 						title="Remove from Sendent groups"
 						@click.stop="onRemoveGroup(group.gid)">
-						X
+						×
 					</button>
 				</div>
 			</div>

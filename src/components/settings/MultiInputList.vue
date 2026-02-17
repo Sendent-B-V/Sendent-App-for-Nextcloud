@@ -34,7 +34,7 @@
 				type="button"
 				title="Remove"
 				@click="removeItem(index)">
-				X
+				×
 			</button>
 		</div>
 	</div>
