@@ -50,7 +50,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { LicenseStatus } from '../../types/license'
-import { formatDate } from '../../utils/date-utils';
+import { formatDate } from '../../utils/date-utils'
 
 const props = defineProps<{
 	status: LicenseStatus | null
