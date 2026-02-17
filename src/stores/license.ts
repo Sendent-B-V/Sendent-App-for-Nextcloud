@@ -54,8 +54,10 @@ export const useLicenseStore = defineStore('license', () => {
 	}
 
 	/**
-	 * Refresh license status for a group
-	 * @param ncgroup
+	 * Fetches the current license status and app version info for a group.
+	 * Pre-fills the email and license key fields from the server response.
+	 *
+	 * @param ncgroup - Nextcloud group ID to fetch the status for
 	 */
 	async function refreshStatus(ncgroup: string) {
 		loading.value = true
@@ -78,8 +80,9 @@ export const useLicenseStore = defineStore('license', () => {
 	}
 
 	/**
-	 * Activate a license
-	 * @param ncgroup
+	 * Activate a license for a group and refresh the status regardless of outcome.
+	 *
+	 * @param ncgroup - Nextcloud group ID to activate the license for
 	 */
 	async function activateLicense(ncgroup: string) {
 		loading.value = true
@@ -89,15 +92,18 @@ export const useLicenseStore = defineStore('license', () => {
 				licenseKey.value.trim(),
 				ncgroup,
 			)
-			await refreshStatus(ncgroup)
+		} catch (error) {
+			console.error('License deletion failed:', error)
 		} finally {
+			await refreshStatus(ncgroup)
 			loading.value = false
 		}
 	}
 
 	/**
-	 * Clear/delete license for a group (revert to inherited)
-	 * @param ncgroup
+	 * Clear/delete the license for a group, reverting to the inherited default.
+	 *
+	 * @param ncgroup - Nextcloud group ID whose license should be cleared
 	 */
 	async function clearLicense(ncgroup: string) {
 		loading.value = true
@@ -105,8 +111,10 @@ export const useLicenseStore = defineStore('license', () => {
 			await api.deleteLicense(ncgroup)
 			email.value = ''
 			licenseKey.value = ''
-			await refreshStatus(ncgroup)
+		} catch (error) {
+			console.error('License deletion failed:', error)
 		} finally {
+			await refreshStatus(ncgroup)
 			loading.value = false
 		}
 	}

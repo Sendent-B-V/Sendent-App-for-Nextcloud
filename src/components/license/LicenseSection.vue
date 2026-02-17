@@ -85,27 +85,33 @@ const groupsStore = useGroupsStore()
 /** Local override: user unchecked "Use default" to enter group-specific license */
 const overrideInherit = ref(false)
 
+/** Whether the license form inputs should be disabled (inherited and not overridden) */
 const isDisabled = computed(() =>
 	groupsStore.selectedGroupId !== '' && licenseStore.isInherited() && !overrideInherit.value,
 )
 
 /**
- *
+ * Activates the license using the current email and key inputs
+ * for the currently selected Nextcloud group.
  */
 async function onActivate() {
 	await licenseStore.activateLicense(groupsStore.selectedGroupId)
 }
 
 /**
- *
+ * Clears the license for the currently selected group,
+ * reverting it to the inherited default.
  */
 async function onClear() {
 	await licenseStore.clearLicense(groupsStore.selectedGroupId)
 }
 
 /**
+ * Handles toggling the "Use default group license" checkbox.
+ * When checked, clears the group-specific license to re-inherit.
+ * When unchecked, allows the user to enter a group-specific license.
  *
- * @param event
+ * @param event - Native checkbox change event
  */
 async function onToggleInherit(event: Event) {
 	const target = event.target as HTMLInputElement
@@ -122,58 +128,58 @@ async function onToggleInherit(event: Event) {
 
 <style scoped>
 .license-section {
-	margin-bottom: 24px;
+  margin-bottom: 24px;
 }
 
 .license-section h3 {
-	font-size: 16px;
-	font-weight: 600;
-	margin-bottom: 16px;
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 16px;
 }
 
 .license-section__loading {
-	display: flex;
-	align-items: center;
-	gap: 8px;
-	color: var(--color-text-maxcontrast);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-text-maxcontrast);
 }
 
 .license-section__inherit {
-	margin-bottom: 12px;
+  margin-bottom: 12px;
 }
 
 .license-section__inherit label {
-	display: flex;
-	align-items: center;
-	gap: 6px;
-	cursor: pointer;
-	font-size: 13px;
-	color: var(--color-text-maxcontrast);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--color-text-maxcontrast);
 }
 
 .license-section__form {
-	margin-bottom: 16px;
+  margin-bottom: 16px;
 }
 
 .license-section__field {
-	margin-bottom: 8px;
+  margin-bottom: 8px;
 }
 
 .license-section__field label {
-	display: block;
-	font-weight: 500;
-	margin-bottom: 4px;
+  display: block;
+  font-weight: 500;
+  margin-bottom: 4px;
 }
 
 .license-section__field input {
-	width: 100%;
-	max-width: 400px;
+  width: 100%;
+  max-width: 400px;
 }
 
 .license-section__actions {
-	display: flex;
-	gap: 8px;
-	margin-top: 12px;
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
 }
 
 </style>

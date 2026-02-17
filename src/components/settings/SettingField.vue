@@ -109,6 +109,9 @@ function onTextareaSave(content: string) {
 	save()
 }
 
+/**
+ *
+ */
 async function onTextareaReset() {
 	const store = useSettingsStore()
 	await store.resetSetting(props.definition.key)
