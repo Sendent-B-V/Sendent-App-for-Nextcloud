@@ -74,12 +74,12 @@ export const useRetentionStore = defineStore('retention', () => {
 	 * Ensure a tag exists, creating it if needed
 	 * @param key
 	 */
-	async function ensureTag(key: string): Promise<number> {
-		if (tags.value[key as keyof TagState] >= 0) {
-			return tags.value[key as keyof TagState]
+	async function ensureTag(key: keyof TagState): Promise<number> {
+		if (tags.value[key] >= 0) {
+			return tags.value[key]
 		}
 		const tag = await retentionApi.createTag(DEFAULT_TAG_NAMES[key])
-		tags.value[key as keyof TagState] = tag.id
+		tags.value[key] = tag.id
 
 		// Save to NC app config
 		OCP.AppConfig.setValue('sendent', key, tag.id)
@@ -149,7 +149,7 @@ export const useRetentionStore = defineStore('retention', () => {
 	 * @param timeafter
 	 */
 	async function createRetentionRule(
-		tagKey: string,
+		tagKey: keyof TagState,
 		timeamount: number,
 		timeunit: number,
 		timeafter: number,
