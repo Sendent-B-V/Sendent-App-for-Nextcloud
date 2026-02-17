@@ -39,7 +39,7 @@
 				<span>{{ licenseStore.defaultLicense.lastCheck }}</span>
 			</div>
 		</div>
-		<button class="default-license__report" @click="licenseStore.downloadReport()">
+		<button class="button primary" @click="licenseStore.downloadReport()">
 			Download License Report
 		</button>
 	</div>
@@ -82,7 +82,4 @@ const licenseStore = useLicenseStore()
 	font-weight: 600;
 }
 
-.default-license__report {
-	margin-top: 8px;
-}
 </style>

@@ -37,14 +37,18 @@
 				<a v-if="licenseStore.addinVersion.UrlManual"
 					:href="licenseStore.addinVersion.UrlManual"
 					target="_blank"
-					rel="noopener">
-					Manual
+					rel="noopener"
+					class="addon-info__link"
+				>
+					Manual ↗
 				</a>
 				<a v-if="licenseStore.addinVersion.UrlReleaseNotes"
 					:href="licenseStore.addinVersion.UrlReleaseNotes"
 					target="_blank"
-					rel="noopener">
-					Release Notes
+					rel="noopener"
+					class="addon-info__link"
+				>
+					Release Notes ↗
 				</a>
 			</div>
 		</div>
@@ -85,8 +89,15 @@ function formatDate(dateStr: string): string {
 
 .addon-info__links {
 	display: flex;
-	gap: 12px;
+	gap: 16px;
 	margin-top: 8px;
+	align-items: center;
+}
+
+.addon-info__link {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
 }
 
 .addon-info__empty {
