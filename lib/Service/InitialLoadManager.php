@@ -792,6 +792,30 @@ class InitialLoadManager {
 	public function getguestaccountspublicsharehtml(): string {
 		return $this->getHTMLTemplate('htmlsnippetpublicaccounts');
 	}
+
+	/**
+	 * Return the factory-default HTML for a textarea setting key, or null if the key
+	 * has no hardcoded HTML default (e.g. non-template settings).
+	 * @param int $keyId
+	 */
+	public function getDefaultHtmlForKeyId(int $keyId): ?string {
+		try {
+			switch ($keyId) {
+				case 10: return $this->getsharefilehtml();
+				case 9: return $this->getsharefolderhtml();
+				case 12: return $this->getsecuremailhtml();
+				case 30: return $this->gethtmlpasswordsnippet();
+				case 302: return $this->getguestaccountshtml();
+				case 303: return $this->getguestaccountspublicsharehtml();
+				case 203: return $this->gethtmltalksnippet();
+				case 210: return $this->gethtmltalkpwsnippet();
+				default: return null;
+			}
+		} catch (Exception $e) {
+			return null;
+		}
+	}
+
 	private function getHTMLTemplate(string $id): string {
 		$appRoot = $this->appManager->getAppPath(Application::APPID);
 

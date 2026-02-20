@@ -26,6 +26,7 @@ namespace OCA\Sendent\Controller;
 use Exception;
 use OCA\Sendent\Db\SettingGroupValue;
 use OCA\Sendent\Db\SettingGroupValueMapper;
+use OCA\Sendent\Service\InitialLoadManager;
 use OCA\Sendent\Service\SendentFileStorageManager;
 use OCP\AppFramework\ApiController;
 use OCP\AppFramework\Http;
@@ -46,9 +47,11 @@ class SettingGroupValueApiController extends ApiController {
 	private $groupManager;
 	private $userId;
 	private $userManager;
+	private $initialLoadManager;
 
 	public function __construct(IAppConfig $appConfig, IRequest $request, SettingGroupValueMapper $mapper,
-		SendentFileStorageManager $FileStorageManager, IGroupManager $groupManager, IUserManager $userManager, $userId) {
+		SendentFileStorageManager $FileStorageManager, IGroupManager $groupManager, IUserManager $userManager,
+		InitialLoadManager $initialLoadManager, $userId) {
 		parent::__construct(
 			'sendent',
 			$request,
@@ -61,6 +64,7 @@ class SettingGroupValueApiController extends ApiController {
 		$this->groupManager = $groupManager;
 		$this->userId = $userId;
 		$this->userManager = $userManager;
+		$this->initialLoadManager = $initialLoadManager;
 	}
 
 	/**
@@ -390,9 +394,30 @@ class SettingGroupValueApiController extends ApiController {
 		}
 		$this->mapper->delete($SettingGroupValue);
 		if ($ncgroup === '') {
+			// For the default group, restore the factory-default HTML (if one exists).
+			// Without this, the deleted value would be returned unchanged and the frontend
+			// would never detect a change to update the editor.
+			$defaultHtml = $this->initialLoadManager->getDefaultHtmlForKeyId($id);
+			if ($defaultHtml !== null) {
+				$newValue = new SettingGroupValue();
+				$newValue->setSettingkeyid($SettingGroupValue->getSettingkeyid());
+				$newValue->setGroupid($SettingGroupValue->getGroupid());
+				$newValue->setNcgroup('');
+				if ($this->valueSizeForDb($defaultHtml) === false) {
+					$defaultHtml = $this->FileStorageManager->writeTxt(
+						$SettingGroupValue->getGroupid(),
+						$SettingGroupValue->getSettingkeyid(),
+						$defaultHtml,
+						''
+					);
+				}
+				$newValue->setValue($defaultHtml);
+				$this->mapper->insert($newValue);
+				return $this->showBySettingKeyId($id, '');
+			}
 			return new DataResponse($SettingGroupValue);
 		} else {
-			// When we delete the setting of a group we want to get the corresponding default settting back
+			// When we delete the setting of a group we want to get the corresponding default setting back
 			return $this->showBySettingKeyId($id, '');
 		}
 	}
