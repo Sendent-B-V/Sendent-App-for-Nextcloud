@@ -65,20 +65,27 @@ const activeTab = ref(props.defaultTab ?? props.tabs[0]?.id ?? '')
 	background: none;
 	cursor: pointer;
 	font-size: 14px;
+	border-radius: var(--border-radius-large) var(--border-radius-large) 0 0;
 	color: var(--color-text-maxcontrast);
 	border-bottom: 2px solid transparent;
-	transition: color 0.2s, border-color 0.2s;
+	transition: color 0.2s, border-color 0.2s, background-color 0.2s;
 }
 
-.sendent-tabs__tab:hover {
+.sendent-tabs__tab:hover:not(.sendent-tabs__tab--active) {
+	background-color: var(--color-background-hover);
 	color: var(--color-main-text);
-	background: var(--color-background-hover);
 }
 
 .sendent-tabs__tab--active {
-	color: var(--color-primary);
-	border-bottom-color: var(--color-primary);
+	color: var(--color-primary-element);
+	border-bottom-color: var(--color-primary-element);
 	background: var(--color-primary-element-light);
+}
+
+.sendent-tabs__tab--active:hover {
+	background-color: var(--color-primary-element-light-hover, rgba(0, 130, 201, 0.15)); 
+	color: var(--color-primary-element);
+	border-bottom-color: var(--color-primary-element);
 }
 
 .sendent-tabs__content {
