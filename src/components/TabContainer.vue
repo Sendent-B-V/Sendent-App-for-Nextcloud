@@ -83,7 +83,7 @@ const activeTab = ref(props.defaultTab ?? props.tabs[0]?.id ?? '')
 }
 
 .sendent-tabs__tab--active:hover {
-	background-color: var(--color-primary-element-light-hover, rgba(0, 130, 201, 0.15)); 
+	background-color: var(--color-primary-element-light-hover, rgba(0, 130, 201, 0.15));
 	color: var(--color-primary-element);
 	border-bottom-color: var(--color-primary-element);
 }
