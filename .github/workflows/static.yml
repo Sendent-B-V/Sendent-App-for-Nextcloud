@@ -7,14 +7,14 @@ jobs:
     name: Code style
     steps:
         - name: Checkout
-          uses: actions/checkout@master
+          uses: actions/checkout@v6
         - name: Set up php
-          uses: shivammathur/setup-php@master
+          uses: shivammathur/setup-php@v2
           with:
-            php-version: 7.4
+            php-version: '8.4'
             coverage: none
         - name: Install dependencies
-          run: composer i
+          run: composer install --no-interaction
         - name: Run code style check
           run: composer run cs:check
   frontend-build:
@@ -22,11 +22,11 @@ jobs:
     name: Frontend build
     steps:
         - name: Checkout
-          uses: actions/checkout@master
-        - uses: actions/setup-node@v2
+          uses: actions/checkout@v6
+        - uses: actions/setup-node@v6
           with:
-            node-version: '16'
+            node-version: '22'
         - name: Install dependencies
-          run: yarn install
+          run: npm ci
         - name: Build bundle
-          run: yarn build
+          run: npm run build

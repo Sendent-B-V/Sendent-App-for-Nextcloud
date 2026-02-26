@@ -1,146 +1,236 @@
-import './filelist.scss';
-import { generateRemoteUrl, generateUrl } from '@nextcloud/router';
-import { getNavigation, Node as NCNode } from '@nextcloud/files';
-import { subscribe } from '@nextcloud/event-bus';
-import axios from '@nextcloud/axios';
-import sanitizeHtml from 'sanitize-html';
+/**
+ * @copyright Copyright (c) 2026 Sendent B.V.
+ *
+ * @author Sendent B.V. <info@sendent.com>
+ *
+ * @license AGPL-3.0-or-later
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+import './filelist.scss'
+import { generateUrl } from '@nextcloud/router'
+import { getNavigation } from '@nextcloud/files'
+import { subscribe } from '@nextcloud/event-bus'
+import axios from '@nextcloud/axios'
+import sanitizeHtml from 'sanitize-html'
 
-const FOOTER_NAME = '.SECUREMAIL.html';
-const CONTENT_ID = '#sendent-content';
+const FOOTER_NAME = '.SECUREMAIL.html'
+const CONTENT_ID = 'sendent-content'
 
 const SANITIZE_OPTIONS = {
-    allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img', 'html', 'head', 'body', 'meta', 'style']),
-    allowedAttributes: {
-        ...sanitizeHtml.defaults.allowedAttributes,
-        '*': ['class', 'style', 'colspan', 'width', 'border', 'valign', 'cellspacing', 'cellpadding', 'align', 'height', 'rowspan', 'rowspacing', 'rowpadding'],
-        img: ['src', 'width', 'height', 'style', 'id'],
-        html: ['xmlns*'],
-        meta: ['name', 'content'],
-    },
-    allowVulnerableTags: true,
-    allowedSchemes: ['data'],
-    allowedSchemesByTag: {
-        a: ['http', 'https', 'mailto', 'tel'],
-    }
-};
+	allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img', 'html', 'head', 'body', 'meta', 'style']),
+	allowedAttributes: {
+		...sanitizeHtml.defaults.allowedAttributes,
+		'*': ['class', 'style', 'colspan', 'width', 'border', 'valign', 'cellspacing', 'cellpadding', 'align', 'height', 'rowspan', 'rowspacing', 'rowpadding'],
+		img: ['src', 'width', 'height', 'style', 'id'],
+		html: ['xmlns*'],
+		meta: ['name', 'content'],
+	},
+	allowVulnerableTags: true,
+	allowedSchemes: ['data'],
+	allowedSchemesByTag: {
+		a: ['http', 'https', 'mailto', 'tel'],
+	},
+}
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 /**
- * FooterFile: This class is used to display a preview of a securemail file at the bottom of the files list
+ * Displays a preview of a .SECUREMAIL.html file below the files list.
  */
 class FooterFile {
-    constructor(private file: NCNode) {
-    }
 
-    public async appendBelowFiles(): Promise<void> {
+	// eslint-disable-next-line no-useless-constructor
+	constructor(
+		private basename: string,
+		private dirPath: string,
+		private source: string,
+	) {}
 
-        console.log('sendent: Appending a preview of the securemail file at the bottom of the files list');
+	public async appendBelowFiles(version: number): Promise<void> {
+		// Skip if a newer render has already been requested
+		if (version !== renderVersion) return
 
-        $(CONTENT_ID).remove();
+		// eslint-disable-next-line no-console
+		console.log('sendent: Appending a preview of the securemail file at the bottom of the files list')
 
-        const containerElement = $('<div>');
-        containerElement.attr('id', 'sendent-content');
-        if (OCA.Sharing?.PublicApp) {
-            containerElement.insertAfter($('.files-filestable'));
-        } else {
-            containerElement.insertAfter($('.files-list__table'));
-        }
+		// Remove any existing preview
+		document.getElementById(CONTENT_ID)?.remove()
 
-        const loadingElement = $('<span>').addClass('icon-loading').css('position', 'unset');
-        loadingElement.appendTo(containerElement);
+		// Create container
+		const container = document.createElement('div')
+		container.id = CONTENT_ID
 
-        const path = this.getFilePath();
-        const response = await axios.get(path);
-        let content = response.data;
-        content = sanitizeHtml(content, SANITIZE_OPTIONS);
+		// Insert after the file list table (try multiple selectors for NC 28-33)
+		const anchor = document.querySelector('.files-list__table')
+			|| document.querySelector('.files-filestable')
+			|| document.querySelector('#filestable')
 
-        const iframeElement = this.generateIframeElement(content);
-        containerElement.empty().append(iframeElement);
-    }
+		if (!anchor) return
 
-    private getFilePath(): string {
-        //console.log(this.file); // Added this so i could analyse the properties of the "file" object
-        const path = encodeURI(this.file.path);
-        const source = encodeURI(this.file.source); //Added this so i get full link to file
-        const name = encodeURIComponent(this.file.basename);
+		anchor.insertAdjacentElement('afterend', container)
 
-        if (OCA.Sharing?.PublicApp) {
-            const token = $('#sharingToken').val();
+		// Show loading spinner
+		const spinner = document.createElement('span')
+		spinner.classList.add('icon-loading')
+		spinner.style.position = 'unset'
+		container.appendChild(spinner)
 
-            return generateUrl('/s/{token}/download?path={path}&files={name}',
-                {
-                    token,
-                    path,
-                    name,
-                }
-            );
-       }
+		try {
+			// Fetch and sanitize content
+			const response = await axios.get(this.getFilePath())
 
-        //return generateRemoteUrl('files/' + name); // Replaced this to generate remoteUrl based on filename to
-        return source;
-    }
+			// Bail out if a newer render superseded us during the fetch
+			if (version !== renderVersion) return
 
-    private generateIframeElement(content: string) {
-        const iframeElement = $<HTMLFrameElement>('<iframe>');
-        iframeElement.width(0);
-        iframeElement.height(0);
-        iframeElement.on('load', () => {
-            const innerHeight = iframeElement.get(0)?.contentDocument?.documentElement?.scrollHeight;
-            const innerWidth = iframeElement.get(0)?.contentDocument?.documentElement?.scrollWidth;
+			const content = sanitizeHtml(response.data, SANITIZE_OPTIONS)
 
-            innerHeight && iframeElement.height(innerHeight);
-            innerWidth && iframeElement.width(innerWidth);
-        });
-        iframeElement.attr('srcdoc', content);
+			// Replace loading spinner with iframe
+			container.innerHTML = ''
+			container.appendChild(this.generateIframeElement(content))
+		} catch (err) {
+			// eslint-disable-next-line no-console
+			console.error('sendent: Failed to load securemail content', err)
+			container.remove()
+		}
+	}
 
-        return iframeElement
-    }
+	private getFilePath(): string {
+		// Prefer WebDAV source URL (works for both regular and NC 28+ public shares)
+		if (this.source) {
+			return this.source
+		}
+
+		// Fallback: build download URL from sharing token (legacy public shares)
+		const tokenInput = document.getElementById('sharingToken') as HTMLInputElement | null
+		if (tokenInput?.value) {
+			return generateUrl('/s/{token}/download?path={path}&files={name}', {
+				token: tokenInput.value,
+				path: encodeURI(this.dirPath),
+				name: encodeURIComponent(this.basename),
+			})
+		}
+
+		return ''
+	}
+
+	private generateIframeElement(content: string): HTMLIFrameElement {
+		const iframe = document.createElement('iframe')
+		iframe.width = '0'
+		iframe.height = '0'
+		iframe.addEventListener('load', () => {
+			const innerHeight = iframe.contentDocument?.documentElement?.scrollHeight
+			const innerWidth = iframe.contentDocument?.documentElement?.scrollWidth
+			if (innerHeight) iframe.height = String(innerHeight)
+			if (innerWidth) iframe.width = String(innerWidth)
+		})
+		iframe.srcdoc = content
+		return iframe
+	}
+
 }
 
+let debounceTimer: ReturnType<typeof setTimeout> | null = null
+let renderVersion = 0
+
 /**
- * Searches for a securemail file, and, when found, display its sanitized content below the file list
+ * Debounced wrapper — collapses rapid successive calls into one.
+ * @param files
  */
-async function onFileListUpdated() {
-
-    // function to block script execution
-    const wait = t => new Promise((resolve, reject) => setTimeout(resolve, t))
-
-    let fileList;
-    if (OCA.Sharing?.PublicApp) {
-        await wait(1500);
-        fileList = OCA.Sharing.PublicApp.fileList.files.map((f) => {
-            f.basename = f.name;
-            return f;
-        });
-    } else {
-        const currentPath = OCP.Files.Router.query.dir ?? '/';
-        const view = getNavigation().active;
-        const content = await view?.getContents(currentPath);
-        fileList = content?.contents ?? [];
-    }
-
-    for (const file of fileList ?? []) {
-        if (file.type === 'file' && file.basename === FOOTER_NAME) {
-            const footerFile = new FooterFile(file);
-            footerFile.appendBelowFiles();
-        }
-    }
-
+function processFileListDebounced(files: any[]) {
+	if (debounceTimer) clearTimeout(debounceTimer)
+	debounceTimer = setTimeout(() => processFileList(files), 50)
 }
 
 /**
- * Initializes the securemail previewer
+ * Scans a file list for a .SECUREMAIL.html file and renders its preview.
+ * Removes any stale preview if no securemail file is found.
+ * @param files
+ */
+function processFileList(files: any[]) {
+	const version = ++renderVersion
+	for (const file of files ?? []) {
+		const basename = file.basename || file.name
+		if (file.type === 'file' && basename === FOOTER_NAME) {
+			// Extract directory from full path (Node.dirname or manual extraction)
+			const dirPath = file.dirname
+				?? (file.path ? file.path.substring(0, file.path.lastIndexOf('/')) || '/' : '/')
+			new FooterFile(basename, dirPath, file.source ?? '').appendBelowFiles(version)
+			return
+		}
+	}
+	// No securemail file in this directory — clean up stale preview
+	document.getElementById(CONTENT_ID)?.remove()
+}
+
+/**
+ * Gets the current directory path, with multiple fallback strategies for NC 28-33.
+ */
+function getCurrentDir(): string {
+	try {
+		if (typeof OCP !== 'undefined' && OCP?.Files?.Router?.query?.dir) {
+			return OCP.Files.Router.query.dir
+		}
+	} catch { /* ignore */ }
+	return new URL(window.location.href).searchParams.get('dir') || '/'
+}
+
+/**
+ * Loads the file list on first render (in case we missed the files:list:updated event).
+ */
+async function loadInitialFiles() {
+	try {
+		// Public shares: rely solely on files:list:updated event — the Navigation API
+		// uses the wrong WebDAV root (logged-in user instead of share token)
+		if (document.getElementById('sharingToken')) {
+			return
+		}
+
+		// Regular files view: use Navigation API
+		const view = getNavigation().active
+		if (!view) return
+		const result = await view.getContents(getCurrentDir())
+		processFileList(result?.contents ?? [])
+	} catch (err) {
+		// eslint-disable-next-line no-console
+		console.warn('sendent: Could not load initial file list', err)
+	}
+}
+
+/**
+ * Initializes the securemail previewer.
  */
 function initSecureMailPreviewer() {
-    console.log('sendent: initialising securemail previewer')
-    subscribe('files:list:updated', (node: NCNode) => onFileListUpdated())
-    onFileListUpdated();
+	// eslint-disable-next-line no-console
+	console.log('sendent: initialising securemail previewer')
+
+	// NC 28+: subscribe to file list update events (payload contains { contents: Node[] })
+	subscribe('files:list:updated', (event: any) => {
+		if (event?.contents) {
+			processFileListDebounced(event.contents)
+		}
+	})
+
+	// Try loading initial file list (fallback if we missed the first event)
+	loadInitialFiles()
 }
 
 /**
- * entry point
+ * Entry point
  */
-if (document.readyState === 'complete') {
-    initSecureMailPreviewer();
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+	initSecureMailPreviewer()
 } else {
-    document.addEventListener('DOMContentLoaded', initSecureMailPreviewer);
+	document.addEventListener('DOMContentLoaded', initSecureMailPreviewer)
 }

@@ -1,4 +1,26 @@
 <?php
+
+/**
+ * @copyright Copyright (c) 2026 Sendent B.V.
+ *
+ * @author Sendent B.V. <info@sendent.com>
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 /**
  * Create your routes in here. The name is the lowercase name of the controller
  * without the controller part, the stuff after the hash is the method.
@@ -31,7 +53,7 @@ return [
 			'requirements' => ['path' => '.+']
 		],
 		['name' => 'setting_group_value_api#index', 'url' => '/api/1.0/settinggroupvalue/index', 'verb' => 'GET'],
-		['name' => 'setting_group_value_api#byTemplate', 'url' => '/api/1.0/settinggroupvalue/index/byTemplate/{templateId}', 'verb' => 'GET', 'defaults' => array('templateId' => NULL)],
+		['name' => 'setting_group_value_api#byTemplate', 'url' => '/api/1.0/settinggroupvalue/index/byTemplate/{templateId}', 'verb' => 'GET', 'defaults' => ['templateId' => null]],
 		['name' => 'setting_group_value_api#getForDefaultGroup', 'url' => '/api/1.0/settinggroupvalue/getForDefaultGroup', 'verb' => 'GET'],
 		['name' => 'setting_group_value_api#getForNCGroup', 'url' => '/api/1.0/settinggroupvalue/getForNCGroup/{ncgroup}', 'verb' => 'GET'],
 		['name' => 'setting_group_value_api#show', 'url' => '/api/1.0/settinggroupvalue/{id}', 'verb' => 'GET'],
@@ -87,7 +109,8 @@ return [
 		['name' => 'status_api#index', 'url' => '/api/1.0/status', 'verb' => 'GET'],
 		['name' => 'tag#show', 'url' => '/api/1.0/tag/{id}', 'verb' => 'GET'],
 		['name' => 'tag#create', 'url' => '/api/1.0/tag', 'verb' => 'POST'],
-		['name' => 'termsagreement_api#agree', 'url' => '/api/1.0/termsagreement/agree/{version}', 'verb' => 'GET'],
+
+		['name' => 'termsagreement_api#agree', 'url' => '/api/1.0/termsagreement/agree/{version}', 'verb' => 'POST'],
 		['name' => 'termsagreement_api#isAgreed', 'url' => '/api/1.0/termsagreement/isagreed/{version}', 'verb' => 'GET'],
 
 		[
@@ -109,5 +132,5 @@ return [
 		['name' => 'folder_mapping#deleteMapping',      'url' => '/api/1.0/mapping/{msId}',  'verb' => 'DELETE', 'requirements' => ['msId' => '.+']],
 	]
 ];
-	?>
+?>
 

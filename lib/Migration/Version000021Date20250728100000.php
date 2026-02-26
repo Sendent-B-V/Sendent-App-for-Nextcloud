@@ -3,9 +3,9 @@
 declare(strict_types=1);
 
 /**
- * @copyright Copyright (c) 2022 Sendent B.V. info@sendent.com
+ * @copyright Copyright (c) 2026 Sendent B.V.
  *
- * @author Sendent B.V. info@sendent.com
+ * @author Sendent B.V. <info@sendent.com>
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -82,6 +82,6 @@ class Version000021Date20250728100000 extends SimpleMigrationStep {
 	 * @param array $options
 	 */
 	public function postSchemaChange(IOutput $output, Closure $schemaClosure, array $options): void {
-		
+
 	}
 }

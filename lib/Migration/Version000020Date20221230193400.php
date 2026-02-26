@@ -77,13 +77,13 @@ class Version000020Date20221230193400 extends SimpleMigrationStep {
 		$query = $this->db->getQueryBuilder();
 
 		$query->select('id')
-				->from('sndnt_license');
-		$cursor = $query->execute();
+			->from('sndnt_license');
+		$cursor = $query->executeQuery();
 		$row = $cursor->fetch();
 		$cursor->closeCursor();
 
 		$query->update('sndnt_connuser')
-				->set('licenseid', $query->createNamedParameter($row['id']));
+			->set('licenseid', $query->createNamedParameter($row['id']));
 		$query->executeStatement();
 	}
 }

@@ -1,3 +1,24 @@
+/**
+ * @copyright Copyright (c) 2026 Sendent B.V.
+ *
+ * @author Sendent B.V. <info@sendent.com>
+ *
+ * @license AGPL-3.0-or-later
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 interface EscapeOptions {
 	escape?: boolean;
 }
@@ -25,10 +46,10 @@ declare namespace OC {
 	}
 
 	namespace Share {
-		const SHARE_TYPE_USER = 0;
-		const SHARE_TYPE_GROUP = 1;
-		const SHARE_TYPE_LINK = 3;
-		const SHARE_TYPE_CIRCLE = 7;
+		const SHARE_TYPE_USER = 0
+		const SHARE_TYPE_GROUP = 1
+		const SHARE_TYPE_LINK = 3
+		const SHARE_TYPE_CIRCLE = 7
 	}
 
 	interface Plugin<T> {
@@ -66,18 +87,18 @@ declare namespace OC {
 
 	function filePath(app: string, type: string, file: string): string;
 
-	const PERMISSION_CREATE = 4;
-	const PERMISSION_READ = 1;
-	const PERMISSION_UPDATE = 2;
-	const PERMISSION_DELETE = 8;
-	const PERMISSION_SHARE = 16;
-	const PERMISSION_ALL = 31;
+	const PERMISSION_CREATE = 4
+	const PERMISSION_READ = 1
+	const PERMISSION_UPDATE = 2
+	const PERMISSION_DELETE = 8
+	const PERMISSION_SHARE = 16
+	const PERMISSION_ALL = 31
 
-	const currentUser: string;
+	const currentUser: string
 
 	function getCurrentUser(): {uid: string; displayName: string}
 
-	const requestToken: string;
+	const requestToken: string
 
 	const config: {
 		blacklist_files_regex: string;
@@ -90,7 +111,7 @@ declare namespace OC {
 		'sharing.minSearchStringLength': number;
 		version: string;
 		versionString: string;
-	};
+	}
 }
 
 declare function t(app: string, string: string, vars?: { [key: string]: string }, count?: number, options?: EscapeOptions): string;
@@ -114,12 +135,12 @@ declare module 'NC' {
 
 declare namespace OCA {
     namespace Files {
-        const fileActions: any;
-        const App: any;
+        const fileActions: any
+        const App: any
     }
 
     namespace Sharing {
-        const PublicApp: any;
+        const PublicApp: any
     }
 }
 

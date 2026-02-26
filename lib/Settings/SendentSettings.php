@@ -1,10 +1,31 @@
 <?php
 
+/**
+ * @copyright Copyright (c) 2026 Sendent B.V.
+ *
+ * @author Sendent B.V. <info@sendent.com>
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 namespace OCA\Sendent\Settings;
 
 use OCA\Sendent\Constants;
-use OCA\Sendent\Service\LicenseService;
 use OCA\Sendent\Service\LicenseManager;
+use OCA\Sendent\Service\LicenseService;
 use OCP\App\IAppManager;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\AppFramework\Services\IAppConfig;
@@ -49,8 +70,8 @@ class SendentSettings implements ISettings {
 		ISystemTagManager $tagManager,
 		IL10N $l,
 		LicenseManager $licenseManager,
-		LicenseService $licenseService
-		) {
+		LicenseService $licenseService,
+	) {
 		$this->appManager = $appManager;
 		$this->groupManager = $groupManager;
 		$this->initialState = $initialState;
@@ -72,39 +93,43 @@ class SendentSettings implements ISettings {
 
 		$this->initialState->provideInitialState('tags', $this->getTagState());
 
-		$params = $this->initializeGroups();
+		$groups = $this->initializeGroups();
+		$this->initialState->provideInitialState('ncGroups', array_values($groups['ncGroups']));
+		$this->initialState->provideInitialState('sendentGroups', array_values($groups['sendentGroups']));
 
 		// Gets default license info
-		$license = $this->licenseService->findByGroup("");
+		$licenseState = [];
+		$license = $this->licenseService->findByGroup('');
 		if (count($license) === 0) {
-			$params['defaultLicenseStatus'] = $this->l->t("No license configured");
-			$params['defaultLicenseLevel'] = '';
-			$params['defaultLicenseExpirationDate'] = '';
-			$params['defaultLicenseLastCheck'] = '';
+			$licenseState['status'] = $this->l->t('No license configured');
+			$licenseState['level'] = '';
+			$licenseState['expirationDate'] = '';
+			$licenseState['lastCheck'] = '';
 		} else {
-			$params['defaultLicenseLevel'] = $license[0]->getLevel();
-			$params['defaultLicenseExpirationDate'] = $license[0]->getDatelicenseend();
-			$params['defaultLicenseLastCheck'] = $license[0]->getDatelastchecked();
+			$licenseState['level'] = $license[0]->getLevel();
+			$licenseState['expirationDate'] = $license[0]->getDatelicenseend();
+			$licenseState['lastCheck'] = $license[0]->getDatelastchecked();
 			if ($license[0]->isCleared()) {
-				$params['defaultLicenseStatus'] = $this->l->t("No license configured");
+				$licenseState['status'] = $this->l->t('No license configured');
 			} elseif ($license[0]->isIncomplete()) {
-				$params['defaultLicenseStatus'] = $this->l->t("Missing email address or license key.");
+				$licenseState['status'] = $this->l->t('Missing email address or license key.');
 			} elseif ($license[0]->isCheckNeeded()) {
-				$params['defaultLicenseStatus'] = $this->l->t("Revalidation of your license is required");
+				$licenseState['status'] = $this->l->t('Revalidation of your license is required');
 			} elseif ($license[0]->isLicenseExpired()) {
-				$params['defaultLicenseStatus'] = $this->l->t("Current license has expired.") .
-					"</br>" .
-					$this->l->t('%1$sContact support%2$s if you experience issues with configuring your license key.', ["<a href='mailto:support@sendent.com' style='color:blue'>", "</a>"]);
+				$licenseState['status'] = $this->l->t('Current license has expired.')
+					. '</br>'
+					. $this->l->t('%1$sContact support%2$s if you experience issues with configuring your license key.', ["<a href='mailto:support@sendent.com' style='color:blue'>", '</a>']);
 			} elseif (!$license[0]->isCheckNeeded() && !$license[0]->isLicenseExpired()) {
-				$params['defaultLicenseStatus'] = $this->l->t("Current license is valid");
+				$licenseState['status'] = $this->l->t('Current license is valid');
 			} elseif (!$this->licensemanager->isWithinUserCount($license[0]) && $this->licensemanager->isWithinGraceUserCount($license[0])) {
-				$params['defaultLicenseStatus'] = $this->l->t("Current amount of active users exceeds licensed amount. Some users might not be able to use Sendent.");
+				$licenseState['status'] = $this->l->t('Current amount of active users exceeds licensed amount. Some users might not be able to use Sendent.');
 			} elseif (!$this->licensemanager->isWithinUserCount($license[0]) && !$this->licensemanager->isWithinGraceUserCount($license[0])) {
-				$params['defaultLicenseStatus'] = $this->l->t("Current amount of active users exceeds licensed amount. Additional users trying to use Sendent will be prevented from doing so.");
+				$licenseState['status'] = $this->l->t('Current amount of active users exceeds licensed amount. Additional users trying to use Sendent will be prevented from doing so.');
 			}
 		}
+		$this->initialState->provideInitialState('defaultLicense', $licenseState);
 
-		return new TemplateResponse('sendent', 'index', $params);
+		return new TemplateResponse('sendent', 'index', []);
 	}
 
 	/**
@@ -120,31 +145,31 @@ class SendentSettings implements ISettings {
 		$sendentGroups = array_map(function ($gid) {
 			$group = $this->groupManager->get($gid);
 			if (!is_null($group)) {
-				return array(
-					"displayName" => $group->getDisplayName(),
-					"gid" => $group->getGid()
-				);
+				return [
+					'displayName' => $group->getDisplayName(),
+					'gid' => $group->getGid()
+				];
 			} else {
-				return array(
-					"displayName" => $gid . ' *** DELETED GROUP ***',
-					"gid" => $gid
-				);
+				return [
+					'displayName' => $gid . ' *** DELETED GROUP ***',
+					'gid' => $gid
+				];
 			}
 		}, $sendentGroups);
 
-		
+
 
 		// Gets all Nextcloud groups
 		$NCGroups = $this->groupManager->search('');
 		$NCGroups = array_map(function ($group) {
-			return array(
-				"displayName" => $group->getDisplayName(),
-				"gid" => $group->getGid()
-			);
+			return [
+				'displayName' => $group->getDisplayName(),
+				'gid' => $group->getGid()
+			];
 		}, $NCGroups);
 
 		// Removes sendentGroups from all Nextcloud groups
-		$NCGroups = array_udiff($NCGroups, $sendentGroups, function($g1, $g2) {
+		$NCGroups = array_udiff($NCGroups, $sendentGroups, function ($g1, $g2) {
 			return strcmp($g1['gid'], $g2['gid']);
 		});
 
@@ -154,7 +179,6 @@ class SendentSettings implements ISettings {
 		}, $NCGroups);
 		array_multisort($ncGroupsKeys, SORT_ASC, $NCGroups);
 
-		// Sorts NC Groups by gid
 		$sendentGroupsKeys = array_map(function ($sendentGroup) {
 			return $sendentGroup['gid'];
 		}, $sendentGroups);
@@ -211,8 +235,8 @@ class SendentSettings implements ISettings {
 
 	/**
 	 * @return int whether the form should be rather on the top or bottom of
-	 * the admin section. The forms are arranged in ascending order of the
-	 * priority values. It is required to return a value between 0 and 100.
+	 *             the admin section. The forms are arranged in ascending order of the
+	 *             priority values. It is required to return a value between 0 and 100.
 	 */
 	public function getPriority() {
 		return 50;

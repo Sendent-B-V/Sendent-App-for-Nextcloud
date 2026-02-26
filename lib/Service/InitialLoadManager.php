@@ -1,19 +1,40 @@
 <?php
 
+/**
+ * @copyright Copyright (c) 2026 Sendent B.V.
+ *
+ * @author Sendent B.V. <info@sendent.com>
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 namespace OCA\Sendent\Service;
 
 use Exception;
 use OCA\Sendent\AppInfo\Application;
+use OCA\Sendent\Db\SettingGroupValue;
+use OCA\Sendent\Db\SettingGroupValueMapper;
 use OCA\Sendent\Db\SettingKey;
 use OCA\Sendent\Db\SettingKeyMapper;
-use OCA\Sendent\Db\SettingTemplateMapper;
-use OCA\Sendent\Db\SettingGroupValueMapper;
-use OCA\Sendent\Db\SettingGroupValue;
 use OCA\Sendent\Db\SettingTemplate;
-use Psr\Log\LoggerInterface;
+use OCA\Sendent\Db\SettingTemplateMapper;
 use OCP\App\IAppManager;
 use OCP\IConfig;
 use OCP\PreConditionNotMetException;
+use Psr\Log\LoggerInterface;
 
 class InitialLoadManager {
 	private $SettingKeyMapper;
@@ -36,9 +57,9 @@ class InitialLoadManager {
 		LoggerInterface $logger,
 		IConfig $config,
 		IAppManager $appManager) {
-			$this->SettingKeyMapper = $SettingKeyMapper;
-			$this->SettingTemplateMapper = $SettingTemplateMapper;
-			$this->SettingGroupValueMapper = $SettingGroupValueMapper;
+		$this->SettingKeyMapper = $SettingKeyMapper;
+		$this->SettingTemplateMapper = $SettingTemplateMapper;
+		$this->SettingGroupValueMapper = $SettingGroupValueMapper;
 		$this->SendentFileStorageManager = $SendentFileStorageManager;
 		$this->logger = $logger;
 		$this->config = $config;
@@ -55,7 +76,7 @@ class InitialLoadManager {
 	public function checkUpdateNeeded(): bool {
 		$firstRun = $this->config->getAppValue('sendent', 'firstRunAppVersion');
 		if ($firstRun !== '3.1.0') {
-			try {				
+			try {
 				$this->logger->info('Initial load manager determined it needs to run. ');
 
 				$this->runInitialLoadTasks();
@@ -66,8 +87,7 @@ class InitialLoadManager {
 				return false;
 			}
 			return true;
-		}
-		else{
+		} else {
 			$this->logger->debug('Initial load manager determined it doesnt need to run. ');
 
 		}
@@ -76,90 +96,87 @@ class InitialLoadManager {
 	}
 	private function runInitialLoadTasks(): void {
 		try {
-			if($this->SettingTemplateMapper->settingTemplateCount("0") < 1)
-			{
+			if ($this->SettingTemplateMapper->settingTemplateCount('0') < 1) {
 				$this->logger->info('settingtemplate 0 not present, creating it. ');
-				$this->createTemplate("0", "msoutlook");
+				$this->createTemplate('0', 'msoutlook');
 			}
-			if($this->SettingTemplateMapper->settingTemplateCount("1") < 1)
-			{
+			if ($this->SettingTemplateMapper->settingTemplateCount('1') < 1) {
 				$this->logger->info('settingtemplate 1 not present, creating it. ');
-				$this->createTemplate("1", "msoutlook_advanced-theming");
+				$this->createTemplate('1', 'msoutlook_advanced-theming');
 			}
-			if($this->SettingTemplateMapper->settingTemplateCount("2") < 1)
-			{
+			if ($this->SettingTemplateMapper->settingTemplateCount('2') < 1) {
 				$this->logger->info('settingtemplate 2 not present, creating it. ');
-				$this->createTemplate("2", "msteams");
+				$this->createTemplate('2', 'msteams');
 			}
-			if ($this->SettingKeyMapper->settingKeyCount("700") < 1) {
+			if ($this->SettingKeyMapper->settingKeyCount('700') < 1) {
 				$this->addEnforceFiledropSetting();
 			}
-			if ($this->SettingKeyMapper->settingKeyCount("401") < 1) {
+			if ($this->SettingKeyMapper->settingKeyCount('401') < 1) {
 				$this->logger->info('statussync settingkey (401) not present, creating it. ');
 				$this->addStatusSync();
 			}
-			if ($this->SettingKeyMapper->settingKeyCount("501") < 1) {
+			if ($this->SettingKeyMapper->settingKeyCount('501') < 1) {
 				$this->logger->info('teams_pathuploadfiles settingkey (501) not present, creating it. ');
 				$this->addPathUploadFilesTeams();
 				$this->fixTeams_pathuploadfiles();
 			}
-			if ($this->SettingKeyMapper->settingKeyCount("20") < 1) {
+			if ($this->SettingKeyMapper->settingKeyCount('20') < 1) {
 				$this->initialLoading();
 			}
-			if ($this->SettingKeyMapper->settingKeyCount("600") < 1) {
+			if ($this->SettingKeyMapper->settingKeyCount('600') < 1) {
 				$this->addSecureMailUIMode();
 			}
-			if ($this->SettingKeyMapper->settingKeyCount("23") < 1) {
+			if ($this->SettingKeyMapper->settingKeyCount('23') < 1) {
 				$this->addSendmode();
 			}
-			if ($this->SettingKeyMapper->settingKeyCount("30") < 1) {
+			if ($this->SettingKeyMapper->settingKeyCount('30') < 1) {
 				$this->addHtmlpasswordsnippet();
 			}
-			if ($this->SettingKeyMapper->settingKeyCount("203") < 1) {
+			if ($this->SettingKeyMapper->settingKeyCount('203') < 1) {
 				$this->addHtmlTalksnippet();
 			}
-			if ($this->SettingKeyMapper->settingKeyCount("31") < 1) {
+			if ($this->SettingKeyMapper->settingKeyCount('31') < 1) {
 				$this->addPopupExternalMail();
 			}
-			if ($this->SettingKeyMapper->settingKeyCount("81") < 1 || $this->showNameBySettingKeyId("81") !== "GeneralIconColor"
-			|| $this->showTemplateBySettingKeyId("81") !== 1 || $this->showGroupIdBySettingKeyId("81") !== 1) {
+			if ($this->SettingKeyMapper->settingKeyCount('81') < 1 || $this->showNameBySettingKeyId('81') !== 'GeneralIconColor'
+			|| $this->showTemplateBySettingKeyId('81') !== 1 || $this->showGroupIdBySettingKeyId('81') !== 1) {
 				$this->addAdvancedTheming();
 			}
-			if ($this->SettingKeyMapper->settingKeyCount("94") < 1 || $this->showNameBySettingKeyId("94") !== "TaskpaneActivityTrackerFontColor"
-			|| $this->showTemplateBySettingKeyId("94") !== 1 || $this->showGroupIdBySettingKeyId("94") !== 1) {
+			if ($this->SettingKeyMapper->settingKeyCount('94') < 1 || $this->showNameBySettingKeyId('94') !== 'TaskpaneActivityTrackerFontColor'
+			|| $this->showTemplateBySettingKeyId('94') !== 1 || $this->showGroupIdBySettingKeyId('94') !== 1) {
 				$this->addAdvancedThemingUpdate();
 			}
-			if ($this->SettingKeyMapper->settingKeyCount("98") < 1 || $this->showNameBySettingKeyId("98") !== "ButtonSecondaryIconColor"
-			|| $this->showTemplateBySettingKeyId("98") !== 1 || $this->showGroupIdBySettingKeyId("98") !== 1) {
+			if ($this->SettingKeyMapper->settingKeyCount('98') < 1 || $this->showNameBySettingKeyId('98') !== 'ButtonSecondaryIconColor'
+			|| $this->showTemplateBySettingKeyId('98') !== 1 || $this->showGroupIdBySettingKeyId('98') !== 1) {
 				$this->addAdvancedThemingUpdate2();
 			}
-			if ($this->SettingKeyMapper->settingKeyCount("99") < 1 || $this->showNameBySettingKeyId("99") !== "TaskpaneSecureMailControlColor"
-			|| $this->showTemplateBySettingKeyId("99") !== 1 || $this->showGroupIdBySettingKeyId("99") !== 1) {
+			if ($this->SettingKeyMapper->settingKeyCount('99') < 1 || $this->showNameBySettingKeyId('99') !== 'TaskpaneSecureMailControlColor'
+			|| $this->showTemplateBySettingKeyId('99') !== 1 || $this->showGroupIdBySettingKeyId('99') !== 1) {
 				$this->addAdvancedThemingUpdate3();
 			}
-			if ($this->SettingKeyMapper->settingKeyCount("100") < 1 || $this->showNameBySettingKeyId("100") !== "DialogFooterBackgroundColor"
-			|| $this->showTemplateBySettingKeyId("100") !== 1 || $this->showGroupIdBySettingKeyId("100") !== 1) {
+			if ($this->SettingKeyMapper->settingKeyCount('100') < 1 || $this->showNameBySettingKeyId('100') !== 'DialogFooterBackgroundColor'
+			|| $this->showTemplateBySettingKeyId('100') !== 1 || $this->showGroupIdBySettingKeyId('100') !== 1) {
 				$this->addAdvancedThemingUpdate4();
 			}
-			if ($this->SettingKeyMapper->settingKeyCount("104") < 1) {
+			if ($this->SettingKeyMapper->settingKeyCount('104') < 1) {
 				$this->addAdvancedThemingNameUpdate();
 			}
-			if ($this->SettingKeyMapper->settingKeyCount("201") < 1) {
+			if ($this->SettingKeyMapper->settingKeyCount('201') < 1) {
 				$this->addTalkSettingUpdate();
 			}
-			if ($this->SettingKeyMapper->settingKeyCount("202") < 1) {
+			if ($this->SettingKeyMapper->settingKeyCount('202') < 1) {
 				$this->addTalkEnabledUpdate();
 			}
-			if ($this->SettingKeyMapper->settingKeyCount("301") < 1) {
+			if ($this->SettingKeyMapper->settingKeyCount('301') < 1) {
 				$this->addGuestAccountSettings();
 			}
-			if ($this->SettingKeyMapper->settingKeyCount("303") < 1) {
+			if ($this->SettingKeyMapper->settingKeyCount('303') < 1) {
 				$this->addGuestAccountSettings();
 			}
-			if ($this->SettingKeyMapper->settingKeyCount("5") < 1) {
+			if ($this->SettingKeyMapper->settingKeyCount('5') < 1) {
 				$this->addSenderExceptionSettings();
 			}
-			if($this->SettingKeyMapper->settingKeyCount("204") < 1) {
+			if ($this->SettingKeyMapper->settingKeyCount('204') < 1) {
 				$this->addArchivingSettings();
 			}
 			$this->fixPaths();
@@ -176,22 +193,22 @@ class InitialLoadManager {
 			$archivingPath = $this -> showBySettingKeyId(205);
 			if (!is_null($folderpath)) {
 				if ($folderpath->getValue() === '') {
-					$this->update($folderpath->getId(), $folderpath->getSettingkeyid(), $folderpath->getGroupid(), "/Outlook/Public-Share/");
+					$this->update($folderpath->getId(), $folderpath->getSettingkeyid(), $folderpath->getGroupid(), '/Outlook/Public-Share/');
 				}
 			}
 			if (!is_null($filepath)) {
 				if ($filepath->getValue() === '') {
-					$this->update($filepath->getId(), $filepath->getSettingkeyid(), $filepath->getGroupid(), "/Outlook/Upload-Share/");
+					$this->update($filepath->getId(), $filepath->getSettingkeyid(), $filepath->getGroupid(), '/Outlook/Upload-Share/');
 				}
 			}
 			if (!is_null($securemailpath)) {
 				if ($securemailpath->getValue() === '') {
-					$this->update($securemailpath->getId(), $securemailpath->getSettingkeyid(), $securemailpath->getGroupid(), "/Outlook/SecureMail-Share/");
+					$this->update($securemailpath->getId(), $securemailpath->getSettingkeyid(), $securemailpath->getGroupid(), '/Outlook/SecureMail-Share/');
 				}
 			}
 			if (!is_null($archivingPath)) {
 				if ($archivingPath->getValue() === '') {
-					$this->update($archivingPath->getId(), $archivingPath->getSettingkeyid(), $archivingPath->getGroupid(), "/Outlook/Archiving/");
+					$this->update($archivingPath->getId(), $archivingPath->getSettingkeyid(), $archivingPath->getGroupid(), '/Outlook/Archiving/');
 				}
 			}
 		} catch (Exception $exception) {
@@ -234,10 +251,10 @@ class InitialLoadManager {
 					$this->update($guestaccounthtmlsnippet->getId(), $guestaccounthtmlsnippet->getSettingkeyid(), $guestaccounthtmlsnippet->getGroupid(), $this->getguestaccountshtml());
 				}
 			}
-			if(!is_null($guestaccountpublicsharehtmlsnippet)){
-				if($guestaccountpublicsharehtmlsnippet->getValue() === ''){
+			if (!is_null($guestaccountpublicsharehtmlsnippet)) {
+				if ($guestaccountpublicsharehtmlsnippet->getValue() === '') {
 					$this->update($guestaccountpublicsharehtmlsnippet->getId(), $guestaccountpublicsharehtmlsnippet->getSettingkeyid(), $guestaccountpublicsharehtmlsnippet->getGroupid(), $this->getguestaccountspublicsharehtml());
-					
+
 				}
 			}
 			if (!is_null($talkhtmlsnippet)) {
@@ -254,384 +271,384 @@ class InitialLoadManager {
 		}
 	}
 	public function addStatusSync() : void {
-		$this->createKey("401", "statussync", "0", "select-one");
-		$this->createGroupValue("0", "401", "False");
+		$this->createKey('401', 'statussync', '0', 'select-one');
+		$this->createGroupValue('0', '401', 'False');
 	}
 	public function addPathUploadFilesTeams() : void {
-		$this->createKey("501", "teams_pathuploadfiles", "2", "text");
-		$this->createGroupValue("2", "501", "/MSTeams/Upload-Share/");
+		$this->createKey('501', 'teams_pathuploadfiles', '2', 'text');
+		$this->createGroupValue('2', '501', '/MSTeams/Upload-Share/');
 	}
 	private function fixTeams_pathuploadfiles(): void {
 		try {
 			$teams_pathuploadfiles = $this->showBySettingKeyId(501);
-			
+
 			if (!is_null($teams_pathuploadfiles)) {
 				if ($teams_pathuploadfiles->getValue() === '') {
-					$this->update($teams_pathuploadfiles->getId(), $teams_pathuploadfiles->getSettingkeyid(), $teams_pathuploadfiles->getGroupid(), "/MSTeams/Upload-Share/");
+					$this->update($teams_pathuploadfiles->getId(), $teams_pathuploadfiles->getSettingkeyid(), $teams_pathuploadfiles->getGroupid(), '/MSTeams/Upload-Share/');
 				}
 			}
 		} catch (Exception $exception) {
 		}
 	}
 	public function addPopupExternalMail(): void {
-		$this->createKey("31", "attachmentdomainexceptionsexternalpopup", "0", "select-one");
-		$this->createGroupValue("0", "31", "False");
+		$this->createKey('31', 'attachmentdomainexceptionsexternalpopup', '0', 'select-one');
+		$this->createGroupValue('0', '31', 'False');
 	}
 	public function addArchivingSettings(): void {
-		$this->createKey("204", "archivingenabled", "0", "select-one");
-		$this->createGroupValue("0", "204", "False");
+		$this->createKey('204', 'archivingenabled', '0', 'select-one');
+		$this->createGroupValue('0', '204', 'False');
 
-		$this->createKey("205", "patharchiving", "0", "text");
-		$this->createGroupValue("0", "205", "/Outlook/Archiving/");
-		
+		$this->createKey('205', 'patharchiving', '0', 'text');
+		$this->createGroupValue('0', '205', '/Outlook/Archiving/');
+
 
 		$archivingPath = $this -> showBySettingKeyId(205);
 		if (!is_null($archivingPath)) {
 			if ($archivingPath->getValue() === '') {
-				$this->update($archivingPath->getId(), $archivingPath->getSettingkeyid(), $archivingPath->getGroupid(), "/Outlook/Archiving/");
+				$this->update($archivingPath->getId(), $archivingPath->getSettingkeyid(), $archivingPath->getGroupid(), '/Outlook/Archiving/');
 			}
 		}
 
-		$this->createKey("206", "archivemode", "0", "select-one");
-		$this->createGroupValue("0", "206", "3");
+		$this->createKey('206', 'archivemode', '0', 'select-one');
+		$this->createGroupValue('0', '206', '3');
 
-		$this->createKey("207", "archivecreatefolder", "0", "select-one");
-		$this->createGroupValue("0", "207", "False");
+		$this->createKey('207', 'archivecreatefolder', '0', 'select-one');
+		$this->createGroupValue('0', '207', 'False');
 	}
 	public function addSenderExceptionSettings(): void {
-		$this->createKey("5", "senderexceptions", "0", "text");
-		$this->createGroupValue("0", "5", "");
+		$this->createKey('5', 'senderexceptions', '0', 'text');
+		$this->createGroupValue('0', '5', '');
 	}
 	public function addHtmlpasswordsnippet(): void {
-		$this->createKey("30", "htmlsnippetpassword", "0", "textarea");
-		$this->createGroupValue("0", "30", $this->gethtmlpasswordsnippet());
+		$this->createKey('30', 'htmlsnippetpassword', '0', 'textarea');
+		$this->createGroupValue('0', '30', $this->gethtmlpasswordsnippet());
 	}
 	public function addHtmlTalksnippet(): void {
-		$this->createKey("203", "talkhtml", "0", "textarea");
-		$this->createGroupValue("0", "203", $this->gethtmltalksnippet());
+		$this->createKey('203', 'talkhtml', '0', 'textarea');
+		$this->createGroupValue('0', '203', $this->gethtmltalksnippet());
 	}
 	public function addTalkSettingUpdate(): void {
-		$this->createKey("201", "generatetalkpassword", "0", "textarea");
-		$this->createGroupValue("0", "201", "False");
+		$this->createKey('201', 'generatetalkpassword', '0', 'textarea');
+		$this->createGroupValue('0', '201', 'False');
 	}
 	public function addTalkEnabledUpdate(): void {
-		$this->createKey("202", "talkenabled", "0", "select-one");
-		$this->createGroupValue("0", "202", "True");
+		$this->createKey('202', 'talkenabled', '0', 'select-one');
+		$this->createGroupValue('0', '202', 'True');
 	}
-	
+
 	public function addTalkSeparateModeUpdate() : void {
-		$this->createKey("209", "talkpwsepenabled", "0", "select-one");
-		$this->createGroupValue("0", "209", "False");
-		
-		$this->createKey("210", "talkpwhtml", "0", "textarea");
-		$this->createGroupValue("0", "210", $this->gethtmltalkpwsnippet());
+		$this->createKey('209', 'talkpwsepenabled', '0', 'select-one');
+		$this->createGroupValue('0', '209', 'False');
+
+		$this->createKey('210', 'talkpwhtml', '0', 'textarea');
+		$this->createGroupValue('0', '210', $this->gethtmltalkpwsnippet());
 	}
-	
+
 	public function addAdvancedTheming(): void {
-		if (!is_null($this->showNameBySettingKeyId("81"))) {
-			$this->updateKey("81", "GeneralIconColor", "1", "text");
+		if (!is_null($this->showNameBySettingKeyId('81'))) {
+			$this->updateKey('81', 'GeneralIconColor', '1', 'text');
 			$value = $this->showBySettingKeyId(81);
 			$this->update($value->getId(), 81, 1, $value->getValue());
 		} else {
-			$this->createKey("81", "GeneralIconColor", "1", "text");
-			$this->createGroupValue("1", "81", "#151c62");
+			$this->createKey('81', 'GeneralIconColor', '1', 'text');
+			$this->createGroupValue('1', '81', '#151c62');
 		}
-		if (!is_null($this->showNameBySettingKeyId("82"))) {
-			$this->updateKey("82", "DialogFooterIconBackgroundColor", "1", "text");
+		if (!is_null($this->showNameBySettingKeyId('82'))) {
+			$this->updateKey('82', 'DialogFooterIconBackgroundColor', '1', 'text');
 			$value = $this->showBySettingKeyId(82);
 			$this->update($value->getId(), 82, 1, $value->getValue());
 		} else {
-			$this->createKey("82", "DialogFooterIconBackgroundColor", "1", "text");
-			$this->createGroupValue("1", "82", "#FFFFFF");
+			$this->createKey('82', 'DialogFooterIconBackgroundColor', '1', 'text');
+			$this->createGroupValue('1', '82', '#FFFFFF');
 		}
-		if (!is_null($this->showNameBySettingKeyId("83"))) {
-			$this->updateKey("83", "TaskpaneActivityTrackerColor", "1", "text");
+		if (!is_null($this->showNameBySettingKeyId('83'))) {
+			$this->updateKey('83', 'TaskpaneActivityTrackerColor', '1', 'text');
 			$value = $this->showBySettingKeyId(83);
 			$this->update($value->getId(), 83, 1, $value->getValue());
 		} else {
-			$this->createKey("83", "TaskpaneActivityTrackerColor", "1", "text");
-			$this->createGroupValue("1", "83", "#151c62");
+			$this->createKey('83', 'TaskpaneActivityTrackerColor', '1', 'text');
+			$this->createGroupValue('1', '83', '#151c62');
 		}
-		if (!is_null($this->showNameBySettingKeyId("84"))) {
-			$this->updateKey("84", "DialogHeaderColor", "1", "text");
+		if (!is_null($this->showNameBySettingKeyId('84'))) {
+			$this->updateKey('84', 'DialogHeaderColor', '1', 'text');
 			$value = $this->showBySettingKeyId(84);
 			$this->update($value->getId(), 84, 1, $value->getValue());
 		} else {
-			$this->createKey("84", "DialogHeaderColor", "1", "text");
-			$this->createGroupValue("1", "84", "#161c5e");
+			$this->createKey('84', 'DialogHeaderColor', '1', 'text');
+			$this->createGroupValue('1', '84', '#161c5e');
 		}
-		if (!is_null($this->showNameBySettingKeyId("85"))) {
-			$this->updateKey("85", "ButtonPrimaryColor", "1", "text");
+		if (!is_null($this->showNameBySettingKeyId('85'))) {
+			$this->updateKey('85', 'ButtonPrimaryColor', '1', 'text');
 			$value = $this->showBySettingKeyId(85);
 			$this->update($value->getId(), 85, 1, $value->getValue());
 		} else {
-			$this->createKey("85", "ButtonPrimaryColor", "1", "text");
-			$this->createGroupValue("1", "85", "#151c62");
+			$this->createKey('85', 'ButtonPrimaryColor', '1', 'text');
+			$this->createGroupValue('1', '85', '#151c62');
 		}
-		if (!is_null($this->showNameBySettingKeyId("86"))) {
-			$this->updateKey("86", "ButtonPrimaryFontColor", "1", "text");
+		if (!is_null($this->showNameBySettingKeyId('86'))) {
+			$this->updateKey('86', 'ButtonPrimaryFontColor', '1', 'text');
 			$value = $this->showBySettingKeyId(86);
 			$this->update($value->getId(), 86, 1, $value->getValue());
 		} else {
-			$this->createKey("86", "ButtonPrimaryFontColor", "1", "text");
-			$this->createGroupValue("1", "86", "#FFFFFF");
+			$this->createKey('86', 'ButtonPrimaryFontColor', '1', 'text');
+			$this->createGroupValue('1', '86', '#FFFFFF');
 		}
-		if (!is_null($this->showNameBySettingKeyId("87"))) {
-			$this->updateKey("87", "ButtonPrimaryHoverColor", "1", "text");
+		if (!is_null($this->showNameBySettingKeyId('87'))) {
+			$this->updateKey('87', 'ButtonPrimaryHoverColor', '1', 'text');
 			$value = $this->showBySettingKeyId(87);
 			$this->update($value->getId(), 87, 1, $value->getValue());
 		} else {
-			$this->createKey("87", "ButtonPrimaryHoverColor", "1", "text");
-			$this->createGroupValue("1", "87", "#5d66cd");
+			$this->createKey('87', 'ButtonPrimaryHoverColor', '1', 'text');
+			$this->createGroupValue('1', '87', '#5d66cd');
 		}
-		if (!is_null($this->showNameBySettingKeyId("88"))) {
-			$this->updateKey("88", "ButtonSecondaryColor", "1", "text");
+		if (!is_null($this->showNameBySettingKeyId('88'))) {
+			$this->updateKey('88', 'ButtonSecondaryColor', '1', 'text');
 			$value = $this->showBySettingKeyId(88);
 			$this->update($value->getId(), 88, 1, $value->getValue());
 		} else {
-			$this->createKey("88", "ButtonSecondaryColor", "1", "text");
-			$this->createGroupValue("1", "88", "#EDEDED");
+			$this->createKey('88', 'ButtonSecondaryColor', '1', 'text');
+			$this->createGroupValue('1', '88', '#EDEDED');
 		}
-		if (!is_null($this->showNameBySettingKeyId("89"))) {
-			$this->updateKey("89", "ButtonSecondaryHoverColor", "1", "text");
+		if (!is_null($this->showNameBySettingKeyId('89'))) {
+			$this->updateKey('89', 'ButtonSecondaryHoverColor', '1', 'text');
 			$value = $this->showBySettingKeyId(89);
 			$this->update($value->getId(), 89, 1, $value->getValue());
 		} else {
-			$this->createKey("89", "ButtonSecondaryHoverColor", "1", "text");
-			$this->createGroupValue("1", "89", "#adadad");
+			$this->createKey('89', 'ButtonSecondaryHoverColor', '1', 'text');
+			$this->createGroupValue('1', '89', '#adadad');
 		}
-		if (!is_null($this->showNameBySettingKeyId("90"))) {
-			$this->updateKey("90", "ButtonSecondaryFontColor", "1", "text");
+		if (!is_null($this->showNameBySettingKeyId('90'))) {
+			$this->updateKey('90', 'ButtonSecondaryFontColor', '1', 'text');
 			$value = $this->showBySettingKeyId(90);
 			$this->update($value->getId(), 90, 1, $value->getValue());
 		} else {
-			$this->createKey("90", "ButtonSecondaryFontColor", "1", "text");
-			$this->createGroupValue("1", "90", "#151c62");
+			$this->createKey('90', 'ButtonSecondaryFontColor', '1', 'text');
+			$this->createGroupValue('1', '90', '#151c62');
 		}
-		if (!is_null($this->showNameBySettingKeyId("91"))) {
-			$this->updateKey("91", "TaskpaneSecureMailColor", "1", "text");
+		if (!is_null($this->showNameBySettingKeyId('91'))) {
+			$this->updateKey('91', 'TaskpaneSecureMailColor', '1', 'text');
 			$value = $this->showBySettingKeyId(91);
 			$this->update($value->getId(), 91, 1, $value->getValue());
 		} else {
-			$this->createKey("91", "TaskpaneSecureMailColor", "1", "text");
-			$this->createGroupValue("1", "91", "#151C62");
+			$this->createKey('91', 'TaskpaneSecureMailColor', '1', 'text');
+			$this->createGroupValue('1', '91', '#151C62');
 		}
-		if (!is_null($this->showNameBySettingKeyId("92"))) {
-			$this->updateKey("92", "PopupBackgroundColor", "1", "text");
+		if (!is_null($this->showNameBySettingKeyId('92'))) {
+			$this->updateKey('92', 'PopupBackgroundColor', '1', 'text');
 			$value = $this->showBySettingKeyId(92);
 			$this->update($value->getId(), 92, 1, $value->getValue());
 		} else {
-			$this->createKey("92", "PopupBackgroundColor", "1", "text");
-			$this->createGroupValue("1", "92", "#cfd2f1");
+			$this->createKey('92', 'PopupBackgroundColor', '1', 'text');
+			$this->createGroupValue('1', '92', '#cfd2f1');
 		}
-		if (!is_null($this->showNameBySettingKeyId("93"))) {
-			$this->updateKey("93", "GeneralFontColor", "1", "text");
+		if (!is_null($this->showNameBySettingKeyId('93'))) {
+			$this->updateKey('93', 'GeneralFontColor', '1', 'text');
 			$value = $this->showBySettingKeyId(93);
 			$this->update($value->getId(), 93, 1, $value->getValue());
 		} else {
-			$this->createKey("93", "GeneralFontColor", "1", "text");
-			$this->createGroupValue("1", "93", "#FFFFFF");
+			$this->createKey('93', 'GeneralFontColor', '1', 'text');
+			$this->createGroupValue('1', '93', '#FFFFFF');
 		}
-		if (!is_null($this->showNameBySettingKeyId("80"))) {
-			$this->updateKey("80", "AdvancedThemingEnabled", "1", "text");
+		if (!is_null($this->showNameBySettingKeyId('80'))) {
+			$this->updateKey('80', 'AdvancedThemingEnabled', '1', 'text');
 			$value = $this->showBySettingKeyId(80);
 			$this->update($value->getId(), 80, 1, $value->getValue());
 		} else {
-			$this->createKey("80", "AdvancedThemingEnabled", "1", "select-one");
-			$this->createGroupValue("1", "80", "false");
+			$this->createKey('80', 'AdvancedThemingEnabled', '1', 'select-one');
+			$this->createGroupValue('1', '80', 'false');
 		}
 	}
 
 	public function addAdvancedThemingUpdate(): void {
-		if (!is_null($this->showNameBySettingKeyId("94"))) {
-			$this->updateKey("94", "TaskpaneActivityTrackerFontColor", "1", "text");
+		if (!is_null($this->showNameBySettingKeyId('94'))) {
+			$this->updateKey('94', 'TaskpaneActivityTrackerFontColor', '1', 'text');
 			$value = $this->showBySettingKeyId(94);
 			$this->update($value->getId(), 94, 1, $value->getValue());
 		} else {
-			$this->createKey("94", "TaskpaneActivityTrackerFontColor", "1", "text");
-			$this->createGroupValue("1", "94", "#FFFFFF");
+			$this->createKey('94', 'TaskpaneActivityTrackerFontColor', '1', 'text');
+			$this->createGroupValue('1', '94', '#FFFFFF');
 		}
-		if (!is_null($this->showNameBySettingKeyId("95"))) {
-			$this->updateKey("95", "DialogHeaderFontColor", "1", "text");
+		if (!is_null($this->showNameBySettingKeyId('95'))) {
+			$this->updateKey('95', 'DialogHeaderFontColor', '1', 'text');
 			$value = $this->showBySettingKeyId(95);
 			$this->update($value->getId(), 95, 1, $value->getValue());
 		} else {
-			$this->createKey("95", "DialogHeaderFontColor", "1", "text");
-			$this->createGroupValue("1", "95", "#FFFFFF");
+			$this->createKey('95', 'DialogHeaderFontColor', '1', 'text');
+			$this->createGroupValue('1', '95', '#FFFFFF');
 		}
-		if (!is_null($this->showNameBySettingKeyId("96"))) {
-			$this->updateKey("96", "TaskpaneSecureMailFontColor", "1", "text");
+		if (!is_null($this->showNameBySettingKeyId('96'))) {
+			$this->updateKey('96', 'TaskpaneSecureMailFontColor', '1', 'text');
 			$value = $this->showBySettingKeyId(96);
 			$this->update($value->getId(), 96, 1, $value->getValue());
 		} else {
-			$this->createKey("96", "TaskpaneSecureMailFontColor", "1", "text");
-			$this->createGroupValue("1", "96", "#FFFFFF");
+			$this->createKey('96', 'TaskpaneSecureMailFontColor', '1', 'text');
+			$this->createGroupValue('1', '96', '#FFFFFF');
 		}
 	}
 
 	public function addAdvancedThemingUpdate2(): void {
-		if (!is_null($this->showNameBySettingKeyId("97"))) {
-			$this->updateKey("97", "ButtonPrimaryIconColor", "1", "text");
+		if (!is_null($this->showNameBySettingKeyId('97'))) {
+			$this->updateKey('97', 'ButtonPrimaryIconColor', '1', 'text');
 			$value = $this->showBySettingKeyId(97);
 			$this->update($value->getId(), 97, 1, $value->getValue());
 		} else {
-			$this->createKey("97", "ButtonPrimaryIconColor", "1", "text");
-			$this->createGroupValue("1", "97", "#FFFFFF");
+			$this->createKey('97', 'ButtonPrimaryIconColor', '1', 'text');
+			$this->createGroupValue('1', '97', '#FFFFFF');
 		}
-		if (!is_null($this->showNameBySettingKeyId("98"))) {
-			$this->updateKey("98", "ButtonSecondaryIconColor", "1", "text");
+		if (!is_null($this->showNameBySettingKeyId('98'))) {
+			$this->updateKey('98', 'ButtonSecondaryIconColor', '1', 'text');
 			$value = $this->showBySettingKeyId(98);
 			$this->update($value->getId(), 98, 1, $value->getValue());
 		} else {
-			$this->createKey("98", "ButtonSecondaryIconColor", "1", "text");
-			$this->createGroupValue("1", "98", "#151c62");
+			$this->createKey('98', 'ButtonSecondaryIconColor', '1', 'text');
+			$this->createGroupValue('1', '98', '#151c62');
 		}
 	}
 
 	public function addAdvancedThemingUpdate3(): void {
-		if (!is_null($this->showNameBySettingKeyId("99"))) {
-			$this->updateKey("99", "TaskpaneSecureMailControlColor", "1", "text");
+		if (!is_null($this->showNameBySettingKeyId('99'))) {
+			$this->updateKey('99', 'TaskpaneSecureMailControlColor', '1', 'text');
 			$value = $this->showBySettingKeyId(99);
 			$this->update($value->getId(), 99, 1, $value->getValue());
 		} else {
-			$this->createKey("99", "TaskpaneSecureMailControlColor", "1", "text");
-			$this->createGroupValue("1", "99", "#FFFFFF");
+			$this->createKey('99', 'TaskpaneSecureMailControlColor', '1', 'text');
+			$this->createGroupValue('1', '99', '#FFFFFF');
 		}
 	}
 
 	public function addAdvancedThemingUpdate4(): void {
-		if (!is_null($this->showNameBySettingKeyId("100"))) {
-			$this->updateKey("100", "DialogFooterBackgroundColor", "1", "text");
+		if (!is_null($this->showNameBySettingKeyId('100'))) {
+			$this->updateKey('100', 'DialogFooterBackgroundColor', '1', 'text');
 			$value = $this->showBySettingKeyId(100);
 			$this->update($value->getId(), 100, 1, $value->getValue());
 		} else {
-			$this->createKey("100", "DialogFooterBackgroundColor", "1", "text");
-			$this->createGroupValue("1", "100", "#cfd2f1");
+			$this->createKey('100', 'DialogFooterBackgroundColor', '1', 'text');
+			$this->createGroupValue('1', '100', '#cfd2f1');
 		}
-		if (!is_null($this->showNameBySettingKeyId("101"))) {
-			$this->updateKey("101", "DialogFooterFontColor", "1", "text");
+		if (!is_null($this->showNameBySettingKeyId('101'))) {
+			$this->updateKey('101', 'DialogFooterFontColor', '1', 'text');
 			$value = $this->showBySettingKeyId(101);
 			$this->update($value->getId(), 101, 1, $value->getValue());
 		} else {
-			$this->createKey("101", "DialogFooterFontColor", "1", "text");
-			$this->createGroupValue("1", "101", "#000000");
+			$this->createKey('101', 'DialogFooterFontColor', '1', 'text');
+			$this->createGroupValue('1', '101', '#000000');
 		}
-		if (!is_null($this->showNameBySettingKeyId("102"))) {
-			$this->updateKey("102", "DialogFooterHoverColor", "1", "text");
+		if (!is_null($this->showNameBySettingKeyId('102'))) {
+			$this->updateKey('102', 'DialogFooterHoverColor', '1', 'text');
 			$value = $this->showBySettingKeyId(102);
 			$this->update($value->getId(), 102, 1, $value->getValue());
 		} else {
-			$this->createKey("102", "DialogFooterHoverColor", "1", "text");
-			$this->createGroupValue("1", "102", "#616bd5");
+			$this->createKey('102', 'DialogFooterHoverColor', '1', 'text');
+			$this->createGroupValue('1', '102', '#616bd5');
 		}
-		if (!is_null($this->showNameBySettingKeyId("103"))) {
-			$this->updateKey("103", "DialogFooterIconColor", "1", "text");
+		if (!is_null($this->showNameBySettingKeyId('103'))) {
+			$this->updateKey('103', 'DialogFooterIconColor', '1', 'text');
 			$value = $this->showBySettingKeyId(103);
 			$this->update($value->getId(), 103, 1, $value->getValue());
 		} else {
-			$this->createKey("103", "DialogFooterIconColor", "1", "text");
-			$this->createGroupValue("1", "103", "#151c62");
+			$this->createKey('103', 'DialogFooterIconColor', '1', 'text');
+			$this->createGroupValue('1', '103', '#151c62');
 		}
 	}
 	public function addAdvancedThemingNameUpdate(): void {
-		if (!is_null($this->showNameBySettingKeyId("104"))) {
-			$this->updateKey("104", "VendorName", "1", "text");
+		if (!is_null($this->showNameBySettingKeyId('104'))) {
+			$this->updateKey('104', 'VendorName', '1', 'text');
 			$value = $this->showBySettingKeyId(104);
 			$this->update($value->getId(), 104, 1, $value->getValue());
 		} else {
-			$this->createKey("104", "VendorName", "1", "text");
-			$this->createGroupValue("1", "104", "Sendent");
+			$this->createKey('104', 'VendorName', '1', 'text');
+			$this->createGroupValue('1', '104', 'Sendent');
 		}
 	}
 
 	public function addGuestAccountSettings(): void {
-		if (!is_null($this->showNameBySettingKeyId("301"))) {
-			$this->updateKey("301", "disableanonymousshare", "0", "select-one");
+		if (!is_null($this->showNameBySettingKeyId('301'))) {
+			$this->updateKey('301', 'disableanonymousshare', '0', 'select-one');
 			$value = $this->showBySettingKeyId(301);
 			$this->update($value->getId(), 301, 0, $value->getValue());
 		} else {
-			$this->createKey("301", "disableanonymousshare", "0", "select-one");
-			$this->createGroupValue("0", "301", "False");
+			$this->createKey('301', 'disableanonymousshare', '0', 'select-one');
+			$this->createGroupValue('0', '301', 'False');
 		}
 
-		if (!is_null($this->showNameBySettingKeyId("302"))) {
-			$this->updateKey("302", "htmlsnippetguestaccounts", "0", "textarea");
+		if (!is_null($this->showNameBySettingKeyId('302'))) {
+			$this->updateKey('302', 'htmlsnippetguestaccounts', '0', 'textarea');
 			$value = $this->showBySettingKeyId(302);
 			$this->update($value->getId(), 302, 0, $value->getValue());
 		} else {
-			$this->createKey("302", "htmlsnippetguestaccounts", "0", "textarea");
-			$this->createGroupValue("0", "302", $this->getguestaccountshtml());
+			$this->createKey('302', 'htmlsnippetguestaccounts', '0', 'textarea');
+			$this->createGroupValue('0', '302', $this->getguestaccountshtml());
 		}
 	}
 
 	public function addSendmode(): void {
-		$this->createKey("23", "sendmode", "0", "select-one");
-		$this->createGroupValue("0", "23", "CurrentMail");
+		$this->createKey('23', 'sendmode', '0', 'select-one');
+		$this->createGroupValue('0', '23', 'CurrentMail');
 	}
 	public function addEnforceFiledropSetting(): void {
-		$this->createKey("700", "enforceFiledrop", "0", "select-one");
-		$this->createGroupValue("0", "700", "False");
+		$this->createKey('700', 'enforceFiledrop', '0', 'select-one');
+		$this->createGroupValue('0', '700', 'False');
 	}
 	public function initialLoading(): void {
-		$this->createKey("20", "setlanguage", "0", "select-one");
-		$this->createKey("19", "passwordcontrolbehavior", "0", "select-one");
-		$this->createKey("28", "insertatcursor", "0", "select-one");
-		$this->createKey("30", "htmlsnippetpassword", "0", "textarea");
-		$this->createKey("6", "dateaddition", "0", "select-one");
-		$this->createKey("22", "debugmode", "0", "select-one");
-		$this->createKey("23", "sendmode", "0", "select-one");
-		$this->createKey("17", "disablesettings", "0", "select-one");
-		$this->createKey("2", "attachmentdomainexceptionsinternal", "0", "text");
-		$this->createKey("0", "attachmentdomainexceptions", "0", "text");
-		$this->createKey("3", "attachmentmode", "0", "select-one");
-		$this->createKey("4", "attachmentsize", "0", "text");
-		$this->createKey("7", "pathpublicshare", "0", "text");
-		$this->createKey("10", "sharefilehtml", "0", "textarea");
-		$this->createKey("8", "pathuploadfiles", "0", "text");
-		$this->createKey("9", "sharefolderhtml", "0", "textarea");
-		$this->createKey("11", "securemail", "0", "select-one");
-		$this->createKey("25", "securemailenforced", "0", "select-one");
-		$this->createKey("24", "pathsecuremailbox", "0", "text");
-		$this->createKey("12", "securemailhtml", "0", "textarea");
-		$this->createKey("27", "guestaccountsenabled", "0", "select-one");
-		$this->createKey("26", "guestaccountsenforced", "0", "select-one");
-		$this->createKey("301", "disableanonymousshare", "0", "select-one");
-		$this->createKey("302", "htmlsnippetguestaccounts", "0", "textarea");
-		$this->createKey("303", "htmlsnippetpublicaccounts", "0", "textarea");
-		$this->createKey("203", "talkhtml", "0", "textarea");
-		$this->createKey("210", "talkpwhtml", "0", "textarea");
+		$this->createKey('20', 'setlanguage', '0', 'select-one');
+		$this->createKey('19', 'passwordcontrolbehavior', '0', 'select-one');
+		$this->createKey('28', 'insertatcursor', '0', 'select-one');
+		$this->createKey('30', 'htmlsnippetpassword', '0', 'textarea');
+		$this->createKey('6', 'dateaddition', '0', 'select-one');
+		$this->createKey('22', 'debugmode', '0', 'select-one');
+		$this->createKey('23', 'sendmode', '0', 'select-one');
+		$this->createKey('17', 'disablesettings', '0', 'select-one');
+		$this->createKey('2', 'attachmentdomainexceptionsinternal', '0', 'text');
+		$this->createKey('0', 'attachmentdomainexceptions', '0', 'text');
+		$this->createKey('3', 'attachmentmode', '0', 'select-one');
+		$this->createKey('4', 'attachmentsize', '0', 'text');
+		$this->createKey('7', 'pathpublicshare', '0', 'text');
+		$this->createKey('10', 'sharefilehtml', '0', 'textarea');
+		$this->createKey('8', 'pathuploadfiles', '0', 'text');
+		$this->createKey('9', 'sharefolderhtml', '0', 'textarea');
+		$this->createKey('11', 'securemail', '0', 'select-one');
+		$this->createKey('25', 'securemailenforced', '0', 'select-one');
+		$this->createKey('24', 'pathsecuremailbox', '0', 'text');
+		$this->createKey('12', 'securemailhtml', '0', 'textarea');
+		$this->createKey('27', 'guestaccountsenabled', '0', 'select-one');
+		$this->createKey('26', 'guestaccountsenforced', '0', 'select-one');
+		$this->createKey('301', 'disableanonymousshare', '0', 'select-one');
+		$this->createKey('302', 'htmlsnippetguestaccounts', '0', 'textarea');
+		$this->createKey('303', 'htmlsnippetpublicaccounts', '0', 'textarea');
+		$this->createKey('203', 'talkhtml', '0', 'textarea');
+		$this->createKey('210', 'talkpwhtml', '0', 'textarea');
 
-		$this->createGroupValue("0", "20", "en");
-		$this->createGroupValue("0", "19", "BeforeSend");
-		$this->createGroupValue("0", "28", "True");
-		$this->createGroupValue("0", "23", "CurrentMail");
-		$this->createGroupValue("0", "6", "True");
-		$this->createGroupValue("0", "22", "False");
-		$this->createGroupValue("0", "17", "True");
-		$this->createGroupValue("0", "2", "");
-		$this->createGroupValue("0", "0", "");
-		$this->createGroupValue("0", "3", "MaximumAttachmentSize");
-		$this->createGroupValue("0", "4", "1");
-		$this->createGroupValue("0", "7", "/Outlook/Public-Share/");
-		$this->createGroupValue("0", "10", $this->getsharefilehtml());
-		$this->createGroupValue("0", "8", "Outlook/Upload-Share/");
-		$this->createGroupValue("0", "9", $this->getsharefolderhtml());
-		$this->createGroupValue("0", "11", "False");
-		$this->createGroupValue("0", "25", "False");
-		$this->createGroupValue("0", "24", "/Outlook/SecureMail-Share/");
-		$this->createGroupValue("0", "12", $this->getsharefilehtml());
-		$this->createGroupValue("0", "203", $this->gethtmltalksnippet());
-		$this->createGroupValue("0", "210", $this->gethtmltalkpwsnippet());
-		$this->createGroupValue("0", "30", $this->gethtmlpasswordsnippet());
-		$this->createGroupValue("0", "27", "False");
-		$this->createGroupValue("0", "26", "False");
-		$this->createGroupValue("0", "301", "False");
-		$this->createGroupValue("0", "302", $this->getguestaccountshtml());
-		$this->createGroupValue("0", "303", $this->getguestaccountspublicsharehtml());
+		$this->createGroupValue('0', '20', 'en');
+		$this->createGroupValue('0', '19', 'BeforeSend');
+		$this->createGroupValue('0', '28', 'True');
+		$this->createGroupValue('0', '23', 'CurrentMail');
+		$this->createGroupValue('0', '6', 'True');
+		$this->createGroupValue('0', '22', 'False');
+		$this->createGroupValue('0', '17', 'True');
+		$this->createGroupValue('0', '2', '');
+		$this->createGroupValue('0', '0', '');
+		$this->createGroupValue('0', '3', 'MaximumAttachmentSize');
+		$this->createGroupValue('0', '4', '1');
+		$this->createGroupValue('0', '7', '/Outlook/Public-Share/');
+		$this->createGroupValue('0', '10', $this->getsharefilehtml());
+		$this->createGroupValue('0', '8', 'Outlook/Upload-Share/');
+		$this->createGroupValue('0', '9', $this->getsharefolderhtml());
+		$this->createGroupValue('0', '11', 'False');
+		$this->createGroupValue('0', '25', 'False');
+		$this->createGroupValue('0', '24', '/Outlook/SecureMail-Share/');
+		$this->createGroupValue('0', '12', $this->getsharefilehtml());
+		$this->createGroupValue('0', '203', $this->gethtmltalksnippet());
+		$this->createGroupValue('0', '210', $this->gethtmltalkpwsnippet());
+		$this->createGroupValue('0', '30', $this->gethtmlpasswordsnippet());
+		$this->createGroupValue('0', '27', 'False');
+		$this->createGroupValue('0', '26', 'False');
+		$this->createGroupValue('0', '301', 'False');
+		$this->createGroupValue('0', '302', $this->getguestaccountshtml());
+		$this->createGroupValue('0', '303', $this->getguestaccountspublicsharehtml());
 	}
 	public function addSecureMailUIMode(): void {
-		$this->createKey("600", "securemailuimode", "0", "select-one");
-		$this->createGroupValue("0", "600", "toolbar");
+		$this->createKey('600', 'securemailuimode', '0', 'select-one');
+		$this->createGroupValue('0', '600', 'toolbar');
 	}
 	public function createKey(string $key, string $name, string $templatekey, string $valuetype) {
 		try {
@@ -729,7 +746,7 @@ class InitialLoadManager {
 			return null;
 		}
 	}
-	public function update(int $id,int $settingkeyid, int $groupid, string $value) {
+	public function update(int $id, int $settingkeyid, int $groupid, string $value) {
 		try {
 			$SettingGroupValue = $this->SettingGroupValueMapper->find($settingkeyid);
 			$SettingGroupValue->setSettingkeyid($settingkeyid);
@@ -760,11 +777,11 @@ class InitialLoadManager {
 	public function gethtmltalksnippet(): string {
 		return $this->getHTMLTemplate('talkhtml');
 	}
-	
+
 	public function gethtmltalkpwsnippet(): string {
 		return $this->getHTMLTemplate('talkpwhtml');
 	}
-	
+
 	public function getsharefolderhtml(): string {
 		return $this->getHTMLTemplate('sharefolderhtml');
 	}
@@ -775,9 +792,33 @@ class InitialLoadManager {
 	public function getguestaccountspublicsharehtml(): string {
 		return $this->getHTMLTemplate('htmlsnippetpublicaccounts');
 	}
+
+	/**
+	 * Return the factory-default HTML for a textarea setting key, or null if the key
+	 * has no hardcoded HTML default (e.g. non-template settings).
+	 * @param int $keyId
+	 */
+	public function getDefaultHtmlForKeyId(int $keyId): ?string {
+		try {
+			switch ($keyId) {
+				case 10: return $this->getsharefilehtml();
+				case 9: return $this->getsharefolderhtml();
+				case 12: return $this->getsecuremailhtml();
+				case 30: return $this->gethtmlpasswordsnippet();
+				case 302: return $this->getguestaccountshtml();
+				case 303: return $this->getguestaccountspublicsharehtml();
+				case 203: return $this->gethtmltalksnippet();
+				case 210: return $this->gethtmltalkpwsnippet();
+				default: return null;
+			}
+		} catch (Exception $e) {
+			return null;
+		}
+	}
+
 	private function getHTMLTemplate(string $id): string {
 		$appRoot = $this->appManager->getAppPath(Application::APPID);
 
-		return file_get_contents($appRoot . '/assets/templates/'. $id . '.html');
+		return file_get_contents($appRoot . '/assets/templates/' . $id . '.html');
 	}
 }

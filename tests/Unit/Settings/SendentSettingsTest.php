@@ -1,11 +1,32 @@
 <?php
 
+/**
+ * @copyright Copyright (c) 2026 Sendent B.V.
+ *
+ * @author Sendent B.V. <info@sendent.com>
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 namespace OCA\Sendent\Tests\Unit\Settings;
 
 use OCA\Sendent\Constants;
-use OCA\Sendent\Settings\SendentSettings;
 use OCA\Sendent\Service\LicenseManager;
 use OCA\Sendent\Service\LicenseService;
+use OCA\Sendent\Settings\SendentSettings;
 use OCP\App\IAppManager;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\AppFramework\Services\IAppConfig;
@@ -57,14 +78,14 @@ class SendentSettingsTest extends TestCase {
 		$this->l = $this->getMockBuilder(IL10N::class)->getMock();
 		/** @var LicenseManager */
 		$this->licenseManager = $this->getMockBuilder(LicenseManager::class)
-										->disableOriginalConstructor()
-										->getMock();
+			->disableOriginalConstructor()
+			->getMock();
 		/** @var LicenseService */
 		$this->licenseService = $this->getMockBuilder(LicenseService::class)
-										->disableOriginalConstructor()
-										->getMock();
+			->disableOriginalConstructor()
+			->getMock();
 		$this->licenseService->method('findByGroup')
-								->willReturn([]);
+			->willReturn([]);
 
 		$this->settings = new SendentSettings(
 			$this->appManager,
@@ -73,8 +94,8 @@ class SendentSettingsTest extends TestCase {
 			$this->appConfig,
 			$this->tagManager,
 			$this->l,
-       		$this->licenseManager,
-       		$this->licenseService
+			$this->licenseManager,
+			$this->licenseService
 		);
 	}
 
@@ -117,19 +138,8 @@ class SendentSettingsTest extends TestCase {
 			}));
 
 		$this->initialState
-			->expects($this->exactly(2))
-			->method('provideInitialState')
-			->will($this->returnValueMap([
-				['apps', [
-					'files_retention' => '1.2.3',
-					'files_automatedtagging' => false,
-				]],
-				['tags', [
-					Constants::CONFIG_UPLOAD_TAG => -1,
-					Constants::CONFIG_EXPIRED_TAG => -1,
-					Constants::CONFIG_REMOVED_TAG => 42,
-				]],
-			]));
+			->expects($this->exactly(5))
+			->method('provideInitialState');
 
 		$response = $this->settings->getForm();
 

@@ -1,16 +1,16 @@
 {
     "compilerOptions": {
-      "lib": [
-        "dom",
-        "es2021"
-      ],
+      "lib": ["dom", "es2021"],
       "module": "ES6",
       "moduleResolution": "node",
       "target": "ES6",
-      "strictNullChecks": true,
+      "strict": true,
       "sourceMap": true,
-      "jsx": "react",
-      "allowSyntheticDefaultImports": true
+      "jsx": "preserve",
+      "allowSyntheticDefaultImports": true,
+      "esModuleInterop": true,
+      "skipLibCheck": true,
+      "types": ["@types/sortablejs"]
     },
     "include": ["src/**/*"],
     "exclude": ["node_modules"]

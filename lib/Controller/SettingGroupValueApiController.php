@@ -1,19 +1,44 @@
 <?php
 
+/**
+ * @copyright Copyright (c) 2026 Sendent B.V.
+ *
+ * @author Sendent B.V. <info@sendent.com>
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 namespace OCA\Sendent\Controller;
 
 use Exception;
+use OCA\Sendent\Db\SettingGroupValue;
+use OCA\Sendent\Db\SettingGroupValueMapper;
+use OCA\Sendent\Service\InitialLoadManager;
+use OCA\Sendent\Service\SendentFileStorageManager;
+use OCP\AppFramework\ApiController;
+use OCP\AppFramework\Http;
+use OCP\AppFramework\Http\Attribute\NoAdminRequired;
+use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
+use OCP\AppFramework\Http\Attribute\PublicPage;
+use OCP\AppFramework\Http\DataResponse;
+use OCP\AppFramework\Services\IAppConfig;
+
 use OCP\IGroupManager;
 use OCP\IRequest;
 use OCP\IUserManager;
-use OCP\AppFramework\Services\IAppConfig;
-use OCP\AppFramework\Http;
-use OCP\AppFramework\Http\DataResponse;
-use OCP\AppFramework\ApiController;
-
-use OCA\Sendent\Db\SettingGroupValue;
-use OCA\Sendent\Db\SettingGroupValueMapper;
-use OCA\Sendent\Service\SendentFileStorageManager;
 
 class SettingGroupValueApiController extends ApiController {
 	private $appConfig;
@@ -22,34 +47,36 @@ class SettingGroupValueApiController extends ApiController {
 	private $groupManager;
 	private $userId;
 	private $userManager;
+	private $initialLoadManager;
 
 	public function __construct(IAppConfig $appConfig, IRequest $request, SettingGroupValueMapper $mapper,
-	 SendentFileStorageManager $FileStorageManager, IGroupManager $groupManager, IUserManager $userManager, $userId) {
+		SendentFileStorageManager $FileStorageManager, IGroupManager $groupManager, IUserManager $userManager,
+		InitialLoadManager $initialLoadManager, $userId) {
 		parent::__construct(
-			"sendent",
+			'sendent',
 			$request,
 			'PUT, POST, GET, DELETE, PATCH',
 			'Authorization, Content-Type, Accept',
-			1728000);
+			3600);
 		$this->appConfig = $appConfig;
 		$this->mapper = $mapper;
 		$this->FileStorageManager = $FileStorageManager;
 		$this->groupManager = $groupManager;
 		$this->userId = $userId;
 		$this->userManager = $userManager;
+		$this->initialLoadManager = $initialLoadManager;
 	}
 
 	/**
-	 * @NoAdminRequired
-	 * @NoCSRFRequired
-	 *
 	 * Gets settings for a specific user
 	 *
 	 * @param int $templateId
-	 * 
+	 *
 	 * @return DataResponse
 	 */
-	public function index(int $templateId = null): DataResponse {
+	#[NoAdminRequired]
+	#[NoCSRFRequired]
+	public function index(?int $templateId = null): DataResponse {
 
 		// Gets groups for which specific settings and/or license are defined
 		// Groups are ordered from highest priority to lowest
@@ -75,19 +102,17 @@ class SettingGroupValueApiController extends ApiController {
 
 	}
 	/**
-	 * @NoAdminRequired
-	 * @NoCSRFRequired
-	 *
 	 * Gets settings for a specific user
 	 *
 	 * @param int $templateId
-	 * 
+	 *
 	 * @return DataResponse
 	 */
-	public function byTemplate(int $templateId = NULL): DataResponse {
+	#[NoAdminRequired]
+	#[NoCSRFRequired]
+	public function byTemplate(?int $templateId = null): DataResponse {
 
-		if(!isset($templateId) || $templateId == NULL)
-		{
+		if (!isset($templateId) || $templateId == null) {
 			return $this->index();
 		}
 		// Gets groups for which specific settings and/or license are defined
@@ -114,28 +139,26 @@ class SettingGroupValueApiController extends ApiController {
 	}
 
 	/**
-	 * @NoAdminRequired
-	 * @NoCSRFRequired
-	 *
 	 * Get settings for the default group
 	 *
 	 * @return DataResponse
 	 */
+	#[NoAdminRequired]
+	#[NoCSRFRequired]
 	public function getForDefaultGroup(): DataResponse {
 		return $this->getForNCGroup();
 	}
 
 	/**
-	 * @NoAdminRequired
-	 * @NoCSRFRequired
-	 *
 	 * Gets settings for group $ncgroup
 	 *
 	 * @param string $ncgroup
 	 * @param int $templateId
 	 * @return DataResponse
 	 */
-	public function getForNCGroup(string $ncgroup = '', int $templateId = NULL, bool $wantUserSettings = false): DataResponse {
+	#[NoAdminRequired]
+	#[NoCSRFRequired]
+	public function getForNCGroup(string $ncgroup = '', ?int $templateId = null, bool $wantUserSettings = false): DataResponse {
 
 		// Gets settings for group
 		$list = $this->mapper->findSettingsForNCGroup($ncgroup);
@@ -144,14 +167,14 @@ class SettingGroupValueApiController extends ApiController {
 				$result->setValue($this->FileStorageManager->getContent($result->getGroupid(), $result->getSettingkeyid(), $ncgroup));
 			}
 		}
-		
-				// Merges settings from default group
+
+		// Merges settings from default group
 		if ($ncgroup !== '') {
 			// Gets a list of all settings defined for the group
 			$settingkeyidList = array_map(function ($setting) {
 				return $setting->getSettingkeyid();
 			}, $list);
-			
+
 			// Gets settings for the default group
 			$defaults = $this->mapper->findSettingsForNCGroup();
 
@@ -179,28 +202,26 @@ class SettingGroupValueApiController extends ApiController {
 							}
 						}
 						return $setting;
-					},$list);
+					}, $list);
 				}
 			}
 		}
-		if(isset($templateId) && $templateId != NULL)
-		{
-			$list = array_filter($list, function($objf) use ($templateId) {
-				if ($objf->getGroupid() !== NULL) {
+		if (isset($templateId) && $templateId != null) {
+			$list = array_filter($list, function ($objf) use ($templateId) {
+				if ($objf->getGroupid() !== null) {
 					return $objf->getGroupid() == $templateId;
-				}});
+				}
+			});
 		}
-	
+
 		return new DataResponse($list);
 	}
 
 	/**
-	 * @NoAdminRequired
-	 *
-	 * @NoCSRFRequired
-	 *
 	 * @return DataResponse
 	 */
+	#[NoAdminRequired]
+	#[NoCSRFRequired]
 	public function theming(): DataResponse {
 		$list = $this->mapper->findAll();
 		foreach ($list as $result) {
@@ -212,14 +233,12 @@ class SettingGroupValueApiController extends ApiController {
 	}
 
 	/**
-	 * @NoAdminRequired
-	 *
-	 * @NoCSRFRequired
-	 *
 	 * @param int $id
 	 *
 	 * @return DataResponse
 	 */
+	#[NoAdminRequired]
+	#[NoCSRFRequired]
 	public function show(int $id): DataResponse {
 		try {
 			$result = $this->mapper->find($id);
@@ -231,15 +250,14 @@ class SettingGroupValueApiController extends ApiController {
 			return new DataResponse([], Http::STATUS_NOT_FOUND);
 		}
 	}
-	
+
 	/**
-	 * @NoAdminRequired
-	 * @NoCSRFRequired
-	 *
 	 * @param int $settingkeyid
 	 *
 	 * @return DataResponse
 	 */
+	#[NoAdminRequired]
+	#[NoCSRFRequired]
 	public function showBySettingKeyId(int $settingkeyid, string $ncgroup = ''): DataResponse {
 		try {
 			$result = $this->mapper->findBySettingKeyId($settingkeyid, $ncgroup);
@@ -253,16 +271,13 @@ class SettingGroupValueApiController extends ApiController {
 	}
 
 	/**
-	 * @NoAdminRequired
-	 *
-	 * @NoCSRFRequired
-	 *
-	 * @PublicPage
-	 *
 	 * @param int $groupid
 	 *
 	 * @return DataResponse
 	 */
+	#[NoAdminRequired]
+	#[NoCSRFRequired]
+	#[PublicPage]
 	public function findByGroupId(int $groupid): DataResponse {
 		try {
 			if ($groupid == 1) {
@@ -281,31 +296,28 @@ class SettingGroupValueApiController extends ApiController {
 		}
 	}
 	/**
-	 * @NoAdminRequired
-	 *
-	 * @NoCSRFRequired
-	 *
-	 * @PublicPage
-	 *
 	 * @param int $templateId
 	 *
 	 * @return DataResponse
 	 */
+	#[NoAdminRequired]
+	#[NoCSRFRequired]
+	#[PublicPage]
 	public function findByTemplateId(int $templateId): DataResponse {
 		try {
 
-				$result = $this->mapper->findByGroupId($templateId);
-				foreach ($result as $item) {
-					if ($this->valueIsSettingGroupValueFilePath($item->getValue()) !== false) {
-						$item->setValue($this->FileStorageManager->getContent($item->getGroupid(), $item->getSettingkeyid(), $item->getNcgroup()));
-					}
+			$result = $this->mapper->findByGroupId($templateId);
+			foreach ($result as $item) {
+				if ($this->valueIsSettingGroupValueFilePath($item->getValue()) !== false) {
+					$item->setValue($this->FileStorageManager->getContent($item->getGroupid(), $item->getSettingkeyid(), $item->getNcgroup()));
 				}
-				return new DataResponse($result);
+			}
+			return new DataResponse($result);
 		} catch (Exception $e) {
 			return new DataResponse([], Http::STATUS_NOT_FOUND);
 		}
 	}
-	
+
 	private function valueIsSettingGroupValueFilePath($value): bool {
 		if (strpos($value, 'settinggroupvaluefile') !== false) {
 			return true;
@@ -318,6 +330,8 @@ class SettingGroupValueApiController extends ApiController {
 	}
 
 	/**
+	 * Admin-only: creates a setting group value
+	 *
 	 * @param int $settingkeyid
 	 * @param int $groupid
 	 * @param string $value
@@ -338,6 +352,8 @@ class SettingGroupValueApiController extends ApiController {
 	}
 
 	/**
+	 * Admin-only: updates a setting group value
+	 *
 	 * @param int $id
 	 * @param int $settingkeyid
 	 * @param int $groupid
@@ -345,7 +361,7 @@ class SettingGroupValueApiController extends ApiController {
 	 * @param string $group
 	 * @return DataResponse
 	 */
-	public function update(int $id,int $settingkeyid, int $groupid, string $value, string $group = '') {
+	public function update(int $id, int $settingkeyid, int $groupid, string $value, string $group = '') {
 		try {
 			if ($this->valueSizeForDb($value) === false) {
 				$value = $this->FileStorageManager->writeTxt($groupid, $settingkeyid, $value, $group);
@@ -363,6 +379,8 @@ class SettingGroupValueApiController extends ApiController {
 	}
 
 	/**
+	 * Admin-only: deletes a setting group value
+	 *
 	 * @param int $id
 	 * @param string $ncgroup
 	 *
@@ -376,9 +394,30 @@ class SettingGroupValueApiController extends ApiController {
 		}
 		$this->mapper->delete($SettingGroupValue);
 		if ($ncgroup === '') {
+			// For the default group, restore the factory-default HTML (if one exists).
+			// Without this, the deleted value would be returned unchanged and the frontend
+			// would never detect a change to update the editor.
+			$defaultHtml = $this->initialLoadManager->getDefaultHtmlForKeyId($id);
+			if ($defaultHtml !== null) {
+				$newValue = new SettingGroupValue();
+				$newValue->setSettingkeyid($SettingGroupValue->getSettingkeyid());
+				$newValue->setGroupid($SettingGroupValue->getGroupid());
+				$newValue->setNcgroup('');
+				if ($this->valueSizeForDb($defaultHtml) === false) {
+					$defaultHtml = $this->FileStorageManager->writeTxt(
+						$SettingGroupValue->getGroupid(),
+						$SettingGroupValue->getSettingkeyid(),
+						$defaultHtml,
+						''
+					);
+				}
+				$newValue->setValue($defaultHtml);
+				$this->mapper->insert($newValue);
+				return $this->showBySettingKeyId($id, '');
+			}
 			return new DataResponse($SettingGroupValue);
 		} else {
-			// When we delete the setting of a group we want to get the corresponding default settting back
+			// When we delete the setting of a group we want to get the corresponding default setting back
 			return $this->showBySettingKeyId($id, '');
 		}
 	}
