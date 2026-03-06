@@ -407,6 +407,17 @@ export const settingsRegistry: SettingDefinition[] = [
 	{
 		key: 501, name: 'teams_pathuploadfiles', templateId: 2, section: 'Teams', inputType: 'text',
 	},
+	{
+		key: 502,
+		name: 'teams_openfilemode',
+		templateId: 2,
+		section: 'Teams',
+		inputType: 'select',
+		options: [
+			{ value: 'webdav', label: 'Via WebDAV' },
+			{ value: 'desktop', label: 'Via Nextcloud Desktop Client' },
+		],
+	},
 ]
 
 /**
