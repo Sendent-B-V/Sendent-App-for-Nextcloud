@@ -284,7 +284,7 @@ class InitialLoadManager {
 	}
 	public function addTeamsOpenFileMode() : void {
 		$this->createKey('502', 'teams_openfilemode', '2', 'select-one');
-		$this->createGroupValue('2', '502', 'webdav');
+		$this->createGroupValue('2', '502', 'off');
 	}
 	private function fixTeams_pathuploadfiles(): void {
 		try {

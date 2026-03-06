@@ -414,6 +414,7 @@ export const settingsRegistry: SettingDefinition[] = [
 		section: 'Teams',
 		inputType: 'select',
 		options: [
+			{ value: 'off', label: 'Off' },
 			{ value: 'webdav', label: 'Via WebDAV' },
 			{ value: 'desktop', label: 'Via Nextcloud Desktop Client' },
 		],
