@@ -31,7 +31,7 @@ import { getSettingsForSection } from '../../common/settingsRegistry'
 const definitions = getSettingsForSection('FileHandling')
 
 const labels: Record<string, string> = {
-	pathuploadfiles: 'Path for uploaded files',
+	pathuploadfiles: 'ed files',
 	sharefilehtml: 'File share snippet',
 	pathpublicshare: 'Path for public share',
 	sharefolderhtml: 'Folder share snippet',
