@@ -101,16 +101,20 @@ export const useSettingsStore = defineStore('settings', () => {
 	 */
 	async function saveSetting(keyId: number, value: string) {
 		const groupId = currentGroupId.value
+		// When saving to the default group, use the setting's templateId as groupid
+		// so Advanced Theming (template 1) and Teams (template 2) settings keep their correct groupid
+		const def = settingsRegistry.find(s => s.key === keyId)
+		const storageGroupId = groupId || String(def?.templateId ?? 0)
 		savingKeys.value.add(keyId)
 
 		try {
 			// Try update first (optimistic)
 			let result: SettingValue
 			try {
-				result = await api.updateSettingValue(keyId, value, groupId, groupId || undefined)
+				result = await api.updateSettingValue(keyId, value, storageGroupId, groupId || undefined)
 			} catch {
 				// Falls back to create if update fails
-				result = await api.createSettingValue(keyId, value, groupId, groupId || undefined)
+				result = await api.createSettingValue(keyId, value, storageGroupId, groupId || undefined)
 			}
 
 			values.value.set(keyId, result)
