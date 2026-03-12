@@ -58,20 +58,6 @@ const TEMPLATE_VARIABLES = [
 	'{LOGO}',
 ]
 
-/**
- * Replace {LOGO} placeholder with the theming logo URL for WYSIWYG preview
- */
-function toPreview(html: string, logoUrl: string): string {
-	return html.replaceAll(LOGO_PLACEHOLDER, logoUrl)
-}
-
-/**
- * Restore {LOGO} placeholder before persisting
- */
-function toStorage(html: string, logoUrl: string): string {
-	return html.replaceAll(logoUrl, LOGO_PLACEHOLDER)
-}
-
 interface TinyMceOptions {
 	elementRef: Ref<HTMLElement | null>
 	value: Ref<string>
@@ -93,8 +79,12 @@ export function useTinyMce(options: TinyMceOptions) {
 
 		window.tinymce.init({
 			target: options.elementRef.value,
+			license_key: 'gpl',
 			skin: false, // skins loaded via CSS imports above
 			content_css: false,
+			// Visually replace {LOGO} broken image with the actual logo via CSS only.
+			// The src="{LOGO}" stays in the HTML at all times (code view, save, API).
+			content_style: `img[src="${LOGO_PLACEHOLDER}"] { content: url(${options.logoUrl.value}); }`,
 			height: 400,
 			menubar: false,
 			branding: false,
@@ -126,12 +116,12 @@ export function useTinyMce(options: TinyMceOptions) {
 
 				// Sync initial content once editor is ready
 				ed.on('init', () => {
-					ed.setContent(toPreview(options.value.value || '', options.logoUrl.value))
+					ed.setContent(options.value.value || '')
 				})
 
 				// Emit changes on blur (not every keystroke)
 				ed.on('blur', () => {
-					const content = toStorage(ed.getContent(), options.logoUrl.value)
+					const content = ed.getContent()
 					if (content !== options.value.value) {
 						options.onSave(content)
 					}
@@ -142,9 +132,8 @@ export function useTinyMce(options: TinyMceOptions) {
 
 	// Watch for external value changes (e.g. group switch)
 	watch(options.value, (newVal) => {
-		const preview = toPreview(newVal || '', options.logoUrl.value)
-		if (editor && editor.getContent() !== preview) {
-			editor.setContent(preview)
+		if (editor && editor.getContent() !== (newVal || '')) {
+			editor.setContent(newVal || '')
 		}
 	})
 
