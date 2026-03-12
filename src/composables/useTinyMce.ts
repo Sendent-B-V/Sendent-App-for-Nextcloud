@@ -38,12 +38,10 @@ import 'tinymce/plugins/preview'
 import 'tinymce/plugins/table'
 
 import { onMounted, onBeforeUnmount, watch, type Ref } from 'vue'
-import { generateUrl } from '@nextcloud/router'
 import type { Editor } from 'tinymce'
 
-/** NC theming logo URL used to preview cid:logo.png@logo in the editor */
-const CID_LOGO = 'cid:logo.png@logo'
-const NC_LOGO_URL = generateUrl('/apps/theming/image/logoheader')
+/** Placeholder used in email templates for the organisation logo */
+const LOGO_PLACEHOLDER = '{LOGO}'
 
 const TEMPLATE_VARIABLES = [
 	'{URL}',
@@ -61,25 +59,24 @@ const TEMPLATE_VARIABLES = [
 ]
 
 /**
- * Replace cid: logo with NC theming URL for preview
- * @param html
+ * Replace {LOGO} placeholder with the theming logo URL for WYSIWYG preview
  */
-function toPreview(html: string): string {
-	return html.replaceAll(CID_LOGO, NC_LOGO_URL)
+function toPreview(html: string, logoUrl: string): string {
+	return html.replaceAll(LOGO_PLACEHOLDER, logoUrl)
 }
 
 /**
- * Restore cid: logo reference for saving
- * @param html
+ * Restore {LOGO} placeholder before persisting
  */
-function toStorage(html: string): string {
-	return html.replaceAll(NC_LOGO_URL, CID_LOGO)
+function toStorage(html: string, logoUrl: string): string {
+	return html.replaceAll(logoUrl, LOGO_PLACEHOLDER)
 }
 
 interface TinyMceOptions {
 	elementRef: Ref<HTMLElement | null>
 	value: Ref<string>
 	disabled: Ref<boolean>
+	logoUrl: Ref<string>
 	onSave: (content: string) => void
 }
 
@@ -129,12 +126,12 @@ export function useTinyMce(options: TinyMceOptions) {
 
 				// Sync initial content once editor is ready
 				ed.on('init', () => {
-					ed.setContent(toPreview(options.value.value || ''))
+					ed.setContent(toPreview(options.value.value || '', options.logoUrl.value))
 				})
 
 				// Emit changes on blur (not every keystroke)
 				ed.on('blur', () => {
-					const content = toStorage(ed.getContent())
+					const content = toStorage(ed.getContent(), options.logoUrl.value)
 					if (content !== options.value.value) {
 						options.onSave(content)
 					}
@@ -145,7 +142,7 @@ export function useTinyMce(options: TinyMceOptions) {
 
 	// Watch for external value changes (e.g. group switch)
 	watch(options.value, (newVal) => {
-		const preview = toPreview(newVal || '')
+		const preview = toPreview(newVal || '', options.logoUrl.value)
 		if (editor && editor.getContent() !== preview) {
 			editor.setContent(preview)
 		}

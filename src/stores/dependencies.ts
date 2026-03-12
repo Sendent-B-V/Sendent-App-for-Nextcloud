@@ -20,6 +20,7 @@
  */
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
+import { generateUrl } from '@nextcloud/router'
 import { fetchCapabilities } from '../services/capabilitiesApi'
 
 export interface AppDependency {
@@ -48,6 +49,7 @@ export const useDependenciesStore = defineStore('dependencies', () => {
 	const requiredApps = ref<AppDependency[]>([])
 	const recommendedApps = ref<AppDependency[]>([])
 	const loading = ref(false)
+	const themingLogoUrl = ref(generateUrl('/apps/theming/image/logoheader'))
 
 	/** Check which required/recommended apps are installed */
 	async function checkDependencies() {
@@ -67,6 +69,14 @@ export const useDependenciesStore = defineStore('dependencies', () => {
 				installed: capKeys.includes(app.id),
 				required: false,
 			}))
+
+			// Extract versioned logo URL from theming capabilities
+			const theming = capabilities.theming as Record<string, unknown> | undefined
+			if (theming && typeof theming.logoheader === 'string') {
+				themingLogoUrl.value = theming.logoheader
+			} else if (theming && typeof theming.logo === 'string') {
+				themingLogoUrl.value = theming.logo
+			}
 		} catch {
 			requiredApps.value = REQUIRED_APPS.map(app => ({
 				...app,
@@ -87,6 +97,7 @@ export const useDependenciesStore = defineStore('dependencies', () => {
 		requiredApps,
 		recommendedApps,
 		loading,
+		themingLogoUrl,
 		checkDependencies,
 	}
 })
