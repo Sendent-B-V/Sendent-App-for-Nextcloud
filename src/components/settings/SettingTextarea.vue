@@ -40,12 +40,16 @@
 
 <script setup lang="ts">
 import { ref, toRef } from 'vue'
+import { storeToRefs } from 'pinia'
 import { useTinyMce } from '../../composables/useTinyMce'
+import { useDependenciesStore } from '../../stores/dependencies'
 
 const props = defineProps<{
 	modelValue: string
 	disabled: boolean
 }>()
+
+const { themingLogoUrl } = storeToRefs(useDependenciesStore())
 
 const emit = defineEmits<{
 	(e: 'save', content: string): void
@@ -59,6 +63,7 @@ useTinyMce({
 	elementRef: editorRef,
 	value: toRef(props, 'modelValue'),
 	disabled: toRef(props, 'disabled'),
+	logoUrl: themingLogoUrl,
 	onSave(content: string) {
 		emit('save', content)
 	},
