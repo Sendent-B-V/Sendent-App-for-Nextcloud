@@ -82,9 +82,17 @@ export function useTinyMce(options: TinyMceOptions) {
 			license_key: 'gpl',
 			skin: false, // skins loaded via CSS imports above
 			content_css: false,
-			// Visually replace {LOGO} broken image with the actual logo via CSS only.
-			// The src="{LOGO}" stays in the HTML at all times (code view, save, API).
-			content_style: `img[src="${LOGO_PLACEHOLDER}"] { content: url(${options.logoUrl.value}); }`,
+			url_converter: (url: string, name: string) => {
+				if (name === 'src') {
+					try {
+						const pathname = new URL(url, document.baseURI).pathname
+						if (/\/apps\/theming\/image\/logo(header)?$/.test(pathname)) {
+							return LOGO_PLACEHOLDER
+						}
+					} catch { /* not a valid URL, skip */ }
+				}
+				return url
+			},
 			height: 400,
 			menubar: false,
 			branding: false,
@@ -107,16 +115,31 @@ export function useTinyMce(options: TinyMceOptions) {
 							type: 'menuitem' as const,
 							text: tag,
 							onAction() {
-								ed.insertContent(tag)
+								if (tag === LOGO_PLACEHOLDER) {
+									ed.insertContent(`<img src="${options.logoUrl.value}" alt="Logo">`)
+								} else {
+									ed.insertContent(tag)
+								}
 							},
 						}))
 						callback(items)
 					},
 				})
 
-				// Sync initial content once editor is ready
+				// Sync initial content once editor is ready — replace {LOGO} with real URL
 				ed.on('init', () => {
-					ed.setContent(options.value.value || '')
+					const html = (options.value.value || '').replaceAll(LOGO_PLACEHOLDER, options.logoUrl.value)
+					ed.setContent(html)
+				})
+
+				// Restore {LOGO} when content is serialized (code view, save, getContent)
+				ed.on('GetContent', (e) => {
+					if (e.content) {
+						e.content = e.content.replace(
+							/src="[^"]*\/apps\/theming\/image\/logo(header)?[^"]*"/g,
+							`src="${LOGO_PLACEHOLDER}"`,
+						)
+					}
 				})
 
 				// Emit changes on blur (not every keystroke)
@@ -132,8 +155,9 @@ export function useTinyMce(options: TinyMceOptions) {
 
 	// Watch for external value changes (e.g. group switch)
 	watch(options.value, (newVal) => {
-		if (editor && editor.getContent() !== (newVal || '')) {
-			editor.setContent(newVal || '')
+		const html = (newVal || '').replaceAll(LOGO_PLACEHOLDER, options.logoUrl.value)
+		if (editor && editor.getContent() !== html) {
+			editor.setContent(html)
 		}
 	})
 
