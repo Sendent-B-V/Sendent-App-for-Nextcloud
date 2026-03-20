@@ -26,7 +26,7 @@
 		<!-- Main app content -->
 		<template v-if="termsStore.agreed">
 			<h2>Sendent for Outlook / Teams</h2>
-			<TabContainer :tabs="mainTabs" default-tab="general">
+			<TabContainer :tabs="mainTabs" default-tab="general" hash-key="tab">
 				<template #general>
 					<GeneralTab />
 				</template>
