@@ -26,7 +26,7 @@
 			Loading settings...
 		</div>
 		<div v-else class="group-settings-tab__content">
-			<TabContainer :tabs="subtabs" default-tab="license">
+			<TabContainer :tabs="subtabs" default-tab="license" hash-key="subtab">
 				<template #license>
 					<LicenseSection />
 				</template>

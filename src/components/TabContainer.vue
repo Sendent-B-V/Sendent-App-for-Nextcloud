@@ -37,6 +37,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useHashParam } from '../composables/useHashParam'
 
 interface Tab {
 	id: string
@@ -46,9 +47,13 @@ interface Tab {
 const props = defineProps<{
 	tabs: Tab[]
 	defaultTab?: string
+	hashKey?: string
 }>()
 
-const activeTab = ref(props.defaultTab ?? props.tabs[0]?.id ?? '')
+const defaultId = props.defaultTab ?? props.tabs[0]?.id ?? ''
+const activeTab = props.hashKey
+	? useHashParam(props.hashKey, defaultId)
+	: ref(defaultId)
 </script>
 
 <style scoped>
