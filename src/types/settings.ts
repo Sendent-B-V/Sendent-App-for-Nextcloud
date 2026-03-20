@@ -57,6 +57,7 @@ export interface SettingValue {
 	settingkeyid: number
 	value: string
 	groupid: string
+	ncgroup?: string
 	group?: string
 }
 
