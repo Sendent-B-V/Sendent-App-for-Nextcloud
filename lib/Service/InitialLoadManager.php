@@ -120,6 +120,10 @@ class InitialLoadManager {
 				$this->addPathUploadFilesTeams();
 				$this->fixTeams_pathuploadfiles();
 			}
+			if ($this->SettingKeyMapper->settingKeyCount('502') < 1) {
+				$this->logger->info('teams_openfilemode settingkey (502) not present, creating it. ');
+				$this->addTeamsOpenFileMode();
+			}
 			if ($this->SettingKeyMapper->settingKeyCount('20') < 1) {
 				$this->initialLoading();
 			}
@@ -277,6 +281,10 @@ class InitialLoadManager {
 	public function addPathUploadFilesTeams() : void {
 		$this->createKey('501', 'teams_pathuploadfiles', '2', 'text');
 		$this->createGroupValue('2', '501', '/MSTeams/Upload-Share/');
+	}
+	public function addTeamsOpenFileMode() : void {
+		$this->createKey('502', 'teams_openfilemode', '2', 'select-one');
+		$this->createGroupValue('2', '502', 'off');
 	}
 	private function fixTeams_pathuploadfiles(): void {
 		try {
