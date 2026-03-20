@@ -62,6 +62,9 @@ export function useSettingField(definition: SettingDefinition) {
 
 	/** Save the current value */
 	async function save() {
+		// Don't save if the field is inherited. Prevents a race between
+		// a TinyMCE blur-save and a concurrent toggleInheritance call
+		if (disabled.value) return
 		if (localValue.value !== storedValue.value) {
 			await store.saveSetting(definition.key, localValue.value)
 		}
@@ -75,6 +78,10 @@ export function useSettingField(definition: SettingDefinition) {
 		if (inherit) {
 			overrideInherit.value = false
 			await store.inheritSetting(definition.key)
+			// Explicitly sync local value from the restored default so that
+			// editors (e.g. TinyMCE) that rely on the prop chain update
+			// even when Vue's watcher scheduling doesn't cascade in time
+			localValue.value = storedValue.value
 		} else {
 			overrideInherit.value = true
 			await store.overrideSetting(definition.key)
