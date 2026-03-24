@@ -32,7 +32,9 @@ use OCP\AppFramework\ApiController;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\DataResponse;
+use OCP\Http\Client\IClientService;
 use OCP\IRequest;
+use Psr\Log\LoggerInterface;
 
 class StatusApiController extends ApiController {
 	/** @var IAppManager */
@@ -42,6 +44,15 @@ class StatusApiController extends ApiController {
 	private $licensemanager;
 	private $appVersionClient;
 	private $licenseservice;
+	private $httpClient;
+	private $logger;
+
+	private const RELEASES_BASE_URL = 'https://releasesapp.com/api/entries/latest/';
+	private const RELEASE_WORKSPACES = [
+		'outlook-cross-platform' => 'dc9b6f11-139c-46ad-83a7-efca461ef0d0',
+		'ms-teams' => '6880e895-ba93-4433-9729-371ea9dc0ac1',
+		'outlook-windows' => '13f7862f-8df4-4106-a818-4d5a82f6fe50',
+	];
 
 	public function __construct(
 		$appName,
@@ -51,6 +62,8 @@ class StatusApiController extends ApiController {
 		LicenseManager $licensemanager,
 		AppVersionHttpClient $appVersionClient,
 		LicenseService $licenseservice,
+		IClientService $clientService,
+		LoggerInterface $logger,
 	) {
 		parent::__construct($appName, $request);
 		$this->appManager = $appManager;
@@ -58,6 +71,8 @@ class StatusApiController extends ApiController {
 		$this->appVersionClient = $appVersionClient;
 		$this->licensemanager = $licensemanager;
 		$this->licenseservice = $licenseservice;
+		$this->httpClient = $clientService->newClient();
+		$this->logger = $logger;
 	}
 	/**
 	 * Get the status of the user's license
@@ -131,5 +146,28 @@ class StatusApiController extends ApiController {
 		}
 		// Returns license status
 		return new DataResponse($statusobj);
+	}
+
+	/**
+	 * Fetches the latest release entry for all products from releasesapp.com
+	 *
+	 * @return DataResponse
+	 */
+	#[NoAdminRequired]
+	#[NoCSRFRequired]
+	public function releases(): DataResponse {
+		$results = [];
+		foreach (self::RELEASE_WORKSPACES as $slug => $uuid) {
+			try {
+				$response = $this->httpClient->get(self::RELEASES_BASE_URL . $uuid);
+				$data = json_decode($response->getBody(), true);
+				if ($data) {
+					$results[$slug] = $data;
+				}
+			} catch (\Exception $e) {
+				$this->logger->warning('Failed to fetch release for ' . $slug . ': ' . $e->getMessage());
+			}
+		}
+		return new DataResponse($results);
 	}
 }
