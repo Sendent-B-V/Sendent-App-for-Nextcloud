@@ -32,28 +32,43 @@
 				:key="product.slug"
 				class="product-card">
 				<div v-if="releases[product.slug]" class="product-card__content">
-					<h3>{{ product.label }}</h3>
-					<p>
-						<strong>Latest version:</strong>
-						{{ extractVersion(releases[product.slug].title) }}
-					</p>
-					<p v-if="releases[product.slug].date">
-						<strong>Release date:</strong>
-						{{ formatDate(releases[product.slug].date) }}
-					</p>
-					<div v-if="releases[product.slug].tags?.length" class="product-card__tags">
-						<span v-for="tag in releases[product.slug].tags"
-							:key="tag"
-							class="product-card__tag">
-							{{ tag }}
-						</span>
+					<div class="product-card__header">
+						<div class="product-card__icon-wrapper" :class="'product-card__icon--' + product.slug">
+							<span v-if="product.slug.includes('outlook')" class="icon-mail" />
+							<span v-else-if="product.slug === 'ms-teams'" class="icon-contacts" />
+							<span v-else class="icon-category-office" />
+						</div>
+						<div class="product-card__title">
+							<h3>{{ product.label }}</h3>
+							<div class="product-card__version-badge">
+								{{ extractVersion(releases[product.slug].title) }}
+							</div>
+						</div>
 					</div>
+
+					<div class="product-card__body">
+						<div v-if="releases[product.slug].date" class="product-card__info-row">
+							<span class="product-card__info-label">Released:</span>
+							<span class="product-card__info-value">{{ formatDate(releases[product.slug].date) }}</span>
+						</div>
+
+						<div v-if="releases[product.slug].tags?.length" class="product-card__tags">
+							<span v-for="tag in releases[product.slug].tags"
+								:key="tag"
+								class="product-card__tag">
+								{{ tag }}
+							</span>
+						</div>
+					</div>
+
 					<div class="product-card__actions">
 						<button class="product-card__notes-toggle"
+							:class="{ 'product-card__notes-toggle--expanded': expandedNotes[product.slug] }"
 							@click="toggleNotes(product.slug)">
 							{{ expandedNotes[product.slug] ? 'Hide release notes' : 'Show release notes' }}
 						</button>
 					</div>
+
 					<div v-if="expandedNotes[product.slug]"
 						class="product-card__release-notes"
 						v-html="releases[product.slug].content" />
@@ -70,9 +85,9 @@ import { fetchLatestReleases } from '../../services/releasesApi'
 import { formatDate } from '../../utils/date-utils'
 
 const products = [
-	{ slug: 'outlook-cross-platform', label: 'Sendent for Outlook (Cross-Platform)' },
-	{ slug: 'ms-teams', label: 'Sendent for MS Teams' },
-	{ slug: 'outlook-windows', label: 'Sendent for Outlook (Windows-Only)' },
+	{ slug: 'outlook-cross-platform', label: 'Outlook (Cross-Platform)' },
+	{ slug: 'ms-teams', label: 'MS Teams' },
+	{ slug: 'outlook-windows', label: 'Outlook (Windows)' },
 ]
 
 const releases = ref<Record<string, ReleaseEntry>>({})
@@ -111,90 +126,173 @@ onMounted(async () => {
 	display: flex;
 	align-items: center;
 	gap: 8px;
-	padding: 12px 0;
+	padding: 24px 0;
 	color: var(--color-text-maxcontrast);
+	justify-content: center;
 }
 
 .product-releases__empty {
 	color: var(--color-text-maxcontrast);
-	padding: 12px 0;
+	padding: 24px;
+	text-align: center;
+	background: var(--color-background-hover);
+	border-radius: var(--border-radius-large);
 }
 
 .product-releases__grid {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 16px;
-	margin-bottom: 24px;
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+	gap: 20px;
+	margin-bottom: 32px;
 }
 
 .product-card {
-	flex: 1;
-	min-width: 280px;
-	max-width: 400px;
+	background-color: var(--color-main-background);
 	border: 1px solid var(--color-border);
 	border-radius: var(--border-radius-large);
-	padding: 16px;
+	padding: 20px;
+	display: flex;
+	flex-direction: column;
+	transition: border-color 0.2s ease;
+}
+
+.product-card:hover {
+	border-color: var(--color-border-dark);
+}
+
+.product-card__header {
+	display: flex;
+	align-items: flex-start;
+	gap: 16px;
+	margin-bottom: 16px;
+}
+
+.product-card__icon-wrapper {
+	width: 44px;
+	height: 44px;
+	border-radius: 10px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	font-size: 24px;
+	background-color: var(--color-background-hover);
+}
+
+.product-card__icon--outlook-cross-platform,
+.product-card__icon--outlook-windows {
+	color: #0078d4;
+	background-color: rgba(0, 120, 212, 0.1);
+}
+
+.product-card__icon--ms-teams {
+	color: #6264a7;
+	background-color: rgba(98, 100, 167, 0.1);
+}
+
+.product-card__title {
+	flex: 1;
 }
 
 .product-card h3 {
-	font-size: 15px;
+	font-size: 16px;
 	font-weight: 600;
+	margin: 0 0 4px 0;
+	line-height: 1.2;
+}
+
+.product-card__version-badge {
+	display: inline-block;
+	font-size: 12px;
+	font-weight: 700;
+	padding: 1px 8px;
+	border-radius: var(--border-radius-pill);
+	background: var(--color-primary-element-light);
+	color: var(--color-primary-element);
+}
+
+.product-card__body {
+	flex: 1;
+}
+
+.product-card__info-row {
+	display: flex;
+	justify-content: space-between;
+	font-size: 13px;
 	margin-bottom: 8px;
 }
 
-.product-card p {
-	margin: 4px 0;
-	font-size: 14px;
+.product-card__info-label {
+	color: var(--color-text-maxcontrast);
+}
+
+.product-card__info-value {
+	font-weight: 500;
 }
 
 .product-card__tags {
 	display: flex;
-	gap: 6px;
-	margin-top: 6px;
+	gap: 4px;
+	margin-top: 12px;
 	flex-wrap: wrap;
 }
 
 .product-card__tag {
 	display: inline-block;
 	padding: 2px 8px;
-	font-size: 12px;
+	font-size: 11px;
 	border-radius: var(--border-radius-pill);
-	background: var(--color-primary-element-light);
-	color: var(--color-primary-element);
+	background: var(--color-background-hover);
+	color: var(--color-text-maxcontrast);
+	border: 1px solid var(--color-border);
 }
 
 .product-card__actions {
-	margin-top: 10px;
+	margin-top: 20px;
+	padding-top: 16px;
+	border-top: 1px solid var(--color-border-light);
 }
 
 .product-card__notes-toggle {
-	background: none;
-	border: 1px solid var(--color-border-dark);
+	width: 100%;
+	background: transparent;
+	border: 1px solid var(--color-primary-element);
 	border-radius: var(--border-radius);
-	padding: 4px 12px;
+	padding: 6px 16px;
 	font-size: 13px;
+	font-weight: 500;
 	cursor: pointer;
 	color: var(--color-primary-element);
+	transition: all 0.2s ease;
 }
 
 .product-card__notes-toggle:hover {
+	background: var(--color-primary-element);
+	color: var(--color-main-background);
+}
+
+.product-card__notes-toggle--expanded {
 	background: var(--color-background-hover);
+	border-color: var(--color-border);
+	color: var(--color-text-main);
 }
 
 .product-card__release-notes {
-	margin-top: 12px;
-	padding: 12px;
+	margin-top: 16px;
+	padding: 16px;
 	background: var(--color-background-hover);
-	border-radius: var(--border-radius);
-	font-size: 14px;
+	border-radius: var(--border-radius-large);
+	font-size: 13px;
 	line-height: 1.6;
 	overflow-x: auto;
+	border: 1px solid var(--color-border-light);
 }
 
 .product-card__release-notes :deep(h2) {
 	font-size: 14px;
-	font-weight: 600;
-	margin: 12px 0 6px;
+	font-weight: 700;
+	margin: 16px 0 8px;
+	color: var(--color-text-main);
 }
 
 .product-card__release-notes :deep(h2:first-child) {
@@ -202,15 +300,23 @@ onMounted(async () => {
 }
 
 .product-card__release-notes :deep(ul) {
-	padding-left: 20px;
-	margin: 6px 0;
+	padding-left: 18px;
+	margin: 8px 0;
 }
 
 .product-card__release-notes :deep(li) {
-	margin: 4px 0;
+	margin: 6px 0;
 }
 
 .product-card__release-notes :deep(a) {
 	color: var(--color-primary-element);
+	text-decoration: underline;
+}
+
+.product-card__release-notes :deep(code) {
+	background: var(--color-background-dark);
+	padding: 2px 4px;
+	border-radius: 3px;
+	font-family: monospace;
 }
 </style>
