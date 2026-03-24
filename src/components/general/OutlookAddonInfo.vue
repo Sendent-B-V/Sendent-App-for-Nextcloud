@@ -19,75 +19,198 @@
   - along with this program. If not, see <http://www.gnu.org/licenses/>.
   -->
 <template>
-	<div class="addon-info">
-		<h3>Outlook Add-in</h3>
-		<div v-if="licenseStore.addinVersion" class="addon-info__details">
-			<p><strong>Latest version:</strong> {{ licenseStore.addinVersion.Version }}</p>
-			<p v-if="licenseStore.addinVersion.ReleaseDate">
-				<strong>Release date:</strong> {{ formatDate(licenseStore.addinVersion.ReleaseDate) }}
-			</p>
-			<div class="addon-info__links">
-				<a v-if="licenseStore.addinVersion.UrlBinary"
-					:href="licenseStore.addinVersion.UrlBinary"
-					class="button primary"
-					target="_blank"
-					rel="noopener">
-					Download
-				</a>
-				<a v-if="licenseStore.addinVersion.UrlManual"
-					:href="licenseStore.addinVersion.UrlManual"
-					target="_blank"
-					rel="noopener"
-					class="addon-info__link">
-					Manual ↗
-				</a>
-				<a v-if="licenseStore.addinVersion.UrlReleaseNotes"
-					:href="licenseStore.addinVersion.UrlReleaseNotes"
-					target="_blank"
-					rel="noopener"
-					class="addon-info__link">
-					Release Notes ↗
-				</a>
+	<div class="product-releases">
+		<div v-if="loading" class="product-releases__loading">
+			<span class="icon-loading" />
+			Loading release info...
+		</div>
+		<div v-else-if="Object.keys(releases).length === 0" class="product-releases__empty">
+			No release information available.
+		</div>
+		<div v-else class="product-releases__grid">
+			<div v-for="product in products"
+				:key="product.slug"
+				class="product-card">
+				<div v-if="releases[product.slug]" class="product-card__content">
+					<h3>{{ product.label }}</h3>
+					<p>
+						<strong>Latest version:</strong>
+						{{ extractVersion(releases[product.slug].title) }}
+					</p>
+					<p v-if="releases[product.slug].date">
+						<strong>Release date:</strong>
+						{{ formatDate(releases[product.slug].date) }}
+					</p>
+					<div v-if="releases[product.slug].tags?.length" class="product-card__tags">
+						<span v-for="tag in releases[product.slug].tags"
+							:key="tag"
+							class="product-card__tag">
+							{{ tag }}
+						</span>
+					</div>
+					<div class="product-card__actions">
+						<button class="product-card__notes-toggle"
+							@click="toggleNotes(product.slug)">
+							{{ expandedNotes[product.slug] ? 'Hide release notes' : 'Show release notes' }}
+						</button>
+					</div>
+					<div v-if="expandedNotes[product.slug]"
+						class="product-card__release-notes"
+						v-html="releases[product.slug].content" />
+				</div>
 			</div>
 		</div>
-		<p v-else class="addon-info__empty">
-			No add-in version information available.
-		</p>
 	</div>
 </template>
 
 <script setup lang="ts">
-import { useLicenseStore } from '../../stores/license'
+import { ref, reactive, onMounted } from 'vue'
+import type { ReleaseEntry } from '../../types/releases'
+import { fetchLatestReleases } from '../../services/releasesApi'
 import { formatDate } from '../../utils/date-utils'
 
-const licenseStore = useLicenseStore()
+const products = [
+	{ slug: 'outlook-cross-platform', label: 'Sendent for Outlook (Cross-Platform)' },
+	{ slug: 'ms-teams', label: 'Sendent for MS Teams' },
+	{ slug: 'outlook-windows', label: 'Sendent for Outlook (Windows-Only)' },
+]
+
+const releases = ref<Record<string, ReleaseEntry>>({})
+const loading = ref(true)
+const expandedNotes = reactive<Record<string, boolean>>({})
+
+/**
+ * Extracts a version number from a release title like "Release Notes v2.3.0"
+ * @param title
+ */
+function extractVersion(title: string): string {
+	const match = title.match(/v?(\d+\.\d+(?:\.\d+)?)/i)
+	return match ? match[1] : title
+}
+
+/**
+ * @param slug
+ */
+function toggleNotes(slug: string) {
+	expandedNotes[slug] = !expandedNotes[slug]
+}
+
+onMounted(async () => {
+	try {
+		releases.value = await fetchLatestReleases()
+	} catch {
+		// Silently fail — the empty state handles this
+	} finally {
+		loading.value = false
+	}
+})
 </script>
 
 <style scoped>
-.addon-info {
+.product-releases__loading {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 12px 0;
+	color: var(--color-text-maxcontrast);
+}
+
+.product-releases__empty {
+	color: var(--color-text-maxcontrast);
+	padding: 12px 0;
+}
+
+.product-releases__grid {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 16px;
 	margin-bottom: 24px;
 }
 
-.addon-info h3 {
-	font-size: 16px;
+.product-card {
+	flex: 1;
+	min-width: 280px;
+	max-width: 400px;
+	border: 1px solid var(--color-border);
+	border-radius: var(--border-radius-large);
+	padding: 16px;
+}
+
+.product-card h3 {
+	font-size: 15px;
 	font-weight: 600;
-	margin-bottom: 12px;
+	margin-bottom: 8px;
 }
 
-.addon-info__links {
+.product-card p {
+	margin: 4px 0;
+	font-size: 14px;
+}
+
+.product-card__tags {
 	display: flex;
-	gap: 16px;
-	margin-top: 8px;
-	align-items: center;
+	gap: 6px;
+	margin-top: 6px;
+	flex-wrap: wrap;
 }
 
-.addon-info__link {
-	display: inline-flex;
-	align-items: center;
-	gap: 4px;
+.product-card__tag {
+	display: inline-block;
+	padding: 2px 8px;
+	font-size: 12px;
+	border-radius: var(--border-radius-pill);
+	background: var(--color-primary-element-light);
+	color: var(--color-primary-element);
 }
 
-.addon-info__empty {
-	color: var(--color-text-maxcontrast);
+.product-card__actions {
+	margin-top: 10px;
+}
+
+.product-card__notes-toggle {
+	background: none;
+	border: 1px solid var(--color-border-dark);
+	border-radius: var(--border-radius);
+	padding: 4px 12px;
+	font-size: 13px;
+	cursor: pointer;
+	color: var(--color-primary-element);
+}
+
+.product-card__notes-toggle:hover {
+	background: var(--color-background-hover);
+}
+
+.product-card__release-notes {
+	margin-top: 12px;
+	padding: 12px;
+	background: var(--color-background-hover);
+	border-radius: var(--border-radius);
+	font-size: 14px;
+	line-height: 1.6;
+	overflow-x: auto;
+}
+
+.product-card__release-notes :deep(h2) {
+	font-size: 14px;
+	font-weight: 600;
+	margin: 12px 0 6px;
+}
+
+.product-card__release-notes :deep(h2:first-child) {
+	margin-top: 0;
+}
+
+.product-card__release-notes :deep(ul) {
+	padding-left: 20px;
+	margin: 6px 0;
+}
+
+.product-card__release-notes :deep(li) {
+	margin: 4px 0;
+}
+
+.product-card__release-notes :deep(a) {
+	color: var(--color-primary-element);
 }
 </style>
