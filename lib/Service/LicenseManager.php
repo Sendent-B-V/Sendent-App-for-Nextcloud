@@ -214,7 +214,7 @@ class LicenseManager {
 
 				return $this->licenseservice->create(
 					$activatedLicense->getLicensekey(),
-					$activatedLicense->getLicensekeytoken(),
+					$activatedLicense->getLicensekeytoken() ?? '',
 					$activatedLicense->getSubscriptionstatus(),
 					date_create($activatedLicense->getDategraceperiodend()),
 					date_create($activatedLicense->getDatelicenseend()),

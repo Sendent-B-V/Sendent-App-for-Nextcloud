@@ -76,6 +76,7 @@ onMounted(async () => {
 	// If agreed, fetch initial data
 	if (termsStore.agreed) {
 		await licenseStore.refreshStatus('')
+		licenseStore.checkAnyValidLicense()
 	}
 })
 </script>

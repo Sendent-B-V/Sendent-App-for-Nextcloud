@@ -23,6 +23,7 @@ import { ref } from 'vue'
 import { loadState } from '@nextcloud/initial-state'
 import type { LicenseStatus, DefaultLicenseState, VSTOAddinVersion } from '../types/license'
 import * as api from '../services/licenseApi'
+import { useGroupsStore } from './groups'
 
 export const useLicenseStore = defineStore('license', () => {
 	/** License status for currently selected group */
@@ -140,6 +141,36 @@ export const useLicenseStore = defineStore('license', () => {
 		return !status.value.ncgroup
 	}
 
+	/** Whether any group (default or subgroup) has a valid license */
+	const hasAnyValidLicense = ref(false)
+
+	/** Check all groups for a valid license */
+	async function checkAnyValidLicense() {
+		// Check default group first
+		try {
+			const defaultStatus = await api.fetchLicenseStatus('')
+			if (defaultStatus.statusKind === 'valid') {
+				hasAnyValidLicense.value = true
+				return
+			}
+		} catch {
+			// Continue checking subgroups
+		}
+		// Check each sendent group
+		const groupsStore = useGroupsStore()
+		for (const group of groupsStore.sendentGroups) {
+			try {
+				const groupStatus = await api.fetchLicenseStatus(group.gid)
+				if (groupStatus.statusKind === 'valid') {
+					hasAnyValidLicense.value = true
+					return
+				}
+			} catch {
+				// Skip failed groups
+			}
+		}
+	}
+
 	return {
 		status,
 		defaultLicense,
@@ -147,11 +178,13 @@ export const useLicenseStore = defineStore('license', () => {
 		loading,
 		email,
 		licenseKey,
+		hasAnyValidLicense,
 		loadInitialState,
 		refreshStatus,
 		activateLicense,
 		clearLicense,
 		downloadReport,
 		isInherited,
+		checkAnyValidLicense,
 	}
 })

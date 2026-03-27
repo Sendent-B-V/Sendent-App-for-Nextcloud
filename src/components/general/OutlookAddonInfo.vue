@@ -68,7 +68,7 @@
 							@click="toggleNotes(product.slug)">
 							View release notes
 						</button>
-						<a v-if="product.slug === 'outlook-windows'"
+						<a v-if="product.slug === 'outlook-windows' && hasValidLicense"
 							class="button primary product-card__download"
 							:href="'https://download.sendent.com/addin/' + extractVersion(releases[product.slug].title) + '/Sendent_Outlook.zip'"
 							target="_blank"
@@ -113,6 +113,7 @@ const licenseStore = useLicenseStore()
 const releases = ref<Record<string, ReleaseEntry>>({})
 const loading = ref(true)
 const offlineMode = ref(false)
+const hasValidLicense = computed(() => licenseStore.hasAnyValidLicense)
 const activeNotesSlug = ref('')
 const activeProductLabel = computed(() =>
 	products.find(p => p.slug === activeNotesSlug.value)?.label ?? '',

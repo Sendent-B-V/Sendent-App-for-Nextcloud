@@ -32,12 +32,12 @@ use OCP\IRequest;
 use Psr\Log\LoggerInterface;
 
 class ReleasesApiController extends ApiController {
-	private const BASE_URL = 'https://releasesapp.com/api/entries/latest/';
+	private const BASE_URL = 'https://changelog.scwcloud.sendent.nl/';
 
 	private const WORKSPACES = [
-		'outlook-cross-platform' => 'dc9b6f11-139c-46ad-83a7-efca461ef0d0',
-		'ms-teams' => '6880e895-ba93-4433-9729-371ea9dc0ac1',
-		'outlook-windows' => '13f7862f-8df4-4106-a818-4d5a82f6fe50',
+		'outlook-cross-platform' => 'outlook-cross-platform',
+		'ms-teams' => 'ms-teams',
+		'outlook-windows' => 'outlook-windows',
 	];
 
 	private $httpClient;
