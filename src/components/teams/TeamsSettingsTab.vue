@@ -32,5 +32,6 @@ const definitions = getSettingsForSection('Teams')
 
 const labels: Record<string, string> = {
 	teams_pathuploadfiles: 'Path for uploaded files',
+	teams_openfilemode: 'Open files locally via',
 }
 </script>
