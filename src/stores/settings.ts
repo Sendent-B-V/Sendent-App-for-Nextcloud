@@ -53,8 +53,8 @@ export const useSettingsStore = defineStore('settings', () => {
 		if (!val) return true
 		// Default group settings are never "inherited"
 		if (currentGroupId.value === '') return false
-		// If groupid is empty or '0' or 'default', it's the default value
-		return !val.groupid || val.groupid === '0' || val.groupid === 'default'
+		// If ncgroup is empty, this is a default-group value (inherited)
+		return !val.ncgroup
 	}
 
 	/**

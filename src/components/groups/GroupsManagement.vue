@@ -82,11 +82,13 @@ import { useGroupsStore } from '../../stores/groups'
 import { useSettingsStore } from '../../stores/settings'
 import { useLicenseStore } from '../../stores/license'
 import { useSortable } from '../../composables/useSortable'
+import { useHashParam } from '../../composables/useHashParam'
 
 const groupsStore = useGroupsStore()
 const settingsStore = useSettingsStore()
 const licenseStore = useLicenseStore()
 
+const hashGroup = useHashParam('group')
 const ncFilter = ref('')
 const sendentFilter = ref('')
 const sortableRef = ref<HTMLElement | null>(null)
@@ -139,6 +141,7 @@ function onRemoveGroup(gid: string) {
  * @param gid
  */
 async function onSelectGroup(gid: string) {
+	hashGroup.value = gid
 	groupsStore.selectGroup(gid)
 	await Promise.all([
 		settingsStore.loadSettings(gid),
@@ -147,8 +150,10 @@ async function onSelectGroup(gid: string) {
 }
 
 onMounted(() => {
-	// Load settings for default group initially
-	onSelectGroup('')
+	// Restore selected group from URL hash, or fall back to default
+	const initialGroup = hashGroup.value
+	const isValidGroup = initialGroup && groupsStore.sendentGroups.some(g => g.gid === initialGroup)
+	onSelectGroup(isValidGroup ? initialGroup : '')
 })
 </script>
 

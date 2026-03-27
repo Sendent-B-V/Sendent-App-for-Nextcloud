@@ -139,7 +139,7 @@ async function onTextareaReset() {
 }
 
 .setting-field__input {
-	flex: 1;
+	flex: 0 0 400px;
 	min-width: 0;
 }
 
@@ -147,11 +147,10 @@ async function onTextareaReset() {
 .setting-field__input input[type="text"],
 .setting-field__input input[type="number"] {
 	width: 100%;
-	max-width: 400px;
 }
 
 .setting-field__color {
-	width: 60px !important;
+	width: 60px;
 	height: 34px;
 	padding: 2px;
 	cursor: pointer;
@@ -164,13 +163,8 @@ async function onTextareaReset() {
 	cursor: not-allowed;
 }
 
-/* Block layout for textarea and multiInput (inherently multi-line) */
-.setting-field--block {
-	flex-wrap: wrap;
-}
-
+/* Block layout for textarea and multiInput — keep same column width for alignment */
 .setting-field--block .setting-field__input {
-	flex-basis: 100%;
-	max-width: 600px;
+	flex: 0 0 400px;
 }
 </style>

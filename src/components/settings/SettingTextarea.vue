@@ -19,7 +19,7 @@
   - along with this program. If not, see <http://www.gnu.org/licenses/>.
   -->
 <template>
-	<div class="setting-textarea">
+	<div class="setting-textarea" :class="{ 'setting-textarea--disabled': disabled }">
 		<div class="setting-textarea__actions">
 			<div class="setting-textarea__toggle"
 				@click="expanded = !expanded">
@@ -120,5 +120,14 @@ useTinyMce({
 .setting-textarea__editor {
 	margin-top: 8px;
 	max-width: 700px;
+}
+
+.setting-textarea--disabled .setting-textarea__editor {
+	opacity: 0.6;
+	pointer-events: none;
+}
+
+.setting-textarea--disabled .setting-textarea__toggle {
+	color: var(--color-text-maxcontrast);
 }
 </style>

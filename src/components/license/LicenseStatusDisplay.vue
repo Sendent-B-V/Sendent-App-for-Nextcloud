@@ -63,7 +63,8 @@ const statusClass = computed(() => {
 	case 'expired': return 'license-status__value--expired'
 	case 'nolicense': return 'license-status__value--none'
 	case 'userlimit': return 'license-status__value--warning'
-	case 'check': return 'license-status__value--warning'
+	case 'check': return 'license-status__value--error'
+	case 'error_incomplete': return 'license-status__value--error'
 	default: return ''
 	}
 })
@@ -103,6 +104,15 @@ const statusClass = computed(() => {
 .license-status__value--warning {
 	color: var(--color-warning);
 	font-weight: 600;
+}
+
+.license-status__value--error {
+	color: var(--color-error-text);
+	font-weight: 600;
+}
+
+.license-status__value--error :deep(a) {
+	color: var(--color-error-text);
 }
 
 .license-status__product-row {

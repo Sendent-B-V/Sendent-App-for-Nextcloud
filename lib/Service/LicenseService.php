@@ -192,7 +192,9 @@ class LicenseService {
 				$this->logger->debug('Did not find a license for group ' . $userSendentGroups[array_keys($userSendentGroups)[0]]);
 				$license = $this->findByGroup('');
 			}
-			$this->logger->debug('Found license: ' . $license[0]->getId() . ' for group ' . $userSendentGroups[array_keys($userSendentGroups)[0]]);
+			if (count($license) > 0) {
+				$this->logger->debug('Found license: ' . $license[0]->getId() . ' for group ' . $userSendentGroups[array_keys($userSendentGroups)[0]]);
+			}
 		}
 
 		// If we haven't found a license, then usage is unlicensed
