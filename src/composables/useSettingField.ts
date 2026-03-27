@@ -66,7 +66,7 @@ export function useSettingField(definition: SettingDefinition) {
 		// a TinyMCE blur-save and a concurrent toggleInheritance call
 		if (disabled.value) return
 		if (localValue.value !== storedValue.value) {
-			await store.saveSetting(definition.key, localValue.value)
+			await store.saveSetting(definition.key, String(localValue.value))
 		}
 	}
 

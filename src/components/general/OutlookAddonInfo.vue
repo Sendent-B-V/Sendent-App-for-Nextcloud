@@ -20,7 +20,10 @@
   -->
 <template>
 	<div class="product-releases">
-		<div v-if="loading" class="product-releases__loading">
+		<div v-if="offlineMode" class="product-releases__offline">
+			OFFLINE mode — release checks are disabled.
+		</div>
+		<div v-else-if="loading" class="product-releases__loading">
 			<span class="icon-loading" />
 			Loading release info...
 		</div>
@@ -43,7 +46,8 @@
 								<div v-if="releases[product.slug].tags?.length" class="product-card__tags">
 									<span v-for="tag in releases[product.slug].tags"
 										:key="tag"
-										class="product-card__tag">
+										class="product-card__tag"
+										:class="{ 'product-card__tag--important': tag.toLowerCase() === 'important' }">
 										{{ tag }}
 									</span>
 								</div>
@@ -54,44 +58,65 @@
 					<div class="product-card__body">
 						<div v-if="releases[product.slug].date" class="product-card__info">
 							<span class="product-card__info-label">Released</span>
-							<span class="product-card__info-value">{{ formatDate(releases[product.slug].date) }}</span>
+							<span class="product-card__info-value"
+								title="dd-MM-yyyy">{{ formatDate(releases[product.slug].date) }}</span>
 						</div>
 					</div>
 
 					<div class="product-card__footer">
-						<button class="button"
-							:class="{ primary: !expandedNotes[product.slug] }"
+						<button class="button primary"
 							@click="toggleNotes(product.slug)">
-							{{ expandedNotes[product.slug] ? 'Hide release notes' : 'View release notes' }}
+							View release notes
 						</button>
+						<a v-if="product.slug === 'outlook-windows'"
+							class="button primary product-card__download"
+							:href="'https://download.sendent.com/addin/' + extractVersion(releases[product.slug].title) + '/Sendent_Outlook.zip'"
+							target="_blank"
+							rel="noopener noreferrer">
+							Download
+						</a>
 					</div>
 				</div>
+			</div>
+		</div>
 
-				<div v-if="expandedNotes[product.slug]"
-					class="product-card__release-notes-wrapper">
-					<div class="product-card__release-notes-content"
-						v-html="releases[product.slug].content" />
+		<!-- Release notes modal -->
+		<div v-if="activeNotesSlug"
+			class="release-notes-modal__backdrop"
+			@click.self="activeNotesSlug = ''">
+			<div class="release-notes-modal">
+				<div class="release-notes-modal__header">
+					<h3>{{ activeProductLabel }} — {{ releases[activeNotesSlug]?.title }}</h3>
+					<button class="release-notes-modal__close" @click="activeNotesSlug = ''">&#x2715;</button>
 				</div>
+				<div class="release-notes-modal__body"
+					v-html="releases[activeNotesSlug]?.content" />
 			</div>
 		</div>
 	</div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, computed, watch } from 'vue'
 import type { ReleaseEntry } from '../../types/releases'
 import { fetchLatestReleases } from '../../services/releasesApi'
 import { formatDate } from '../../utils/date-utils'
+import { useLicenseStore } from '../../stores/license'
 
 const products = [
 	{ slug: 'outlook-cross-platform', label: 'Outlook (Cross-Platform)' },
-	{ slug: 'ms-teams', label: 'MS Teams' },
 	{ slug: 'outlook-windows', label: 'Outlook (Windows)' },
+	{ slug: 'ms-teams', label: 'MS Teams' },
 ]
 
+const licenseStore = useLicenseStore()
 const releases = ref<Record<string, ReleaseEntry>>({})
 const loading = ref(true)
-const expandedNotes = reactive<Record<string, boolean>>({})
+const offlineMode = ref(false)
+const activeNotesSlug = ref('')
+const activeProductLabel = computed(() =>
+	products.find(p => p.slug === activeNotesSlug.value)?.label ?? '',
+)
 
 /**
  * Extracts a version number from a release title like "Release Notes v2.3.0"
@@ -106,10 +131,18 @@ function extractVersion(title: string): string {
  * @param slug
  */
 function toggleNotes(slug: string) {
-	expandedNotes[slug] = !expandedNotes[slug]
+	activeNotesSlug.value = slug
 }
 
-onMounted(async () => {
+// Wait until the license store has finished loading before checking releases.
+// This avoids a race where the component mounts before refreshStatus completes.
+watch(() => licenseStore.loading, async (isLoading) => {
+	if (isLoading) return
+	if (licenseStore.email.includes('OFFLINE_')) {
+		offlineMode.value = true
+		loading.value = false
+		return
+	}
 	try {
 		releases.value = await fetchLatestReleases()
 	} catch {
@@ -117,10 +150,20 @@ onMounted(async () => {
 	} finally {
 		loading.value = false
 	}
-})
+}, { immediate: true })
 </script>
 
 <style scoped>
+.product-releases__offline {
+	color: var(--color-text-maxcontrast);
+	padding: 32px;
+	text-align: center;
+	background: var(--color-background-hover);
+	border-radius: var(--border-radius-large);
+	border: 1px dashed var(--color-border);
+	font-weight: 600;
+}
+
 .product-releases__loading {
 	display: flex;
 	align-items: center;
@@ -227,10 +270,16 @@ onMounted(async () => {
 	font-size: 11px;
 	font-weight: 600;
 	border-radius: var(--border-radius-pill);
-	background-color: var(--color-warning-light);
-	color: var(--color-warning);
-	border: 1px solid var(--color-warning);
+	background-color: var(--color-primary-element-light);
+	color: var(--color-primary-element);
+	border: 1px solid var(--color-primary-element);
 	text-transform: uppercase;
+}
+
+.product-card__tag--important {
+	background-color: #fee;
+	color: #c00;
+	border-color: #c00;
 }
 
 .product-card__body {
@@ -261,44 +310,103 @@ onMounted(async () => {
 	margin-top: auto;
 }
 
+.product-card__footer {
+	display: flex;
+	gap: 8px;
+}
+
 .product-card__footer button {
-	width: 100%;
+	flex: 2;
+	text-align: center;
 }
 
-.product-card__release-notes-wrapper {
-	border-top: 1px solid var(--color-border-light);
-	background: var(--color-background-hover);
-	border-radius: 0 0 var(--border-radius-large) var(--border-radius-large);
+.product-card__footer .product-card__download {
+	flex: 1;
+	text-align: center;
+	text-decoration: none;
 }
 
-.product-card__release-notes-content {
+/* Release notes modal */
+.release-notes-modal__backdrop {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(0, 0, 0, 0.5);
+	z-index: 9000;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.release-notes-modal {
+	background: var(--color-main-background);
+	border-radius: var(--border-radius-large);
+	width: 640px;
+	max-width: 90vw;
+	max-height: 80vh;
+	display: flex;
+	flex-direction: column;
+	box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+}
+
+.release-notes-modal__header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 16px 24px;
+	border-bottom: 1px solid var(--color-border);
+}
+
+.release-notes-modal__header h3 {
+	margin: 0;
+	font-size: 16px;
+	font-weight: 600;
+}
+
+.release-notes-modal__close {
+	background: none;
+	border: none;
+	font-size: 18px;
+	cursor: pointer;
+	color: var(--color-text-maxcontrast);
+	padding: 4px 8px;
+}
+
+.release-notes-modal__close:hover {
+	color: var(--color-text-main);
+}
+
+.release-notes-modal__body {
 	padding: 20px 24px;
 	font-size: 13px;
 	line-height: 1.6;
-	max-height: 300px;
 	overflow-y: auto;
 }
 
-.product-card__release-notes-content :deep(h2) {
+.release-notes-modal__body :deep(h2) {
 	font-size: 14px;
 	font-weight: 700;
 	margin: 16px 0 8px;
 }
 
-.product-card__release-notes-content :deep(h2:first-child) {
+.release-notes-modal__body :deep(h2:first-child) {
 	margin-top: 0;
 }
 
-.product-card__release-notes-content :deep(ul) {
+.release-notes-modal__body :deep(ul) {
 	padding-left: 20px;
 	margin: 8px 0;
+	list-style: disc;
 }
 
-.product-card__release-notes-content :deep(li) {
+.release-notes-modal__body :deep(li) {
 	margin: 6px 0;
+	display: list-item;
 }
 
-.product-card__release-notes-content :deep(a) {
+.release-notes-modal__body :deep(a) {
 	color: var(--color-primary-element);
 }
 </style>

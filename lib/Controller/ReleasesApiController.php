@@ -65,7 +65,7 @@ class ReleasesApiController extends ApiController {
 		$results = [];
 		foreach (self::WORKSPACES as $slug => $uuid) {
 			try {
-				$response = $this->httpClient->get(self::BASE_URL . $uuid);
+				$response = $this->httpClient->get(self::BASE_URL . $uuid, ['timeout' => 5]);
 				$data = json_decode($response->getBody(), true);
 				if ($data) {
 					$results[$slug] = $data;
