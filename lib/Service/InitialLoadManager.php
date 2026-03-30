@@ -75,12 +75,12 @@ class InitialLoadManager {
 	 */
 	public function checkUpdateNeeded(): bool {
 		$firstRun = $this->config->getAppValue('sendent', 'firstRunAppVersion');
-		if ($firstRun !== '3.1.0') {
+		if ($firstRun !== '4.0.0') {
 			try {
 				$this->logger->info('Initial load manager determined it needs to run. ');
 
 				$this->runInitialLoadTasks();
-				$this->config->setAppValue('sendent', 'firstRunAppVersion', '3.1.0');
+				$this->config->setAppValue('sendent', 'firstRunAppVersion', '4.0.0');
 			} catch (PreConditionNotMetException $e) {
 				$this->logger->error('Error while running initial load manager. ' . $e);
 
@@ -110,6 +110,12 @@ class InitialLoadManager {
 			}
 			if ($this->SettingKeyMapper->settingKeyCount('700') < 1) {
 				$this->addEnforceFiledropSetting();
+			}
+			if ($this->SettingKeyMapper->settingKeyCount('32') < 1) {
+				$this->addShareDays();
+			}
+			if ($this->SettingKeyMapper->settingKeyCount('33') < 1) {
+				$this->addShareDaysEnabled();
 			}
 			if ($this->SettingKeyMapper->settingKeyCount('401') < 1) {
 				$this->logger->info('statussync settingkey (401) not present, creating it. ');
@@ -278,13 +284,21 @@ class InitialLoadManager {
 		$this->createKey('401', 'statussync', '0', 'select-one');
 		$this->createGroupValue('0', '401', 'False');
 	}
+	public function addShareDays() : void {
+		$this->createKey('32', 'sharedays', '0', 'number');
+		$this->createGroupValue('0', '32', '7');
+	}
+	public function addShareDaysEnabled() : void {
+		$this->createKey('33', 'sharedaysenabled', '0', 'select-one');
+		$this->createGroupValue('0', '33', 'False');
+	}
 	public function addPathUploadFilesTeams() : void {
 		$this->createKey('501', 'teams_pathuploadfiles', '2', 'text');
 		$this->createGroupValue('2', '501', '/MSTeams/Upload-Share/');
 	}
 	public function addTeamsOpenFileMode() : void {
 		$this->createKey('502', 'teams_openfilemode', '2', 'select-one');
-		$this->createGroupValue('2', '502', 'off');
+		$this->createGroupValue('2', '502', 'Off');
 	}
 	private function fixTeams_pathuploadfiles(): void {
 		try {

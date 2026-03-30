@@ -37,7 +37,7 @@ import 'tinymce/plugins/autolink'
 import 'tinymce/plugins/preview'
 import 'tinymce/plugins/table'
 
-import { onMounted, onBeforeUnmount, watch, type Ref } from 'vue'
+import { onBeforeUnmount, watch, type Ref } from 'vue'
 import type { Editor } from 'tinymce'
 
 /** Placeholder used in email templates for the organisation logo */
@@ -63,27 +63,23 @@ interface TinyMceOptions {
 	value: Ref<string>
 	disabled: Ref<boolean>
 	logoUrl: Ref<string>
-	onSave: (content: string) => void
 }
 
 /**
  * Composable wrapping TinyMCE 7 for Vue 3 lifecycle management.
- * Handles initialization, content syncing, readonly toggling, and cleanup.
+ * Init/destroy is driven by elementRef presence (for modal support).
+ * Saving is explicit via the returned getContent() function.
  * @param options
  */
 export function useTinyMce(options: TinyMceOptions) {
 	let editor: Editor | null = null
 
-	onMounted(() => {
-		if (!options.elementRef.value) return
-
+	function initEditor(el: HTMLElement) {
 		window.tinymce.init({
-			target: options.elementRef.value,
+			target: el,
 			license_key: 'gpl',
-			skin: false, // skins loaded via CSS imports above
+			skin: false,
 			content_css: false,
-			// Visually replace {LOGO} broken image with the actual logo via CSS only.
-			// The src="{LOGO}" stays in the HTML at all times (code view, save, API).
 			content_style: `img[src="${LOGO_PLACEHOLDER}"] { content: url(${options.logoUrl.value}); }`,
 			height: 400,
 			menubar: false,
@@ -99,7 +95,6 @@ export function useTinyMce(options: TinyMceOptions) {
 			setup(ed: Editor) {
 				editor = ed
 
-				// Register template variables dropdown button
 				ed.ui.registry.addMenuButton('templatevars', {
 					text: 'Insert variable',
 					fetch(callback) {
@@ -114,21 +109,28 @@ export function useTinyMce(options: TinyMceOptions) {
 					},
 				})
 
-				// Sync initial content once editor is ready
 				ed.on('init', () => {
 					ed.setContent(options.value.value || '')
 				})
-
-				// Emit changes on blur (not every keystroke)
-				ed.on('blur', () => {
-					const content = ed.getContent()
-					if (content !== options.value.value) {
-						options.onSave(content)
-					}
-				})
 			},
 		})
-	})
+	}
+
+	function destroyEditor() {
+		if (editor) {
+			editor.destroy()
+			editor = null
+		}
+	}
+
+	// Init when modal opens (elementRef becomes non-null), destroy when it closes
+	watch(options.elementRef, (el) => {
+		if (el) {
+			initEditor(el)
+		} else {
+			destroyEditor()
+		}
+	}, { flush: 'post' })
 
 	// Watch for external value changes (e.g. group switch)
 	watch(options.value, (newVal) => {
@@ -145,11 +147,11 @@ export function useTinyMce(options: TinyMceOptions) {
 	})
 
 	onBeforeUnmount(() => {
-		if (editor) {
-			editor.destroy()
-			editor = null
-		}
+		destroyEditor()
 	})
 
-	return { getEditor: () => editor }
+	return {
+		getEditor: () => editor,
+		getContent: () => editor?.getContent() ?? '',
+	}
 }

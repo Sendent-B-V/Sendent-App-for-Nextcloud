@@ -59,12 +59,15 @@ const activeTab = props.hashKey
 <style scoped>
 .sendent-tabs__nav {
 	display: flex;
+	width: fit-content;
 	gap: 0;
 	border-bottom: 1px solid var(--color-border);
 	margin-bottom: 20px;
 }
 
 .sendent-tabs__tab {
+	min-width: 200px;
+	text-align: center;
 	padding: 10px 20px;
 	border: none;
 	background: none;

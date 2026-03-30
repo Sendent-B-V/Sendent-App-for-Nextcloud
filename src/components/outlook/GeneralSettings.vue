@@ -40,5 +40,7 @@ const labels: Record<string, string> = {
 	sendmode: 'Password communication mode',
 	htmlsnippetpassword: 'Password communication snippet',
 	statussync: 'Presence Synchronization',
+	sharedaysenabled: 'Share expiration days',
+	sharedays: 'Number of days',
 }
 </script>

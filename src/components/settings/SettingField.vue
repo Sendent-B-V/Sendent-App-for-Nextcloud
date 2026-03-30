@@ -46,7 +46,9 @@
 				v-model="localValue"
 				type="number"
 				:disabled="disabled"
-				@change="save">
+				:max="numericMax"
+				:min="numericMin"
+				@change="onNumericChange">
 			<input v-else-if="definition.inputType === 'color'"
 				v-model="localValue"
 				type="color"
@@ -70,10 +72,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
+import { storeToRefs } from 'pinia'
 import type { SettingDefinition } from '../../types/settings'
 import { useSettingField } from '../../composables/useSettingField'
 import { useSettingsStore } from '../../stores/settings'
+import { useDependenciesStore } from '../../stores/dependencies'
 import SaveIndicator from './SaveIndicator.vue'
 import InheritanceCheckbox from './InheritanceCheckbox.vue'
 import MultiInputList from './MultiInputList.vue'
@@ -96,14 +100,47 @@ const {
 	toggleInheritance,
 } = useSettingField(props.definition)
 
+const { shareExpirationDays, shareExpirationEnforced } = storeToRefs(useDependenciesStore())
+
 const isBlockInput = computed(() =>
 	props.definition.inputType === 'textarea' || props.definition.inputType === 'multiInput',
 )
 
-/**
- *
- * @param content
- */
+const numericMax = computed(() => {
+	if (props.definition.name === 'sharedays'
+		&& shareExpirationEnforced.value
+		&& shareExpirationDays.value > 0) {
+		return shareExpirationDays.value
+	}
+	return undefined
+})
+
+const numericMin = computed(() => {
+	if (props.definition.name === 'sharedays') {
+		return 1
+	}
+	return undefined
+})
+
+function onNumericChange() {
+	const val = Number(localValue.value)
+	if (numericMin.value && val < numericMin.value) {
+		localValue.value = String(numericMin.value)
+	}
+	if (numericMax.value && val > numericMax.value) {
+		localValue.value = String(numericMax.value)
+	}
+	save()
+}
+
+// When sharedaysenabled is toggled to Disabled, set sharedays to -1
+const store = useSettingsStore()
+watch(localValue, (newVal) => {
+	if (props.definition.name === 'sharedaysenabled' && newVal === 'False') {
+		store.saveSetting(32, '-1')
+	}
+})
+
 function onTextareaSave(content: string) {
 	localValue.value = content
 	save()
@@ -113,7 +150,6 @@ function onTextareaSave(content: string) {
  *
  */
 async function onTextareaReset() {
-	const store = useSettingsStore()
 	await store.resetSetting(props.definition.key)
 }
 </script>

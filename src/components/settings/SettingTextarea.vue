@@ -19,28 +19,33 @@
   - along with this program. If not, see <http://www.gnu.org/licenses/>.
   -->
 <template>
-	<div class="setting-textarea" :class="{ 'setting-textarea--disabled': disabled }">
+	<div class="setting-textarea">
 		<div class="setting-textarea__actions">
-			<div class="setting-textarea__toggle"
-				@click="expanded = !expanded">
-				<span class="setting-textarea__arrow">{{ expanded ? '▾' : '▸' }}</span>
-				<span>{{ expanded ? 'Hide editor' : 'Show editor' }}</span>
-			</div>
+			<button class="setting-textarea__open"
+				:disabled="disabled"
+				@click="showModal = true">
+				Edit template
+			</button>
 			<button class="setting-textarea__reset"
 				:disabled="disabled"
 				@click="$emit('reset')">
 				Reset to default
 			</button>
 		</div>
-		<div v-show="expanded" class="setting-textarea__editor">
+		<NcDialog :open="showModal"
+			name="Edit template"
+			size="large"
+			:buttons="dialogButtons"
+			@update:open="showModal = $event">
 			<div ref="editorRef" />
-		</div>
+		</NcDialog>
 	</div>
 </template>
 
 <script setup lang="ts">
 import { ref, toRef } from 'vue'
 import { storeToRefs } from 'pinia'
+import NcDialog from '@nextcloud/vue/components/NcDialog'
 import { useTinyMce } from '../../composables/useTinyMce'
 import { useDependenciesStore } from '../../stores/dependencies'
 
@@ -56,18 +61,31 @@ const emit = defineEmits<{
 	(e: 'reset'): void
 }>()
 
-const expanded = ref(false)
+const showModal = ref(false)
 const editorRef = ref<HTMLElement | null>(null)
 
-useTinyMce({
+const { getContent } = useTinyMce({
 	elementRef: editorRef,
 	value: toRef(props, 'modelValue'),
 	disabled: toRef(props, 'disabled'),
 	logoUrl: themingLogoUrl,
-	onSave(content: string) {
-		emit('save', content)
-	},
 })
+
+const dialogButtons = [
+	{
+		label: 'Close',
+		callback: () => { showModal.value = false },
+	},
+	{
+		label: 'Save',
+		variant: 'primary' as const,
+		callback: () => {
+			const content = getContent()
+			emit('save', content)
+			showModal.value = false
+		},
+	},
+]
 </script>
 
 <style scoped>
@@ -77,57 +95,47 @@ useTinyMce({
 	gap: 16px;
 }
 
-.setting-textarea__toggle {
-	cursor: pointer;
-	display: inline-flex;
-	align-items: center;
-	gap: 6px;
-	padding: 4px 0;
-	color: var(--color-primary-element);
-	font-size: 14px;
-	user-select: none;
-}
-
-.setting-textarea__toggle:hover {
-	text-decoration: underline;
-}
-
-.setting-textarea__reset {
+.setting-textarea__open {
 	padding: 4px 10px;
 	font-size: 13px;
-	color: var(--color-error);
+	color: var(--color-primary-element);
 	background: none;
-	border: 1px solid var(--color-error);
+	border: 1px solid var(--color-primary-element);
 	border-radius: var(--border-radius);
 	cursor: pointer;
 }
 
-.setting-textarea__reset:hover:not(:disabled) {
-	background: var(--color-error);
+.setting-textarea__open:hover:not(:disabled) {
+	background: var(--color-primary-element);
 	color: white;
 }
 
+.setting-textarea__open:disabled,
 .setting-textarea__reset:disabled {
 	opacity: 0.5;
 	cursor: not-allowed;
 }
 
-.setting-textarea__arrow {
-	font-size: 12px;
-	font-variant-emoji: text;
+.setting-textarea__reset {
+	padding: 4px 10px;
+	font-size: 13px;
+	color: #c9302c;
+	background: none;
+	border: 1px solid #c9302c;
+	border-radius: var(--border-radius);
+	cursor: pointer;
+	font-weight: 600;
 }
 
-.setting-textarea__editor {
-	margin-top: 8px;
-	max-width: 700px;
+.setting-textarea__reset:hover:not(:disabled) {
+	background: #c9302c;
+	color: white;
 }
+</style>
 
-.setting-textarea--disabled .setting-textarea__editor {
-	opacity: 0.6;
-	pointer-events: none;
-}
-
-.setting-textarea--disabled .setting-textarea__toggle {
-	color: var(--color-text-maxcontrast);
+<style>
+/* TinyMCE toolbar dropdowns must render above the NcDialog overlay */
+.tox-tinymce-aux {
+	z-index: 100000 !important;
 }
 </style>
