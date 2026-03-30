@@ -132,6 +132,27 @@ export const settingsRegistry: SettingDefinition[] = [
 			{ value: 'False', label: 'Disabled' },
 		],
 	},
+	{
+		key: 33,
+		name: 'sharedaysenabled',
+		templateId: 0,
+		section: 'General',
+		inputType: 'select',
+		defaultValue: 'False',
+		options: [
+			{ value: 'True', label: 'Enabled' },
+			{ value: 'False', label: 'Disabled' },
+		],
+	},
+	{
+		key: 32,
+		name: 'sharedays',
+		templateId: 0,
+		section: 'General',
+		inputType: 'numeric',
+		defaultValue: '7',
+		visibilityRule: { dependsOn: 'sharedaysenabled', showWhen: 'True' },
+	},
 
 	// ── Talk ─────────────────────────────────────────────
 	{
@@ -414,7 +435,7 @@ export const settingsRegistry: SettingDefinition[] = [
 		section: 'Teams',
 		inputType: 'select',
 		options: [
-			{ value: 'off', label: 'Off' },
+			{ value: 'Off', label: 'Off' },
 			{ value: 'webdav', label: 'Via WebDAV' },
 			{ value: 'desktop', label: 'Via Nextcloud Desktop Client' },
 		],

@@ -41,7 +41,10 @@ export const useSettingsStore = defineStore('settings', () => {
 	 * @param keyId
 	 */
 	function getValue(keyId: number): string {
-		return values.value.get(keyId)?.value ?? ''
+		const stored = values.value.get(keyId)?.value
+		if (stored !== undefined && stored !== '') return stored
+		const def = settingsRegistry.find(s => s.key === keyId)
+		return def?.defaultValue ?? ''
 	}
 
 	/**

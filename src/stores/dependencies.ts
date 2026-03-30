@@ -50,6 +50,8 @@ export const useDependenciesStore = defineStore('dependencies', () => {
 	const recommendedApps = ref<AppDependency[]>([])
 	const loading = ref(false)
 	const themingLogoUrl = ref(generateUrl('/apps/theming/image/logoheader'))
+	const shareExpirationDays = ref(0)
+	const shareExpirationEnforced = ref(false)
 
 	/** Check which required/recommended apps are installed */
 	async function checkDependencies() {
@@ -77,6 +79,16 @@ export const useDependenciesStore = defineStore('dependencies', () => {
 			} else if (theming && typeof theming.logo === 'string') {
 				themingLogoUrl.value = theming.logo
 			}
+			// Extract share expiration limits from files_sharing capabilities
+			const filesSharing = capabilities.files_sharing as Record<string, unknown> | undefined
+			if (filesSharing) {
+				const publicCaps = filesSharing.public as Record<string, unknown> | undefined
+				if (publicCaps?.expire_date) {
+					const expDate = publicCaps.expire_date as Record<string, unknown>
+					shareExpirationDays.value = Number(expDate.days) || 0
+					shareExpirationEnforced.value = Boolean(expDate.enforced)
+				}
+			}
 		} catch {
 			requiredApps.value = REQUIRED_APPS.map(app => ({
 				...app,
@@ -98,6 +110,8 @@ export const useDependenciesStore = defineStore('dependencies', () => {
 		recommendedApps,
 		loading,
 		themingLogoUrl,
+		shareExpirationDays,
+		shareExpirationEnforced,
 		checkDependencies,
 	}
 })

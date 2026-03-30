@@ -28,12 +28,15 @@
 		<div v-else class="group-settings-tab__content">
 			<TabContainer :tabs="subtabs" default-tab="license" hash-key="subtab">
 				<template #license>
+					<h3 class="group-settings-tab__active-group">Editing: {{ groupsStore.selectedGroup?.displayName || 'Default' }}</h3>
 					<LicenseSection />
 				</template>
 				<template #outlook>
+					<h3 class="group-settings-tab__active-group">Editing: {{ groupsStore.selectedGroup?.displayName || 'Default' }}</h3>
 					<OutlookSettingsTab />
 				</template>
 				<template #teams>
+					<h3 class="group-settings-tab__active-group">Editing: {{ groupsStore.selectedGroup?.displayName || 'Default' }}</h3>
 					<TeamsSettingsTab />
 				</template>
 			</TabContainer>
@@ -43,6 +46,7 @@
 
 <script setup lang="ts">
 import { useSettingsStore } from '../../stores/settings'
+import { useGroupsStore } from '../../stores/groups'
 import GroupsManagement from './GroupsManagement.vue'
 import TabContainer from '../TabContainer.vue'
 import LicenseSection from '../license/LicenseSection.vue'
@@ -50,6 +54,7 @@ import OutlookSettingsTab from '../outlook/OutlookSettingsTab.vue'
 import TeamsSettingsTab from '../teams/TeamsSettingsTab.vue'
 
 const settingsStore = useSettingsStore()
+const groupsStore = useGroupsStore()
 
 const subtabs = [
 	{ id: 'license', label: 'License' },
@@ -59,6 +64,12 @@ const subtabs = [
 </script>
 
 <style scoped>
+.group-settings-tab__active-group {
+	font-size: 16px;
+	font-weight: 600;
+	margin: 0 0 16px 0;
+}
+
 .group-settings-tab__loading {
 	display: flex;
 	align-items: center;
