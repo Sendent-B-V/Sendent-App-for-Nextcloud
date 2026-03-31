@@ -18,44 +18,52 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-// Prevent the files-list container from stretching to fill the viewport
-// when a securemail body is present, so the message renders directly below.
-.sendent-has-securemail {
-    min-height: unset !important;
-    height: auto !important;
-    flex-grow: 0 !important;
-}
 
-// Keep the "No files" placeholder visible but compact
 .sendent-compact-empty {
     min-height: unset !important;
     height: auto !important;
     flex-grow: 0 !important;
-    padding: 40px 0 !important;
+    padding: 12px 0 !important;
+
+    // Hide the large folder icon
+    .empty-content__icon {
+        display: none !important;
+    }
+
+    // Shrink the "No files" title
+    .empty-content__name {
+        font-size: 14px !important;
+        font-weight: normal !important;
+        color: var(--color-text-maxcontrast) !important;
+        margin: 0 !important;
+    }
+
+    // Hide the description text
+    .empty-content__description {
+        display: none !important;
+    }
 }
 
 #sendent-content {
     display: block;
     margin: 0;
-    padding-bottom: 48px;
+    padding: 0 16px 48px;
     max-width: 100%;
     width: 100%;
-    position: relative;
-    z-index: 10;
-    overflow-x: hidden;
+    box-sizing: border-box;
 
     .sendent-content__header {
-        margin: 16px 16px 0;
+        margin: 16px 0 8px;
         font-size: 16px;
         font-weight: bold;
         color: var(--color-main-text);
     }
 
     iframe {
-        margin: 8px 16px 0;
-        width: calc(100% - 32px);
-        max-width: calc(100% - 32px);
-        min-height: 100px;
+        display: block;
+        width: 100%;
+        max-height: 60vh;
+        min-height: 120px;
         background-color: var(--color-main-background);
         border: 1px solid var(--color-border);
         border-radius: 8px;

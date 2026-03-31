@@ -72,17 +72,18 @@ class FooterFile {
 		const container = document.createElement('div')
 		container.id = CONTENT_ID
 
-		// Insert after the files-list container (not inside it, to avoid being clipped)
-		const filesList = document.querySelector('.files-list')
-			|| document.querySelector('.files-filestable')?.parentElement
-			|| document.querySelector('#filestable')?.parentElement
+		// Insert inside the files-list container, after the table, so it's part of
+		// the natural scroll area and doesn't break the flex layout.
+		const anchor = document.querySelector('.files-list__table')
+			|| document.querySelector('.files-filestable')
+			|| document.querySelector('#filestable')
 
-		if (!filesList) return
+		if (!anchor) return
 
-		// Collapse the empty state so it doesn't fill the viewport, but keep it visible
+		// Make the empty state minimal when securemail content is present
 		compactEmptyState()
 
-		filesList.insertAdjacentElement('afterend', container)
+		anchor.insertAdjacentElement('afterend', container)
 
 		// Show loading spinner
 		const spinner = document.createElement('span')
@@ -137,23 +138,6 @@ class FooterFile {
 
 	private generateIframeElement(content: string): HTMLIFrameElement {
 		const iframe = document.createElement('iframe')
-
-		const resizeIframe = () => {
-			const innerHeight = iframe.contentDocument?.documentElement?.scrollHeight
-			if (innerHeight) iframe.height = String(innerHeight)
-		}
-
-		iframe.addEventListener('load', () => {
-			resizeIframe()
-			// Re-measure after images load (they can change the height)
-			const images = iframe.contentDocument?.querySelectorAll('img')
-			for (const img of Array.from(images ?? [])) {
-				if (!img.complete) {
-					img.addEventListener('load', resizeIframe)
-					img.addEventListener('error', resizeIframe)
-				}
-			}
-		})
 		iframe.srcdoc = content
 		return iframe
 	}
@@ -170,11 +154,6 @@ function compactEmptyState() {
 	if (el instanceof HTMLElement) {
 		el.classList.add('sendent-compact-empty')
 	}
-	// Also prevent the files-list container from stretching to fill the viewport
-	const filesList = document.querySelector('.files-list') as HTMLElement | null
-	if (filesList) {
-		filesList.classList.add('sendent-has-securemail')
-	}
 }
 
 /**
@@ -182,7 +161,6 @@ function compactEmptyState() {
  */
 function restoreEmptyState() {
 	document.querySelector('.sendent-compact-empty')?.classList.remove('sendent-compact-empty')
-	document.querySelector('.sendent-has-securemail')?.classList.remove('sendent-has-securemail')
 }
 
 let debounceTimer: ReturnType<typeof setTimeout> | null = null
