@@ -18,9 +18,26 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+// Prevent the files-list container from stretching to fill the viewport
+// when a securemail body is present, so the message renders directly below.
+.sendent-has-securemail {
+    min-height: unset !important;
+    height: auto !important;
+    flex-grow: 0 !important;
+}
+
+// Keep the "No files" placeholder visible but compact
+.sendent-compact-empty {
+    min-height: unset !important;
+    height: auto !important;
+    flex-grow: 0 !important;
+    padding: 40px 0 !important;
+}
+
 #sendent-content {
     display: block;
-    margin: 0 0 180px 0;
+    margin: 0;
+    padding-bottom: 48px;
     max-width: 100%;
     width: 100%;
     position: relative;

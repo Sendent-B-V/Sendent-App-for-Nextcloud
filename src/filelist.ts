@@ -72,17 +72,17 @@ class FooterFile {
 		const container = document.createElement('div')
 		container.id = CONTENT_ID
 
-		// Insert after the file list table (try multiple selectors for NC 28-33)
-		const anchor = document.querySelector('.files-list__table')
-			|| document.querySelector('.files-filestable')
-			|| document.querySelector('#filestable')
+		// Insert after the files-list container (not inside it, to avoid being clipped)
+		const filesList = document.querySelector('.files-list')
+			|| document.querySelector('.files-filestable')?.parentElement
+			|| document.querySelector('#filestable')?.parentElement
 
-		if (!anchor) return
+		if (!filesList) return
 
-		// Hide the "No files" empty state when we have a securemail body to show
-		hideEmptyState()
+		// Collapse the empty state so it doesn't fill the viewport, but keep it visible
+		compactEmptyState()
 
-		anchor.insertAdjacentElement('afterend', container)
+		filesList.insertAdjacentElement('afterend', container)
 
 		// Show loading spinner
 		const spinner = document.createElement('span')
@@ -161,27 +161,28 @@ class FooterFile {
 }
 
 /**
- * Hides the Nextcloud "No files" empty-content state so the securemail body is the focus.
+ * Collapses the Nextcloud "No files" empty state so it doesn't fill the viewport,
+ * but keeps it visible as a compact element.
  */
-function hideEmptyState() {
-	const emptyState = document.querySelector('.files-list .empty-content')
-		|| document.querySelector('.files-list__empty')
-		|| document.querySelector('.empty-content')
-	if (emptyState instanceof HTMLElement) {
-		emptyState.style.display = 'none'
-		emptyState.setAttribute('data-sendent-hidden', 'true')
+function compactEmptyState() {
+	const el = document.querySelector('.files-list__empty')
+		|| document.querySelector('.files-list .empty-content')
+	if (el instanceof HTMLElement) {
+		el.classList.add('sendent-compact-empty')
+	}
+	// Also prevent the files-list container from stretching to fill the viewport
+	const filesList = document.querySelector('.files-list') as HTMLElement | null
+	if (filesList) {
+		filesList.classList.add('sendent-has-securemail')
 	}
 }
 
 /**
- * Restores the empty state if we previously hid it.
+ * Restores the empty state to its default layout.
  */
-function showEmptyState() {
-	const emptyState = document.querySelector('[data-sendent-hidden="true"]')
-	if (emptyState instanceof HTMLElement) {
-		emptyState.style.display = ''
-		emptyState.removeAttribute('data-sendent-hidden')
-	}
+function restoreEmptyState() {
+	document.querySelector('.sendent-compact-empty')?.classList.remove('sendent-compact-empty')
+	document.querySelector('.sendent-has-securemail')?.classList.remove('sendent-has-securemail')
 }
 
 let debounceTimer: ReturnType<typeof setTimeout> | null = null
@@ -215,7 +216,7 @@ function processFileList(files: any[]) {
 	}
 	// No securemail file in this directory — clean up stale preview
 	document.getElementById(CONTENT_ID)?.remove()
-	showEmptyState()
+	restoreEmptyState()
 }
 
 /**
