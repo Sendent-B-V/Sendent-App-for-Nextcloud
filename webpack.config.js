@@ -5,6 +5,7 @@ const path = require('path')
 webpackConfig.entry = {
 	settings: path.join(__dirname, 'src', 'settings-main.ts'),
 	filelist: path.join(__dirname, 'src', 'filelist.ts'),
+	conversations: path.join(__dirname, 'src', 'conversations-main.ts'),
 }
 
 // Override the built-in TS rule to enable transpileOnly + Vue SFC support
