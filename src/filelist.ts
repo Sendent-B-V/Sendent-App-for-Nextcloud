@@ -80,8 +80,8 @@ class FooterFile {
 
 		if (!anchor) return
 
-		// Make the empty state minimal when securemail content is present
-		compactEmptyState()
+		// Hide the "No files" empty state when securemail content is present
+		hideEmptyState()
 
 		anchor.insertAdjacentElement('afterend', container)
 
@@ -138,6 +138,24 @@ class FooterFile {
 
 	private generateIframeElement(content: string): HTMLIFrameElement {
 		const iframe = document.createElement('iframe')
+		iframe.scrolling = 'no'
+
+		const resizeIframe = () => {
+			const innerHeight = iframe.contentDocument?.documentElement?.scrollHeight
+			if (innerHeight) iframe.style.height = innerHeight + 'px'
+		}
+
+		iframe.addEventListener('load', () => {
+			resizeIframe()
+			// Re-measure after images finish loading
+			const images = iframe.contentDocument?.querySelectorAll('img')
+			for (const img of Array.from(images ?? [])) {
+				if (!img.complete) {
+					img.addEventListener('load', resizeIframe)
+					img.addEventListener('error', resizeIframe)
+				}
+			}
+		})
 		iframe.srcdoc = content
 		return iframe
 	}
@@ -145,14 +163,13 @@ class FooterFile {
 }
 
 /**
- * Collapses the Nextcloud "No files" empty state so it doesn't fill the viewport,
- * but keeps it visible as a compact element.
+ * Hides the Nextcloud "No files" empty state when securemail content is shown.
  */
-function compactEmptyState() {
+function hideEmptyState() {
 	const el = document.querySelector('.files-list__empty')
 		|| document.querySelector('.files-list .empty-content')
 	if (el instanceof HTMLElement) {
-		el.classList.add('sendent-compact-empty')
+		el.classList.add('sendent-hide-empty')
 	}
 }
 
@@ -160,7 +177,7 @@ function compactEmptyState() {
  * Restores the empty state to its default layout.
  */
 function restoreEmptyState() {
-	document.querySelector('.sendent-compact-empty')?.classList.remove('sendent-compact-empty')
+	document.querySelector('.sendent-hide-empty')?.classList.remove('sendent-hide-empty')
 }
 
 let debounceTimer: ReturnType<typeof setTimeout> | null = null

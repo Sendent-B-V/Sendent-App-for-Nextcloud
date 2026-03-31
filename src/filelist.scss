@@ -19,29 +19,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-.sendent-compact-empty {
-    min-height: unset !important;
-    height: auto !important;
-    flex-grow: 0 !important;
-    padding: 12px 0 !important;
-
-    // Hide the large folder icon
-    .empty-content__icon {
-        display: none !important;
-    }
-
-    // Shrink the "No files" title
-    .empty-content__name {
-        font-size: 14px !important;
-        font-weight: normal !important;
-        color: var(--color-text-maxcontrast) !important;
-        margin: 0 !important;
-    }
-
-    // Hide the description text
-    .empty-content__description {
-        display: none !important;
-    }
+// Hide the "No files" empty state when securemail content is present
+.sendent-hide-empty {
+    display: none !important;
 }
 
 #sendent-content {
@@ -62,8 +42,8 @@
     iframe {
         display: block;
         width: 100%;
-        max-height: 60vh;
         min-height: 120px;
+        overflow: hidden;
         background-color: var(--color-main-background);
         border: 1px solid var(--color-border);
         border-radius: 8px;
