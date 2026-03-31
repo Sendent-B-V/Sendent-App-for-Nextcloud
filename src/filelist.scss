@@ -19,9 +19,20 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// Hide the entire files-list when there are no real files (only .SECUREMAIL.html)
-.sendent-hide-filelist {
-    display: none !important;
+// When securemail content is present, disable files-list internal scrolling
+// so only the page scrolls. This prevents nested scroll contexts.
+.sendent-has-securemail {
+    overflow: visible !important;
+}
+
+// When there are no real files, collapse the files-list entirely
+// (hides table headers, empty state, and whitespace).
+.sendent-no-files {
+    .files-list__table,
+    .files-list__empty,
+    .empty-content {
+        display: none !important;
+    }
 }
 
 #sendent-content {
@@ -31,7 +42,6 @@
     max-width: 100%;
     width: 100%;
     box-sizing: border-box;
-    flex-shrink: 0;
 
     .sendent-content__header {
         margin: 16px 0 8px;

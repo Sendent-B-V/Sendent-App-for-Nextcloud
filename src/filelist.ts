@@ -72,19 +72,25 @@ class FooterFile {
 		const container = document.createElement('div')
 		container.id = CONTENT_ID
 
-		const filesList = document.querySelector('.files-list')
-			|| document.querySelector('.files-filestable')?.parentElement
-			|| document.querySelector('#filestable')?.parentElement
+		const anchor = document.querySelector('.files-list__table')
+			|| document.querySelector('.files-filestable')
+			|| document.querySelector('#filestable')
 
-		if (!filesList) return
+		if (!anchor) return
 
-		// When there are no real files, hide the entire files-list (table headers, empty state, whitespace)
-		if (!hasRealFiles) {
-			filesList.classList.add('sendent-hide-filelist')
+		const filesList = anchor.closest('.files-list') ?? anchor.parentElement
+
+		if (!hasRealFiles && filesList) {
+			// No real files — hide empty state and table headers
+			filesList.classList.add('sendent-no-files')
 		}
 
-		// Insert after .files-list so we're outside its scroll context
-		filesList.insertAdjacentElement('afterend', container)
+		// Insert inside files-list, after the table. Mark files-list so we can
+		// disable its internal scrolling and let only the page scroll.
+		if (filesList) {
+			filesList.classList.add('sendent-has-securemail')
+		}
+		anchor.insertAdjacentElement('afterend', container)
 
 		// Show loading spinner
 		const spinner = document.createElement('span')
@@ -167,7 +173,8 @@ class FooterFile {
  * Restores the files-list to its default state.
  */
 function restoreFilesList() {
-	document.querySelector('.sendent-hide-filelist')?.classList.remove('sendent-hide-filelist')
+	document.querySelector('.sendent-no-files')?.classList.remove('sendent-no-files')
+	document.querySelector('.sendent-has-securemail')?.classList.remove('sendent-has-securemail')
 }
 
 let debounceTimer: ReturnType<typeof setTimeout> | null = null
