@@ -27,11 +27,20 @@
     z-index: 10;
     overflow-x: hidden;
 
+    .sendent-content__header {
+        margin: 16px 16px 0;
+        font-size: 16px;
+        font-weight: bold;
+        color: var(--color-main-text);
+    }
+
     iframe {
-        margin: 10px 10px 0;
-        width: calc(100% - 20px);
-        max-width: calc(100% - 20px);
-        background-color: white;
-        border: none;
+        margin: 8px 16px 0;
+        width: calc(100% - 32px);
+        max-width: calc(100% - 32px);
+        min-height: 100px;
+        background-color: var(--color-main-background);
+        border: 1px solid var(--color-border);
+        border-radius: 8px;
     }
 }

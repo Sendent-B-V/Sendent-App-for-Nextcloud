@@ -79,6 +79,9 @@ class FooterFile {
 
 		if (!anchor) return
 
+		// Hide the "No files" empty state when we have a securemail body to show
+		hideEmptyState()
+
 		anchor.insertAdjacentElement('afterend', container)
 
 		// Show loading spinner
@@ -98,6 +101,13 @@ class FooterFile {
 
 			// Replace loading spinner with iframe
 			container.innerHTML = ''
+
+			// Add a "Message" header so it's clear this is the email body
+			const header = document.createElement('h3')
+			header.className = 'sendent-content__header'
+			header.textContent = 'Message'
+			container.appendChild(header)
+
 			container.appendChild(this.generateIframeElement(content))
 		} catch (err) {
 			// eslint-disable-next-line no-console
@@ -127,18 +137,51 @@ class FooterFile {
 
 	private generateIframeElement(content: string): HTMLIFrameElement {
 		const iframe = document.createElement('iframe')
-		iframe.width = '0'
-		iframe.height = '0'
-		iframe.addEventListener('load', () => {
+
+		const resizeIframe = () => {
 			const innerHeight = iframe.contentDocument?.documentElement?.scrollHeight
-			const innerWidth = iframe.contentDocument?.documentElement?.scrollWidth
 			if (innerHeight) iframe.height = String(innerHeight)
-			if (innerWidth) iframe.width = String(innerWidth)
+		}
+
+		iframe.addEventListener('load', () => {
+			resizeIframe()
+			// Re-measure after images load (they can change the height)
+			const images = iframe.contentDocument?.querySelectorAll('img')
+			for (const img of Array.from(images ?? [])) {
+				if (!img.complete) {
+					img.addEventListener('load', resizeIframe)
+					img.addEventListener('error', resizeIframe)
+				}
+			}
 		})
 		iframe.srcdoc = content
 		return iframe
 	}
 
+}
+
+/**
+ * Hides the Nextcloud "No files" empty-content state so the securemail body is the focus.
+ */
+function hideEmptyState() {
+	const emptyState = document.querySelector('.files-list .empty-content')
+		|| document.querySelector('.files-list__empty')
+		|| document.querySelector('.empty-content')
+	if (emptyState instanceof HTMLElement) {
+		emptyState.style.display = 'none'
+		emptyState.setAttribute('data-sendent-hidden', 'true')
+	}
+}
+
+/**
+ * Restores the empty state if we previously hid it.
+ */
+function showEmptyState() {
+	const emptyState = document.querySelector('[data-sendent-hidden="true"]')
+	if (emptyState instanceof HTMLElement) {
+		emptyState.style.display = ''
+		emptyState.removeAttribute('data-sendent-hidden')
+	}
 }
 
 let debounceTimer: ReturnType<typeof setTimeout> | null = null
@@ -172,6 +215,7 @@ function processFileList(files: any[]) {
 	}
 	// No securemail file in this directory — clean up stale preview
 	document.getElementById(CONTENT_ID)?.remove()
+	showEmptyState()
 }
 
 /**
