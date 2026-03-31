@@ -58,7 +58,7 @@ class FooterFile {
 		private source: string,
 	) {}
 
-	public async appendBelowFiles(version: number): Promise<void> {
+	public async appendBelowFiles(version: number, hasRealFiles: boolean): Promise<void> {
 		// Skip if a newer render has already been requested
 		if (version !== renderVersion) return
 
@@ -72,18 +72,19 @@ class FooterFile {
 		const container = document.createElement('div')
 		container.id = CONTENT_ID
 
-		// Insert inside the files-list container, after the table, so it's part of
-		// the natural scroll area and doesn't break the flex layout.
-		const anchor = document.querySelector('.files-list__table')
-			|| document.querySelector('.files-filestable')
-			|| document.querySelector('#filestable')
+		const filesList = document.querySelector('.files-list')
+			|| document.querySelector('.files-filestable')?.parentElement
+			|| document.querySelector('#filestable')?.parentElement
 
-		if (!anchor) return
+		if (!filesList) return
 
-		// Hide the "No files" empty state when securemail content is present
-		hideEmptyState()
+		// When there are no real files, hide the entire files-list (table headers, empty state, whitespace)
+		if (!hasRealFiles) {
+			filesList.classList.add('sendent-hide-filelist')
+		}
 
-		anchor.insertAdjacentElement('afterend', container)
+		// Insert after .files-list so we're outside its scroll context
+		filesList.insertAdjacentElement('afterend', container)
 
 		// Show loading spinner
 		const spinner = document.createElement('span')
@@ -163,21 +164,10 @@ class FooterFile {
 }
 
 /**
- * Hides the Nextcloud "No files" empty state when securemail content is shown.
+ * Restores the files-list to its default state.
  */
-function hideEmptyState() {
-	const el = document.querySelector('.files-list__empty')
-		|| document.querySelector('.files-list .empty-content')
-	if (el instanceof HTMLElement) {
-		el.classList.add('sendent-hide-empty')
-	}
-}
-
-/**
- * Restores the empty state to its default layout.
- */
-function restoreEmptyState() {
-	document.querySelector('.sendent-hide-empty')?.classList.remove('sendent-hide-empty')
+function restoreFilesList() {
+	document.querySelector('.sendent-hide-filelist')?.classList.remove('sendent-hide-filelist')
 }
 
 let debounceTimer: ReturnType<typeof setTimeout> | null = null
@@ -199,19 +189,29 @@ function processFileListDebounced(files: any[]) {
  */
 function processFileList(files: any[]) {
 	const version = ++renderVersion
+	let securemailFile: any = null
+	let realFileCount = 0
+
 	for (const file of files ?? []) {
 		const basename = file.basename || file.name
 		if (file.type === 'file' && basename === FOOTER_NAME) {
-			// Extract directory from full path (Node.dirname or manual extraction)
-			const dirPath = file.dirname
-				?? (file.path ? file.path.substring(0, file.path.lastIndexOf('/')) || '/' : '/')
-			new FooterFile(basename, dirPath, file.source ?? '').appendBelowFiles(version)
-			return
+			securemailFile = file
+		} else if (file.type === 'file') {
+			realFileCount++
 		}
 	}
+
+	if (securemailFile) {
+		const basename = securemailFile.basename || securemailFile.name
+		const dirPath = securemailFile.dirname
+			?? (securemailFile.path ? securemailFile.path.substring(0, securemailFile.path.lastIndexOf('/')) || '/' : '/')
+		new FooterFile(basename, dirPath, securemailFile.source ?? '').appendBelowFiles(version, realFileCount > 0)
+		return
+	}
+
 	// No securemail file in this directory — clean up stale preview
 	document.getElementById(CONTENT_ID)?.remove()
-	restoreEmptyState()
+	restoreFilesList()
 }
 
 /**

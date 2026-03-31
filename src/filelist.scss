@@ -19,8 +19,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// Hide the "No files" empty state when securemail content is present
-.sendent-hide-empty {
+// Hide the entire files-list when there are no real files (only .SECUREMAIL.html)
+.sendent-hide-filelist {
     display: none !important;
 }
 
@@ -31,6 +31,7 @@
     max-width: 100%;
     width: 100%;
     box-sizing: border-box;
+    flex-shrink: 0;
 
     .sendent-content__header {
         margin: 16px 0 8px;
