@@ -58,7 +58,7 @@ class FooterFile {
 		private source: string,
 	) {}
 
-	public async appendBelowFiles(version: number): Promise<void> {
+	public async appendBelowFiles(version: number, hasRealFiles: boolean): Promise<void> {
 		// Skip if a newer render has already been requested
 		if (version !== renderVersion) return
 
@@ -72,13 +72,24 @@ class FooterFile {
 		const container = document.createElement('div')
 		container.id = CONTENT_ID
 
-		// Insert after the file list table (try multiple selectors for NC 28-33)
 		const anchor = document.querySelector('.files-list__table')
 			|| document.querySelector('.files-filestable')
 			|| document.querySelector('#filestable')
 
 		if (!anchor) return
 
+		const filesList = anchor.closest('.files-list') ?? anchor.parentElement
+
+		if (!hasRealFiles && filesList) {
+			// No real files — hide empty state and table headers
+			filesList.classList.add('sendent-no-files')
+		}
+
+		// Insert inside files-list, after the table. Mark files-list so we can
+		// disable its internal scrolling and let only the page scroll.
+		if (filesList) {
+			filesList.classList.add('sendent-has-securemail')
+		}
 		anchor.insertAdjacentElement('afterend', container)
 
 		// Show loading spinner
@@ -98,6 +109,13 @@ class FooterFile {
 
 			// Replace loading spinner with iframe
 			container.innerHTML = ''
+
+			// Add a "Message" header so it's clear this is the email body
+			const header = document.createElement('h3')
+			header.className = 'sendent-content__header'
+			header.textContent = 'Message'
+			container.appendChild(header)
+
 			container.appendChild(this.generateIframeElement(content))
 		} catch (err) {
 			// eslint-disable-next-line no-console
@@ -127,18 +145,36 @@ class FooterFile {
 
 	private generateIframeElement(content: string): HTMLIFrameElement {
 		const iframe = document.createElement('iframe')
-		iframe.width = '0'
-		iframe.height = '0'
-		iframe.addEventListener('load', () => {
+		iframe.scrolling = 'no'
+
+		const resizeIframe = () => {
 			const innerHeight = iframe.contentDocument?.documentElement?.scrollHeight
-			const innerWidth = iframe.contentDocument?.documentElement?.scrollWidth
-			if (innerHeight) iframe.height = String(innerHeight)
-			if (innerWidth) iframe.width = String(innerWidth)
+			if (innerHeight) iframe.style.height = innerHeight + 'px'
+		}
+
+		iframe.addEventListener('load', () => {
+			resizeIframe()
+			// Re-measure after images finish loading
+			const images = iframe.contentDocument?.querySelectorAll('img')
+			for (const img of Array.from(images ?? [])) {
+				if (!img.complete) {
+					img.addEventListener('load', resizeIframe)
+					img.addEventListener('error', resizeIframe)
+				}
+			}
 		})
 		iframe.srcdoc = content
 		return iframe
 	}
 
+}
+
+/**
+ * Restores the files-list to its default state.
+ */
+function restoreFilesList() {
+	document.querySelector('.sendent-no-files')?.classList.remove('sendent-no-files')
+	document.querySelector('.sendent-has-securemail')?.classList.remove('sendent-has-securemail')
 }
 
 let debounceTimer: ReturnType<typeof setTimeout> | null = null
@@ -160,18 +196,29 @@ function processFileListDebounced(files: any[]) {
  */
 function processFileList(files: any[]) {
 	const version = ++renderVersion
+	let securemailFile: any = null
+	let realFileCount = 0
+
 	for (const file of files ?? []) {
 		const basename = file.basename || file.name
 		if (file.type === 'file' && basename === FOOTER_NAME) {
-			// Extract directory from full path (Node.dirname or manual extraction)
-			const dirPath = file.dirname
-				?? (file.path ? file.path.substring(0, file.path.lastIndexOf('/')) || '/' : '/')
-			new FooterFile(basename, dirPath, file.source ?? '').appendBelowFiles(version)
-			return
+			securemailFile = file
+		} else if (file.type === 'file') {
+			realFileCount++
 		}
 	}
+
+	if (securemailFile) {
+		const basename = securemailFile.basename || securemailFile.name
+		const dirPath = securemailFile.dirname
+			?? (securemailFile.path ? securemailFile.path.substring(0, securemailFile.path.lastIndexOf('/')) || '/' : '/')
+		new FooterFile(basename, dirPath, securemailFile.source ?? '').appendBelowFiles(version, realFileCount > 0)
+		return
+	}
+
 	// No securemail file in this directory — clean up stale preview
 	document.getElementById(CONTENT_ID)?.remove()
+	restoreFilesList()
 }
 
 /**
