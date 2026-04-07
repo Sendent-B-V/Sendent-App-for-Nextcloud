@@ -18,20 +18,45 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
+// When securemail content is present, disable files-list internal scrolling
+// so only the page scrolls. This prevents nested scroll contexts.
+.sendent-has-securemail {
+    overflow: visible !important;
+}
+
+// When there are no real files, collapse the files-list entirely
+// (hides table headers, empty state, and whitespace).
+.sendent-no-files {
+    .files-list__table,
+    .files-list__empty,
+    .empty-content {
+        display: none !important;
+    }
+}
+
 #sendent-content {
     display: block;
-    margin: 0 0 180px 0;
+    margin: 0;
+    padding: 0 16px 48px;
     max-width: 100%;
     width: 100%;
-    position: relative;
-    z-index: 10;
-    overflow-x: hidden;
+    box-sizing: border-box;
+
+    .sendent-content__header {
+        margin: 16px 0 8px;
+        font-size: 16px;
+        font-weight: bold;
+        color: var(--color-main-text);
+    }
 
     iframe {
-        margin: 10px 10px 0;
-        width: calc(100% - 20px);
-        max-width: calc(100% - 20px);
-        background-color: white;
-        border: none;
+        display: block;
+        width: 100%;
+        min-height: 120px;
+        overflow: hidden;
+        background-color: var(--color-main-background);
+        border: 1px solid var(--color-border);
+        border-radius: 8px;
     }
 }
