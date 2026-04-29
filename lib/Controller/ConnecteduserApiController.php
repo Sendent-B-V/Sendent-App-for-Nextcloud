@@ -72,8 +72,7 @@ class ConnecteduserApiController extends ApiController {
 
 		// Finds out user's licenceId
 		$license = $this->licenseService->findUserLicense($this->userId);
-		// Giving $licenseId a null value (which happens when there's no license registered at all) generates an error
-		// (as the 'id' field in the database may not be null) but it doesn't seem to break anything
+		// $licenseId is null on fresh installs / unlicensed users; the licenseid column is nullable.
 		$licenseId = is_null($license) ? null : $license->getId();
 
 		// Creates or updates the connected user entry

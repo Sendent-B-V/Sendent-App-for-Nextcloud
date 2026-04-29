@@ -20,12 +20,11 @@
  */
 #sendent-content {
     display: block;
+    box-sizing: border-box;
     margin: 0 0 180px 0;
     max-width: 100%;
     width: 100%;
     position: relative;
-    z-index: 10;
-    overflow-x: hidden;
 
     iframe {
         margin: 10px 10px 0;
@@ -33,5 +32,23 @@
         max-width: calc(100% - 20px);
         background-color: white;
         border: none;
+    }
+}
+
+// NC 30+: when the preview is mounted inside `.files-list` (the virtualised
+// scroll container), reflow `.files-list` as a flex column so the preview
+// claims its natural height instead of being squeezed to 0 by the
+// `flex: 1` `.files-list__table` sibling.
+.files-list:has(> #sendent-content) {
+    display: flex;
+    flex-direction: column;
+
+    > .files-list__table {
+        flex: 1 1 0;
+        min-height: 0;
+    }
+
+    > #sendent-content {
+        flex: 0 0 auto;
     }
 }

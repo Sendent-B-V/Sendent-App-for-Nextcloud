@@ -102,7 +102,7 @@ class ConnectedUserService {
 			return 0;
 		}
 	}
-	public function create(string $userid, DateTime $dateconnected, int $licenseId): \OCP\AppFramework\Db\Entity {
+	public function create(string $userid, DateTime $dateconnected, ?int $licenseId): \OCP\AppFramework\Db\Entity {
 		$this->cleanup();
 		$connecteduser = new ConnectedUser();
 		$connecteduser->setUserid($userid);
@@ -111,7 +111,7 @@ class ConnectedUserService {
 		return $this->mapper->insert($connecteduser);
 	}
 
-	public function update(int $id, string $userid, DateTime $dateconnected, int $licenseId): \OCP\AppFramework\Db\Entity {
+	public function update(int $id, string $userid, DateTime $dateconnected, ?int $licenseId): \OCP\AppFramework\Db\Entity {
 		$this->cleanup();
 		try {
 			$connecteduser = $this->mapper->find($id);

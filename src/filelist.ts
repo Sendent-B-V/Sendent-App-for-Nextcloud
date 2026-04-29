@@ -72,14 +72,14 @@ class FooterFile {
 		const container = document.createElement('div')
 		container.id = CONTENT_ID
 
-		// Insert after the file list table (try multiple selectors for NC 28-33)
-		const anchor = document.querySelector('.files-list__table')
-			|| document.querySelector('.files-filestable')
-			|| document.querySelector('#filestable')
+		const insertion = findInsertionTarget()
+		if (!insertion) return
 
-		if (!anchor) return
-
-		anchor.insertAdjacentElement('afterend', container)
+		if (insertion.mode === 'append') {
+			insertion.target.appendChild(container)
+		} else {
+			insertion.target.insertAdjacentElement('afterend', container)
+		}
 
 		// Show loading spinner
 		const spinner = document.createElement('span')
@@ -129,16 +129,51 @@ class FooterFile {
 		const iframe = document.createElement('iframe')
 		iframe.width = '0'
 		iframe.height = '0'
-		iframe.addEventListener('load', () => {
-			const innerHeight = iframe.contentDocument?.documentElement?.scrollHeight
-			const innerWidth = iframe.contentDocument?.documentElement?.scrollWidth
+
+		const syncSize = () => {
+			const root = iframe.contentDocument?.documentElement
+			if (!root) return
+			const innerHeight = root.scrollHeight
+			const innerWidth = root.scrollWidth
 			if (innerHeight) iframe.height = String(innerHeight)
 			if (innerWidth) iframe.width = String(innerWidth)
+		}
+
+		iframe.addEventListener('load', () => {
+			syncSize()
+			const root = iframe.contentDocument?.documentElement
+			if (!root || typeof ResizeObserver === 'undefined') return
+			const observer = new ResizeObserver(syncSize)
+			observer.observe(root)
+			// Disconnect when the iframe leaves the DOM
+			const teardown = new MutationObserver(() => {
+				if (!iframe.isConnected) {
+					observer.disconnect()
+					teardown.disconnect()
+				}
+			})
+			teardown.observe(document.body, { childList: true, subtree: true })
 		})
 		iframe.srcdoc = content
 		return iframe
 	}
 
+}
+
+/**
+ * Picks where to inject `#sendent-content`.
+ * NC 30+: append as last child of `.files-list`; SCSS `:has()` rule reflows
+ * `.files-list` into a flex column so the preview claims its natural height
+ * instead of being squeezed by the virtualised `.files-list__table` sibling.
+ * NC 28/29: keep legacy sibling-after behaviour (those layouts page-scroll).
+ */
+function findInsertionTarget(): { target: Element; mode: 'append' | 'after' } | null {
+	const filesList = document.querySelector('.files-list')
+	if (filesList) return { target: filesList, mode: 'append' }
+	const legacy = document.querySelector('.files-filestable')
+		?? document.querySelector('#filestable')
+	if (legacy) return { target: legacy, mode: 'after' }
+	return null
 }
 
 let debounceTimer: ReturnType<typeof setTimeout> | null = null
