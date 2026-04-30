@@ -90,6 +90,9 @@ export function useTinyMce(options: TinyMceOptions) {
 				'undo redo | fontfamily fontsize | bold italic underline strikethrough | forecolor backcolor',
 				'alignleft aligncenter alignright | bullist numlist | link table | templatevars | code preview',
 			],
+			ui_mode: 'split',
+			link_context_toolbar: true,
+			link_default_target: '_blank',
 			readonly: options.disabled.value,
 
 			setup(ed: Editor) {

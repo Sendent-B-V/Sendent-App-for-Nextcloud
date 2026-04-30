@@ -72,25 +72,14 @@ class FooterFile {
 		const container = document.createElement('div')
 		container.id = CONTENT_ID
 
-		const anchor = document.querySelector('.files-list__table')
-			|| document.querySelector('.files-filestable')
-			|| document.querySelector('#filestable')
+		const insertion = findInsertionTarget()
+		if (!insertion) return
 
-		if (!anchor) return
-
-		const filesList = anchor.closest('.files-list') ?? anchor.parentElement
-
-		if (!hasRealFiles && filesList) {
-			// No real files — hide empty state and table headers
-			filesList.classList.add('sendent-no-files')
+		if (insertion.mode === 'append') {
+			insertion.target.appendChild(container)
+		} else {
+			insertion.target.insertAdjacentElement('afterend', container)
 		}
-
-		// Insert inside files-list, after the table. Mark files-list so we can
-		// disable its internal scrolling and let only the page scroll.
-		if (filesList) {
-			filesList.classList.add('sendent-has-securemail')
-		}
-		anchor.insertAdjacentElement('afterend', container)
 
 		// Show loading spinner
 		const spinner = document.createElement('span')
@@ -145,23 +134,32 @@ class FooterFile {
 
 	private generateIframeElement(content: string): HTMLIFrameElement {
 		const iframe = document.createElement('iframe')
-		iframe.scrolling = 'no'
+		iframe.width = '0'
+		iframe.height = '0'
 
-		const resizeIframe = () => {
-			const innerHeight = iframe.contentDocument?.documentElement?.scrollHeight
-			if (innerHeight) iframe.style.height = innerHeight + 'px'
+		const syncSize = () => {
+			const root = iframe.contentDocument?.documentElement
+			if (!root) return
+			const innerHeight = root.scrollHeight
+			const innerWidth = root.scrollWidth
+			if (innerHeight) iframe.height = String(innerHeight)
+			if (innerWidth) iframe.width = String(innerWidth)
 		}
 
 		iframe.addEventListener('load', () => {
-			resizeIframe()
-			// Re-measure after images finish loading
-			const images = iframe.contentDocument?.querySelectorAll('img')
-			for (const img of Array.from(images ?? [])) {
-				if (!img.complete) {
-					img.addEventListener('load', resizeIframe)
-					img.addEventListener('error', resizeIframe)
+			syncSize()
+			const root = iframe.contentDocument?.documentElement
+			if (!root || typeof ResizeObserver === 'undefined') return
+			const observer = new ResizeObserver(syncSize)
+			observer.observe(root)
+			// Disconnect when the iframe leaves the DOM
+			const teardown = new MutationObserver(() => {
+				if (!iframe.isConnected) {
+					observer.disconnect()
+					teardown.disconnect()
 				}
-			}
+			})
+			teardown.observe(document.body, { childList: true, subtree: true })
 		})
 		iframe.srcdoc = content
 		return iframe
@@ -170,11 +168,19 @@ class FooterFile {
 }
 
 /**
- * Restores the files-list to its default state.
+ * Picks where to inject `#sendent-content`.
+ * NC 30+: append as last child of `.files-list`; SCSS `:has()` rule reflows
+ * `.files-list` into a flex column so the preview claims its natural height
+ * instead of being squeezed by the virtualised `.files-list__table` sibling.
+ * NC 28/29: keep legacy sibling-after behaviour (those layouts page-scroll).
  */
-function restoreFilesList() {
-	document.querySelector('.sendent-no-files')?.classList.remove('sendent-no-files')
-	document.querySelector('.sendent-has-securemail')?.classList.remove('sendent-has-securemail')
+function findInsertionTarget(): { target: Element; mode: 'append' | 'after' } | null {
+	const filesList = document.querySelector('.files-list')
+	if (filesList) return { target: filesList, mode: 'append' }
+	const legacy = document.querySelector('.files-filestable')
+		?? document.querySelector('#filestable')
+	if (legacy) return { target: legacy, mode: 'after' }
+	return null
 }
 
 let debounceTimer: ReturnType<typeof setTimeout> | null = null
