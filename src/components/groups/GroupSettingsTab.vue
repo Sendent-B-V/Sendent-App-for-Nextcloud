@@ -28,14 +28,24 @@
 		<div v-else class="group-settings-tab__content">
 			<TabContainer :tabs="subtabs" default-tab="license" hash-key="subtab">
 				<template #license>
+					<DocumentationLink :links="[
+						{ href: 'https://help.sendent.com/sendent-app-for-nextcloud-outlook-ms-teams/how-to-configure-your-license-information-on-the-sendent-server-app', label: 'How to configure your license' },
+					]" />
 					<h3 class="group-settings-tab__active-group">Editing: {{ groupsStore.selectedGroup?.displayName || 'Default' }}</h3>
 					<LicenseSection />
 				</template>
 				<template #outlook>
+					<DocumentationLink :links="[
+						{ href: 'https://help.sendent.com/sendent-for-outlook-cross-platform/3019/getting-started-administrator', label: 'Cross-Platform Outlook' },
+						{ href: 'https://help.sendent.com/sendent-for-outlook-windows-only/3021/getting-started-administrator', label: 'Windows Only Outlook Classic' },
+					]" />
 					<h3 class="group-settings-tab__active-group">Editing: {{ groupsStore.selectedGroup?.displayName || 'Default' }}</h3>
 					<OutlookSettingsTab />
 				</template>
 				<template #teams>
+					<DocumentationLink :links="[
+						{ href: 'https://help.sendent.com/sendent-for-ms-teams/3024/getting-started-administrator', label: 'Sendent for Microsoft Teams' },
+					]" />
 					<h3 class="group-settings-tab__active-group">Editing: {{ groupsStore.selectedGroup?.displayName || 'Default' }}</h3>
 					<TeamsSettingsTab />
 				</template>
@@ -49,6 +59,7 @@ import { useSettingsStore } from '../../stores/settings'
 import { useGroupsStore } from '../../stores/groups'
 import GroupsManagement from './GroupsManagement.vue'
 import TabContainer from '../TabContainer.vue'
+import DocumentationLink from '../DocumentationLink.vue'
 import LicenseSection from '../license/LicenseSection.vue'
 import OutlookSettingsTab from '../outlook/OutlookSettingsTab.vue'
 import TeamsSettingsTab from '../teams/TeamsSettingsTab.vue'
