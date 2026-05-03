@@ -19,21 +19,40 @@
   - along with this program. If not, see <http://www.gnu.org/licenses/>.
   -->
 <template>
-	<div class="general-tab">
-		<DocumentationLink :links="[
-			{ href: 'https://help.sendent.com/', label: 'help.sendent.com' },
-		]" />
-		<OutlookAddonInfo />
-		<DefaultLicenseStatus />
-		<DependenciesChecker />
-		<RetentionAssistant />
-	</div>
+	<p class="sendent-doc-link">
+		{{ intro }}
+		<span v-for="(link, i) in links" :key="link.href" class="sendent-doc-link__item">
+			<a :href="link.href" target="_blank" rel="noopener noreferrer">{{ link.label }}</a>
+			<span v-if="i < links.length - 1" class="sendent-doc-link__sep"> - </span>
+		</span>
+	</p>
 </template>
 
 <script setup lang="ts">
-import OutlookAddonInfo from './OutlookAddonInfo.vue'
-import DefaultLicenseStatus from './DefaultLicenseStatus.vue'
-import DependenciesChecker from './DependenciesChecker.vue'
-import RetentionAssistant from './RetentionAssistant.vue'
-import DocumentationLink from '../DocumentationLink.vue'
+interface DocLink {
+	href: string
+	label: string
+}
+
+withDefaults(defineProps<{
+	links: DocLink[]
+	intro?: string
+}>(), { intro: 'Find the latest documentation:' })
 </script>
+
+<style scoped>
+.sendent-doc-link {
+	margin: 0 0 16px 0;
+	color: var(--color-text-maxcontrast);
+	font-size: 13px;
+}
+
+.sendent-doc-link a {
+	color: var(--color-primary-element);
+	text-decoration: underline;
+}
+
+.sendent-doc-link__sep {
+	color: var(--color-text-maxcontrast);
+}
+</style>
