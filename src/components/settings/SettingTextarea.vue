@@ -36,6 +36,7 @@
 			name="Edit template"
 			size="large"
 			:buttons="dialogButtons"
+			:additional-trap-elements="tinyMceAuxElements"
 			@update:open="showModal = $event">
 			<div ref="editorRef" />
 		</NcDialog>
@@ -70,6 +71,11 @@ const { getContent } = useTinyMce({
 	disabled: toRef(props, 'disabled'),
 	logoUrl: themingLogoUrl,
 })
+
+// TinyMCE renders dialogs (e.g. source code editor) inside .tox-tinymce-aux
+// which lives outside the NcDialog DOM tree. We must add it to the focus trap
+// so the textarea inside the source code dialog is interactive.
+const tinyMceAuxElements = ['.tox-tinymce-aux']
 
 const dialogButtons = [
 	{
