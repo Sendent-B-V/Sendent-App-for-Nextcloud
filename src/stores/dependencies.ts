@@ -49,7 +49,15 @@ export const useDependenciesStore = defineStore('dependencies', () => {
 	const requiredApps = ref<AppDependency[]>([])
 	const recommendedApps = ref<AppDependency[]>([])
 	const loading = ref(false)
-	const themingLogoUrl = ref(generateUrl('/apps/theming/image/logoheader'))
+	// Initial fallback URL used until capabilities resolve. Two requirements:
+	//  - Use key='logo' (not 'logoheader'): the 'logo' endpoint always returns
+	//    200 (falls back to the default logo when no custom one is uploaded),
+	//    while 'logoheader' returns 404 + Cache-Control:max-age=3600 if no
+	//    custom header was set, poisoning the browser cache for an hour.
+	//  - Append a cache buster: even with a valid URL, a stale 404 from a
+	//    prior session must not be served from cache. Date.now() is replaced
+	//    by the proper ?v=<cacheBuster> from capabilities once they resolve.
+	const themingLogoUrl = ref(`${generateUrl('/apps/theming/image/logo')}?v=${Date.now()}`)
 	const shareExpirationDays = ref(0)
 	const shareExpirationEnforced = ref(false)
 

@@ -21,9 +21,10 @@
 <template>
 	<div class="setting-textarea">
 		<div class="setting-textarea__actions">
-			<button class="setting-textarea__open"
+			<button ref="triggerRef"
+				class="setting-textarea__open"
 				:disabled="disabled"
-				@click="showModal = true">
+				@click="openModal">
 				Edit template
 			</button>
 			<button class="setting-textarea__reset"
@@ -32,21 +33,49 @@
 				Reset to default
 			</button>
 		</div>
-		<NcDialog :open="showModal"
-			name="Edit template"
-			size="large"
-			:buttons="dialogButtons"
-			:additional-trap-elements="tinyMceAuxElements"
-			@update:open="showModal = $event">
-			<div ref="editorRef" />
-		</NcDialog>
+		<Teleport to="body">
+			<div v-if="showModal"
+				class="sendent-editor-modal"
+				role="dialog"
+				aria-modal="true"
+				:aria-labelledby="titleId">
+				<div class="sendent-editor-modal__backdrop" @click="closeModal" />
+				<div class="sendent-editor-modal__dialog">
+					<header class="sendent-editor-modal__header">
+						<h2 :id="titleId" class="sendent-editor-modal__title">
+							Edit template
+						</h2>
+						<button type="button"
+							class="sendent-editor-modal__close"
+							aria-label="Close"
+							@click="closeModal">
+							×
+						</button>
+					</header>
+					<div class="sendent-editor-modal__body">
+						<div ref="editorRef" />
+					</div>
+					<footer class="sendent-editor-modal__footer">
+						<button type="button"
+							class="sendent-editor-modal__btn"
+							@click="closeModal">
+							Close
+						</button>
+						<button type="button"
+							class="sendent-editor-modal__btn sendent-editor-modal__btn--primary"
+							@click="save">
+							Save
+						</button>
+					</footer>
+				</div>
+			</div>
+		</Teleport>
 	</div>
 </template>
 
 <script setup lang="ts">
-import { ref, toRef } from 'vue'
+import { nextTick, ref, toRef, watch } from 'vue'
 import { storeToRefs } from 'pinia'
-import NcDialog from '@nextcloud/vue/components/NcDialog'
 import { useTinyMce } from '../../composables/useTinyMce'
 import { useDependenciesStore } from '../../stores/dependencies'
 
@@ -64,6 +93,10 @@ const emit = defineEmits<{
 
 const showModal = ref(false)
 const editorRef = ref<HTMLElement | null>(null)
+const triggerRef = ref<HTMLButtonElement | null>(null)
+const titleId = `sendent-editor-title-${crypto.randomUUID().slice(0, 8)}`
+
+let previouslyFocused: HTMLElement | null = null
 
 const { getContent } = useTinyMce({
 	elementRef: editorRef,
@@ -72,26 +105,43 @@ const { getContent } = useTinyMce({
 	logoUrl: themingLogoUrl,
 })
 
-// TinyMCE renders dialogs (e.g. source code editor) inside .tox-tinymce-aux
-// which lives outside the NcDialog DOM tree. We must add it to the focus trap
-// so the textarea inside the source code dialog is interactive.
-const tinyMceAuxElements = ['.tox-tinymce-aux']
+function openModal() {
+	previouslyFocused = document.activeElement instanceof HTMLElement
+		? document.activeElement
+		: triggerRef.value
+	showModal.value = true
+}
 
-const dialogButtons = [
-	{
-		label: 'Close',
-		callback: () => { showModal.value = false },
-	},
-	{
-		label: 'Save',
-		variant: 'primary' as const,
-		callback: () => {
-			const content = getContent()
-			emit('save', content)
-			showModal.value = false
-		},
-	},
-]
+function closeModal() {
+	showModal.value = false
+	nextTick(() => {
+		previouslyFocused?.focus()
+		previouslyFocused = null
+	})
+}
+
+function save() {
+	const content = getContent()
+	emit('save', content)
+	closeModal()
+}
+
+function onEscape(event: KeyboardEvent) {
+	// Only close the outer modal on Esc when no inner TinyMCE dialog is open.
+	// TinyMCE handles Esc inside its own dialogs and stops propagation, so by
+	// the time the event reaches window, no inner dialog is consuming it.
+	if (event.key === 'Escape') {
+		closeModal()
+	}
+}
+
+watch(showModal, (isOpen) => {
+	if (isOpen) {
+		window.addEventListener('keydown', onEscape)
+	} else {
+		window.removeEventListener('keydown', onEscape)
+	}
+})
 </script>
 
 <style scoped>
@@ -137,11 +187,110 @@ const dialogButtons = [
 	background: #c9302c;
 	color: white;
 }
+
+/* Custom modal — intentionally non-trapping so TinyMCE's body-level
+ * secondary UI (Source code, link, table, color pickers) remains
+ * interactive. Replaces NcDialog whose focus trap conflicts with
+ * TinyMCE's active-state detection. */
+.sendent-editor-modal {
+	position: fixed;
+	inset: 0;
+	z-index: 10010;
+	display: flex;
+	align-items: flex-start;
+	justify-content: center;
+	padding: 4vh 24px;
+}
+
+.sendent-editor-modal__backdrop {
+	position: absolute;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.55);
+}
+
+.sendent-editor-modal__dialog {
+	position: relative;
+	width: min(1200px, calc(100vw - 48px));
+	max-height: calc(100vh - 8vh);
+	display: flex;
+	flex-direction: column;
+	background: var(--color-main-background, #fff);
+	color: var(--color-main-text, inherit);
+	border: 1px solid var(--color-border, #ccc);
+	border-radius: 12px;
+	box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+	overflow: hidden;
+}
+
+.sendent-editor-modal__header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 12px 16px;
+	border-bottom: 1px solid var(--color-border, #e0e0e0);
+}
+
+.sendent-editor-modal__title {
+	margin: 0;
+	font-size: 16px;
+	font-weight: 600;
+}
+
+.sendent-editor-modal__close {
+	background: none;
+	border: none;
+	font-size: 24px;
+	line-height: 1;
+	cursor: pointer;
+	padding: 4px 8px;
+	color: var(--color-main-text, inherit);
+}
+
+.sendent-editor-modal__body {
+	flex: 1 1 auto;
+	min-height: 0;
+	overflow: auto;
+	padding: 16px;
+}
+
+.sendent-editor-modal__footer {
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
+	padding: 12px 16px;
+	border-top: 1px solid var(--color-border, #e0e0e0);
+}
+
+.sendent-editor-modal__btn {
+	padding: 6px 14px;
+	font-size: 13px;
+	background: none;
+	border: 1px solid var(--color-border, #ccc);
+	border-radius: var(--border-radius);
+	cursor: pointer;
+	color: var(--color-main-text, inherit);
+}
+
+.sendent-editor-modal__btn--primary {
+	background: var(--color-primary-element);
+	color: white;
+	border-color: var(--color-primary-element);
+}
 </style>
 
 <style>
-/* TinyMCE toolbar dropdowns must render above the NcDialog overlay */
-.tox-tinymce-aux {
-	z-index: 100000 !important;
+/* TinyMCE 7 mounts its secondary UI (.tox-tinymce-aux) at body level.
+ * The modal sits at z-index 10010; we boost TinyMCE's aux above it so
+ * dialogs (Source code, link picker, table prompt) and dropdowns
+ * (color pickers, font menus) always paint over the modal.
+ * Matches the pattern used by nc-connector/Server_Backend. */
+.tox-tinymce-aux,
+.tox-silver-sink {
+	z-index: 10030 !important;
+}
+
+.tox-tinymce-aux .tox-dialog,
+.tox-tinymce-aux .tox-menu {
+	z-index: 10031 !important;
 }
 </style>
