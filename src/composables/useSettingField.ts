@@ -100,6 +100,7 @@ export function useSettingField(definition: SettingDefinition) {
 		visible,
 		isGroupSelected,
 		disabled,
+		enabledByRule,
 		save,
 		toggleInheritance,
 	}

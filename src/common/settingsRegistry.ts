@@ -322,6 +322,7 @@ export const settingsRegistry: SettingDefinition[] = [
 		section: 'SecureMail',
 		inputType: 'select',
 		enabledRule: { dependsOn: 'securemail', showWhen: 'True' },
+		disabledHint: 'Enable "Activate Secure Mail" to configure this.',
 		options: [
 			{ value: 'True', label: 'Enabled' },
 			{ value: 'False', label: 'Disabled' },

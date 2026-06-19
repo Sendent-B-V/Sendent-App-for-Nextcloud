@@ -51,6 +51,7 @@ export interface SettingDefinition {
 	options?: SelectOption[]
 	visibilityRule?: VisibilityRule
 	enabledRule?: VisibilityRule
+	disabledHint?: string
 	defaultValue?: string
 }
 
