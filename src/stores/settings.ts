@@ -193,18 +193,6 @@ export const useSettingsStore = defineStore('settings', () => {
 		return getValue(depDef.key) === def.visibilityRule.showWhen
 	}
 
-	/**
-	 * Check if a setting should be enabled (editable) based on enable rules.
-	 * Unlike visibility, the field stays visible but is shown disabled.
-	 * @param def
-	 */
-	function isEnabled(def: SettingDefinition): boolean {
-		if (!def.enabledRule) return true
-		const depDef = settingsRegistry.find(s => s.name === def.enabledRule!.dependsOn)
-		if (!depDef) return true
-		return getValue(depDef.key) === def.enabledRule.showWhen
-	}
-
 	return {
 		values,
 		savingKeys,
@@ -221,6 +209,5 @@ export const useSettingsStore = defineStore('settings', () => {
 		resetSetting,
 		overrideSetting,
 		isVisible,
-		isEnabled,
 	}
 })

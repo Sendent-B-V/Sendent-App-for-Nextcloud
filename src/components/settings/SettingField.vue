@@ -64,9 +64,6 @@
 				:disabled="disabled"
 				@save="onTextareaSave"
 				@reset="onTextareaReset" />
-			<p v-if="definition.disabledHint && !enabledByRule" class="setting-field__hint">
-				{{ definition.disabledHint }}
-			</p>
 		</div>
 		<InheritanceCheckbox :inherited="inherited"
 			:show-checkbox="isGroupSelected"
@@ -99,7 +96,6 @@ const {
 	visible,
 	isGroupSelected,
 	disabled,
-	enabledByRule,
 	save,
 	toggleInheritance,
 } = useSettingField(props.definition)
@@ -207,12 +203,6 @@ async function onTextareaReset() {
 .setting-field__input textarea:disabled {
 	opacity: 0.6;
 	cursor: not-allowed;
-}
-
-.setting-field__hint {
-	font-size: 12px;
-	color: var(--color-text-maxcontrast);
-	margin-top: 4px;
 }
 
 /* Block layout for textarea and multiInput — keep same column width for alignment */

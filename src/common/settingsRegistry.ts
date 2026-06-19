@@ -321,8 +321,7 @@ export const settingsRegistry: SettingDefinition[] = [
 		templateId: 0,
 		section: 'SecureMail',
 		inputType: 'select',
-		enabledRule: { dependsOn: 'securemail', showWhen: 'True' },
-		disabledHint: 'Enable "Activate Secure Mail" to configure this.',
+		visibilityRule: { dependsOn: 'securemail', showWhen: 'True' },
 		options: [
 			{ value: 'True', label: 'Enabled' },
 			{ value: 'False', label: 'Disabled' },
@@ -334,16 +333,27 @@ export const settingsRegistry: SettingDefinition[] = [
 		templateId: 0,
 		section: 'SecureMail',
 		inputType: 'select',
+		visibilityRule: { dependsOn: 'securemail', showWhen: 'True' },
 		options: [
 			{ value: 'toolbar', label: 'Toolbar in message compose window' },
 			{ value: 'button', label: 'Button in ribbon' },
 		],
 	},
 	{
-		key: 24, name: 'pathsecuremailbox', templateId: 0, section: 'SecureMail', inputType: 'text',
+		key: 24,
+		name: 'pathsecuremailbox',
+		templateId: 0,
+		section: 'SecureMail',
+		inputType: 'text',
+		visibilityRule: { dependsOn: 'securemail', showWhen: 'True' },
 	},
 	{
-		key: 12, name: 'securemailhtml', templateId: 0, section: 'SecureMail', inputType: 'textarea',
+		key: 12,
+		name: 'securemailhtml',
+		templateId: 0,
+		section: 'SecureMail',
+		inputType: 'textarea',
+		visibilityRule: { dependsOn: 'securemail', showWhen: 'True' },
 	},
 
 	// ── Guest Accounts ───────────────────────────────────
@@ -364,6 +374,7 @@ export const settingsRegistry: SettingDefinition[] = [
 		templateId: 0,
 		section: 'GuestAccounts',
 		inputType: 'select',
+		visibilityRule: { dependsOn: 'guestaccountsenabled', showWhen: 'True' },
 		options: [
 			{ value: 'True', label: 'Enabled' },
 			{ value: 'False', label: 'Disabled' },
@@ -375,16 +386,27 @@ export const settingsRegistry: SettingDefinition[] = [
 		templateId: 0,
 		section: 'GuestAccounts',
 		inputType: 'select',
+		visibilityRule: { dependsOn: 'guestaccountsenabled', showWhen: 'True' },
 		options: [
 			{ value: 'True', label: 'Enabled' },
 			{ value: 'False', label: 'Disabled' },
 		],
 	},
 	{
-		key: 302, name: 'htmlsnippetguestaccounts', templateId: 0, section: 'GuestAccounts', inputType: 'textarea',
+		key: 302,
+		name: 'htmlsnippetguestaccounts',
+		templateId: 0,
+		section: 'GuestAccounts',
+		inputType: 'textarea',
+		visibilityRule: { dependsOn: 'guestaccountsenabled', showWhen: 'True' },
 	},
 	{
-		key: 303, name: 'htmlsnippetpublicaccounts', templateId: 0, section: 'GuestAccounts', inputType: 'textarea',
+		key: 303,
+		name: 'htmlsnippetpublicaccounts',
+		templateId: 0,
+		section: 'GuestAccounts',
+		inputType: 'textarea',
+		visibilityRule: { dependsOn: 'guestaccountsenabled', showWhen: 'True' },
 	},
 
 	// ── Advanced Theming (templateId: 1) ─────────────────
