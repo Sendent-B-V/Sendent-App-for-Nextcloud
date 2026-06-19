@@ -50,6 +50,7 @@ export interface SettingDefinition {
 	inputType: InputType
 	options?: SelectOption[]
 	visibilityRule?: VisibilityRule
+	enabledRule?: VisibilityRule
 	defaultValue?: string
 }
 

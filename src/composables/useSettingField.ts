@@ -52,8 +52,11 @@ export function useSettingField(definition: SettingDefinition) {
 	/** Whether this is a non-default group */
 	const isGroupSelected = computed(() => store.currentGroupId !== '')
 
-	/** Whether the field should be disabled (inherited + group selected) */
-	const disabled = computed(() => isGroupSelected.value && inherited.value)
+	/** Whether the field is enabled based on a dependency on another setting */
+	const enabledByRule = computed(() => store.isEnabled(definition))
+
+	/** Whether the field should be disabled (inherited + group selected, or a dependency is unmet) */
+	const disabled = computed(() => (isGroupSelected.value && inherited.value) || !enabledByRule.value)
 
 	// Sync local value from store
 	watch(storedValue, (val) => {

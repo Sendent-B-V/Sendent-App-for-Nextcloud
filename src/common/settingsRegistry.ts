@@ -321,6 +321,7 @@ export const settingsRegistry: SettingDefinition[] = [
 		templateId: 0,
 		section: 'SecureMail',
 		inputType: 'select',
+		enabledRule: { dependsOn: 'securemail', showWhen: 'True' },
 		options: [
 			{ value: 'True', label: 'Enabled' },
 			{ value: 'False', label: 'Disabled' },
