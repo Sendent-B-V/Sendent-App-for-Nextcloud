@@ -19,6 +19,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 import axios from '@nextcloud/axios'
+import { generateOcsUrl } from '@nextcloud/router'
 
 interface OCSCapabilities {
 	ocs: {
@@ -32,7 +33,7 @@ interface OCSCapabilities {
  *
  */
 export async function fetchCapabilities(): Promise<Record<string, unknown>> {
-	const response = await axios.get<OCSCapabilities>('/ocs/v1.php/cloud/capabilities', {
+	const response = await axios.get<OCSCapabilities>(generateOcsUrl('cloud/capabilities'), {
 		headers: { 'OCS-APIRequest': 'true' },
 	})
 	return response.data.ocs.data.capabilities
