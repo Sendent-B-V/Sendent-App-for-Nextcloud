@@ -19,7 +19,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 import axios from '@nextcloud/axios'
-import { generateUrl } from '@nextcloud/router'
+import { generateOcsUrl, generateUrl } from '@nextcloud/router'
+import { confirmPassword } from '@nextcloud/password-confirmation'
 
 export interface TagData {
 	id: number
@@ -86,7 +87,7 @@ export async function createTag(name: string): Promise<TagData> {
  * @return A map of workflow class names to their workflow definitions
  */
 export async function fetchWorkflows(): Promise<Record<string, WorkflowData[]>> {
-	const url = generateUrl('/ocs/v2.php/apps/workflowengine/api/v1/workflows/global?format=json')
+	const url = generateOcsUrl('apps/workflowengine/api/v1/workflows/global')
 	const response = await axios.get(url, {
 		headers: { 'OCS-APIRequest': 'true' },
 	})
@@ -113,7 +114,9 @@ export async function createWorkflow(workflow: {
 	name: string
 	operation: string
 }): Promise<WorkflowData> {
-	const url = generateUrl('/ocs/v2.php/apps/workflowengine/api/v1/workflows/global?format=json')
+	// Workflow engine create is guarded by #[PasswordConfirmationRequired]
+	await confirmPassword()
+	const url = generateOcsUrl('apps/workflowengine/api/v1/workflows/global')
 	const response = await axios.post(url, workflow, {
 		headers: { 'OCS-APIRequest': 'true' },
 	})
@@ -126,7 +129,7 @@ export async function createWorkflow(workflow: {
  * @return List of configured retention rules
  */
 export async function fetchRetentions(): Promise<RetentionRule[]> {
-	const url = generateUrl('/ocs/v2.php/apps/files_retention/api/v1/retentions?format=json')
+	const url = generateOcsUrl('apps/files_retention/api/v1/retentions')
 	const response = await axios.get(url, {
 		headers: { 'OCS-APIRequest': 'true' },
 	})
@@ -149,7 +152,9 @@ export async function createRetention(retention: {
 	timeamount: number
 	timeunit: number
 }): Promise<RetentionRule> {
-	const url = generateUrl('/ocs/v2.php/apps/files_retention/api/v1/retentions?format=json')
+	// files_retention create is guarded by #[PasswordConfirmationRequired]
+	await confirmPassword()
+	const url = generateOcsUrl('apps/files_retention/api/v1/retentions')
 	const response = await axios.post(url, retention, {
 		headers: { 'OCS-APIRequest': 'true' },
 	})
