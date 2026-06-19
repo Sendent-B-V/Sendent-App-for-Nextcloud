@@ -139,6 +139,12 @@ watch(localValue, (newVal) => {
 	if (props.definition.name === 'sharedaysenabled' && newVal === 'False') {
 		store.saveSetting(32, '-1')
 	}
+	// When securemail is toggled to Disabled, also disable securemailenforced (key 25)
+	// so consumers never receive enforce=True while secure mail is inactive.
+	if (props.definition.name === 'securemail' && newVal === 'False'
+		&& store.getValue(25) !== 'False') {
+		store.saveSetting(25, 'False')
+	}
 })
 
 function onTextareaSave(content: string) {
