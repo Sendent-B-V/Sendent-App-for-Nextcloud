@@ -19,10 +19,22 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// When securemail content is present, disable files-list internal scrolling
-// so only the page scrolls. This prevents nested scroll contexts.
+// When securemail content is present, take the (virtualised, fixed-height,
+// internally-scrolling) files-list out of its scroll layout so the table and
+// the appended preview both claim their natural height and only the page
+// scrolls. Without this, a fixed-height `.files-list` keeps the table in a
+// flex/scroll context; when the preview is taller than the viewport the table
+// is squeezed to ~0 height and its (non-clipping) rows paint over the preview.
 .sendent-has-securemail {
+    display: block !important;
+    height: auto !important;
+    max-height: none !important;
+    min-height: 0 !important;
     overflow: visible !important;
+
+    .files-list__table {
+        height: auto !important;
+    }
 }
 
 // When there are no real files, collapse the files-list entirely
@@ -54,20 +66,9 @@
     }
 }
 
-// NC 30+: when the preview is mounted inside `.files-list` (the virtualised
-// scroll container), reflow `.files-list` as a flex column so the preview
-// claims its natural height instead of being squeezed to 0 by the
-// `flex: 1` `.files-list__table` sibling.
-.files-list:has(> #sendent-content) {
-    display: flex;
-    flex-direction: column;
-
-    > .files-list__table {
-        flex: 1 1 0;
-        min-height: 0;
-    }
-
-    > #sendent-content {
-        flex: 0 0 auto;
-    }
-}
+// NOTE: a previous approach reflowed `.files-list:has(> #sendent-content)` as a
+// flex column with `.files-list__table { flex: 1 1 0; min-height: 0 }`. That
+// collapsed the table to ~0 height whenever the preview was taller than the
+// fixed-height container, so the table's rows overflowed and overlapped the
+// preview. The `.sendent-has-securemail` rule above (natural-height, page-scroll)
+// replaces it; do not reintroduce the flex reflow.
