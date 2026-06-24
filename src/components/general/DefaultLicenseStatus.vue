@@ -24,6 +24,7 @@
 		<div class="default-license__grid">
 			<div class="default-license__row">
 				<span class="default-license__label">Status:</span>
+				<!-- eslint-disable-next-line vue/no-v-html -- trusted first-party status string from the app's PHP (translated, may contain a support mailto link), not user input -->
 				<span class="default-license__status" v-html="licenseStore.defaultLicense.status || 'Not configured'" />
 			</div>
 			<div v-if="licenseStore.defaultLicense.level" class="default-license__row">

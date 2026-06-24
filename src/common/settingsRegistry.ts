@@ -444,7 +444,7 @@ export const settingsRegistry: SettingDefinition[] = [
 
 /**
  * Lookup a setting definition by its numeric key (settingkeyid)
- * @param key
+ * @param key - The numeric settingkeyid to look up
  */
 export function getSettingByKey(key: number): SettingDefinition | undefined {
 	return settingsRegistry.find(s => s.key === key)
@@ -452,7 +452,7 @@ export function getSettingByKey(key: number): SettingDefinition | undefined {
 
 /**
  * Lookup a setting definition by its string name (settingkeyname)
- * @param name
+ * @param name - The settingkeyname to look up
  */
 export function getSettingByName(name: string): SettingDefinition | undefined {
 	return settingsRegistry.find(s => s.name === name)
@@ -460,7 +460,7 @@ export function getSettingByName(name: string): SettingDefinition | undefined {
 
 /**
  * Get all settings for a given section
- * @param section
+ * @param section - The section identifier to filter settings by
  */
 export function getSettingsForSection(section: string): SettingDefinition[] {
 	return settingsRegistry.filter(s => s.section === section)
@@ -468,7 +468,7 @@ export function getSettingsForSection(section: string): SettingDefinition[] {
 
 /**
  * Get all settings for a given templateId
- * @param templateId
+ * @param templateId - The numeric template id to filter settings by
  */
 export function getSettingsForTemplate(templateId: number): SettingDefinition[] {
 	return settingsRegistry.filter(s => s.templateId === templateId)
