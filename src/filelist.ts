@@ -58,7 +58,7 @@ class FooterFile {
 		private source: string,
 	) {}
 
-	public async appendBelowFiles(version: number): Promise<void> {
+	public async appendBelowFiles(version: number, hasRealFiles: boolean): Promise<void> {
 		// Skip if a newer render has already been requested
 		if (version !== renderVersion) return
 
@@ -74,6 +74,23 @@ class FooterFile {
 
 		const insertion = findInsertionTarget()
 		if (!insertion) return
+
+		// Mark the files-list so its CSS stops clipping/scrolling internally
+		// (sendent-has-securemail → overflow:visible) and, when there are no
+		// real files, collapses the empty table/headers (sendent-no-files).
+		// Without sendent-has-securemail the virtualised, absolutely-positioned
+		// file rows paint on top of the preview once real files are present.
+		const filesList = document.querySelector('.files-list')
+			?? insertion.target.closest('.files-list')
+			?? insertion.target.parentElement
+		if (filesList) {
+			filesList.classList.add('sendent-has-securemail')
+			if (!hasRealFiles) {
+				filesList.classList.add('sendent-no-files')
+			} else {
+				filesList.classList.remove('sendent-no-files')
+			}
+		}
 
 		if (insertion.mode === 'append') {
 			insertion.target.appendChild(container)
@@ -183,6 +200,15 @@ function findInsertionTarget(): { target: Element; mode: 'append' | 'after' } | 
 	return null
 }
 
+/**
+ * Restores the files-list to its default state, removing the layout-override
+ * classes added while a securemail preview was shown.
+ */
+function restoreFilesList() {
+	document.querySelector('.sendent-no-files')?.classList.remove('sendent-no-files')
+	document.querySelector('.sendent-has-securemail')?.classList.remove('sendent-has-securemail')
+}
+
 let debounceTimer: ReturnType<typeof setTimeout> | null = null
 let renderVersion = 0
 
@@ -203,11 +229,14 @@ function processFileListDebounced(files: any[]) {
 function processFileList(files: any[]) {
 	const version = ++renderVersion
 	let securemailFile: any = null
+	let realFileCount = 0
 
 	for (const file of files ?? []) {
 		const basename = file.basename || file.name
 		if (file.type === 'file' && basename === FOOTER_NAME) {
 			securemailFile = file
+		} else if (file.type === 'file') {
+			realFileCount++
 		}
 	}
 
@@ -215,7 +244,7 @@ function processFileList(files: any[]) {
 		const basename = securemailFile.basename || securemailFile.name
 		const dirPath = securemailFile.dirname
 			?? (securemailFile.path ? securemailFile.path.substring(0, securemailFile.path.lastIndexOf('/')) || '/' : '/')
-		new FooterFile(basename, dirPath, securemailFile.source ?? '').appendBelowFiles(version)
+		new FooterFile(basename, dirPath, securemailFile.source ?? '').appendBelowFiles(version, realFileCount > 0)
 		return
 	}
 
