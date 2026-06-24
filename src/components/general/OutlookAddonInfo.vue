@@ -87,8 +87,11 @@
 			<div class="release-notes-modal">
 				<div class="release-notes-modal__header">
 					<h3>{{ activeProductLabel }} — {{ releases[activeNotesSlug]?.title }}</h3>
-					<button class="release-notes-modal__close" @click="activeNotesSlug = ''">&#x2715;</button>
+					<button class="release-notes-modal__close" @click="activeNotesSlug = ''">
+						&#x2715;
+					</button>
 				</div>
+				<!-- eslint-disable-next-line vue/no-v-html -- trusted first-party release-notes HTML from the Sendent backend API, not user input -->
 				<div class="release-notes-modal__body"
 					v-html="releases[activeNotesSlug]?.content" />
 			</div>
@@ -121,7 +124,7 @@ const activeProductLabel = computed(() =>
 
 /**
  * Extracts a version number from a release title like "Release Notes v2.3.0"
- * @param title
+ * @param title - The release title to extract the version from
  */
 function extractVersion(title: string): string {
 	const match = title.match(/v?(\d+\.\d+(?:\.\d+)?)/i)
@@ -129,7 +132,8 @@ function extractVersion(title: string): string {
 }
 
 /**
- * @param slug
+ * Opens the release-notes modal for the given product.
+ * @param slug - The product slug whose release notes to show
  */
 function toggleNotes(slug: string) {
 	activeNotesSlug.value = slug

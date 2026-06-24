@@ -58,7 +58,7 @@ class FooterFile {
 		private source: string,
 	) {}
 
-	public async appendBelowFiles(version: number, hasRealFiles: boolean): Promise<void> {
+	public async appendBelowFiles(version: number): Promise<void> {
 		// Skip if a newer render has already been requested
 		if (version !== renderVersion) return
 
@@ -203,14 +203,11 @@ function processFileListDebounced(files: any[]) {
 function processFileList(files: any[]) {
 	const version = ++renderVersion
 	let securemailFile: any = null
-	let realFileCount = 0
 
 	for (const file of files ?? []) {
 		const basename = file.basename || file.name
 		if (file.type === 'file' && basename === FOOTER_NAME) {
 			securemailFile = file
-		} else if (file.type === 'file') {
-			realFileCount++
 		}
 	}
 
@@ -218,7 +215,7 @@ function processFileList(files: any[]) {
 		const basename = securemailFile.basename || securemailFile.name
 		const dirPath = securemailFile.dirname
 			?? (securemailFile.path ? securemailFile.path.substring(0, securemailFile.path.lastIndexOf('/')) || '/' : '/')
-		new FooterFile(basename, dirPath, securemailFile.source ?? '').appendBelowFiles(version, realFileCount > 0)
+		new FooterFile(basename, dirPath, securemailFile.source ?? '').appendBelowFiles(version)
 		return
 	}
 
