@@ -139,6 +139,16 @@ watch(localValue, (newVal) => {
 	if (props.definition.name === 'sharedaysenabled' && newVal === 'False') {
 		store.saveSetting(32, '-1')
 	}
+  
+	// When a feature is disabled, also disable its "enforced" sub-setting
+	if (props.definition.name === 'securemail' && newVal === 'False'
+		&& store.getValue(25) !== 'False') {
+		store.saveSetting(25, 'False') // securemailenforced
+	}
+	if (props.definition.name === 'guestaccountsenabled' && newVal === 'False'
+		&& store.getValue(26) !== 'False') {
+		store.saveSetting(26, 'False') // guestaccountsenforced
+	}
 })
 
 function onTextareaSave(content: string) {
