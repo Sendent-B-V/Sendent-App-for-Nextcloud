@@ -35,6 +35,7 @@ use OCP\App\IAppManager;
 use OCP\IConfig;
 use OCP\PreConditionNotMetException;
 use Psr\Log\LoggerInterface;
+use Throwable;
 
 class InitialLoadManager {
 	private $SettingKeyMapper;
@@ -75,12 +76,15 @@ class InitialLoadManager {
 	 */
 	public function checkUpdateNeeded(): bool {
 		$firstRun = $this->config->getAppValue('sendent', 'firstRunAppVersion');
-		if ($firstRun !== '4.0.0') {
+		if ($firstRun !== $this->appManager->getAppVersion(Application::APPID)) {
 			try {
 				$this->logger->info('Initial load manager determined it needs to run. ');
 
-				$this->runInitialLoadTasks();
-				$this->config->setAppValue('sendent', 'firstRunAppVersion', '4.0.0');
+				if (!$this->ensureSeeded()) {
+					$this->logger->error('Initial load did not complete successfully. Not marking first run as done, so it will be retried on the next request.');
+
+					return false;
+				}
 			} catch (PreConditionNotMetException $e) {
 				$this->logger->error('Error while running initial load manager. ' . $e);
 
@@ -186,12 +190,52 @@ class InitialLoadManager {
 			if ($this->SettingKeyMapper->settingKeyCount('5') < 1) {
 				$this->addSenderExceptionSettings();
 			}
+			// NOTE: key 204 is the sentinel initialLoadSucceeded() uses to detect a
+			// completed run. If you add creation steps below this block, move the
+			// sentinel to the new last key.
 			if ($this->SettingKeyMapper->settingKeyCount('204') < 1) {
 				$this->addArchivingSettings();
 			}
 			$this->fixPaths();
 			$this->fixSnippets();
-		} catch (Exception $e) {
+		} catch (Throwable $e) {
+			$this->logger->error('Error while running initial load tasks: ' . $e->getMessage(), ['exception' => $e]);
+		}
+	}
+
+	/**
+	 * Run the (idempotent) seeding regardless of the firstRunAppVersion flag.
+	 * Only when the seed verifiably landed is the current app version stamped,
+	 * so the boot path skips the seeding until the next app update.
+	 * Used by the boot path and by the RepairInitialLoad repair step.
+	 */
+	public function ensureSeeded(): bool {
+		$this->runInitialLoadTasks();
+		if (!$this->initialLoadSucceeded()) {
+			return false;
+		}
+		$this->config->setAppValue('sendent', 'firstRunAppVersion', $this->appManager->getAppVersion(Application::APPID));
+
+		return true;
+	}
+
+	/**
+	 * Verify that sentinel rows created by runInitialLoadTasks actually
+	 * exist, so a silently failed seed is retried instead of being marked done.
+	 * Since runInitialLoadTasks aborts at the first error, probing rows from
+	 * the start, middle and end of its sequence proves the whole run completed.
+	 */
+	private function initialLoadSucceeded(): bool {
+		try {
+			return $this->SettingTemplateMapper->settingTemplateCount('0') > 0 // template 'msoutlook', created first
+				&& $this->SettingTemplateMapper->settingTemplateCount('1') > 0 // template 'msoutlook_advanced-theming'
+				&& $this->SettingTemplateMapper->settingTemplateCount('2') > 0 // template 'msteams'
+				&& $this->SettingKeyMapper->settingKeyCount('20') > 0 // key 'setlanguage', from initialLoading() midway
+				&& $this->SettingKeyMapper->settingKeyCount('204') > 0; // key 'archivingenabled', from the last creation step
+		} catch (Throwable $e) {
+			$this->logger->error('Could not verify initial load result: ' . $e->getMessage(), ['exception' => $e]);
+
+			return false;
 		}
 	}
 
