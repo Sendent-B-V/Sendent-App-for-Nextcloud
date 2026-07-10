@@ -26,12 +26,12 @@
     </dependencies>
 
     <repair-steps>
-        <install>
-            <step>OCA\Sendent\Migration\RepairInitialLoad</step>
-        </install>
         <post-migration>
             <step>OCA\Sendent\Migration\RepairInitialLoad</step>
         </post-migration>
+        <install>
+            <step>OCA\Sendent\Migration\RepairInitialLoad</step>
+        </install>
     </repair-steps>
 
     <settings>
