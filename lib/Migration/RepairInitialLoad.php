@@ -28,6 +28,7 @@ namespace OCA\Sendent\Migration;
 use OCA\Sendent\Service\InitialLoadManager;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
+use Throwable;
 
 /**
  * Reseeds the setting templates and setting keys when they are missing,
@@ -48,10 +49,25 @@ class RepairInitialLoad implements IRepairStep {
 	}
 
 	public function run(IOutput $output): void {
-		if ($this->initialLoadManager->ensureSeeded()) {
-			$output->info('Sendent setting templates and setting keys are present.');
-		} else {
-			$output->warning('Sendent setting templates or setting keys could not be seeded completely, see nextcloud.log for details.');
+		// When updating from a version without ensureSeeded(), the old
+		// InitialLoadManager class is already loaded in this PHP process and
+		// cannot be redefined. Skip; the version-bound check in
+		// checkUpdateNeeded() reseeds on the next request with the new code.
+		if (!method_exists($this->initialLoadManager, 'ensureSeeded')) {
+			$output->info('Sendent seeding skipped during self-update, it will run on the next request.');
+
+			return;
+		}
+
+		try {
+			if ($this->initialLoadManager->ensureSeeded()) {
+				$output->info('Sendent setting templates and setting keys are present.');
+			} else {
+				$output->warning('Sendent setting templates or setting keys could not be seeded completely, see nextcloud.log for details.');
+			}
+		} catch (Throwable $e) {
+			// Never break an install/update over seeding; it is retried on boot.
+			$output->warning('Sendent seeding failed: ' . $e->getMessage() . ' (see nextcloud.log). It will be retried on the next request.');
 		}
 	}
 }
