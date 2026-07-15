@@ -30,7 +30,7 @@
     "vue": "^3.4.0"
   },
   "devDependencies": {
-    "@nextcloud/eslint-config": "^8.4.1",
+    "@nextcloud/eslint-config": "^9.0.1",
     "@nextcloud/webpack-vue-config": "^6.3.2",
     "@types/sanitize-html": "^2.6.2",
     "@types/sortablejs": "^1.15.0",
