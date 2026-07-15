@@ -139,7 +139,7 @@ watch(localValue, (newVal) => {
 	if (props.definition.name === 'sharedaysenabled' && newVal === 'False') {
 		store.saveSetting(32, '-1')
 	}
-  
+
 	// When a feature is disabled, also disable its "enforced" sub-setting
 	if (props.definition.name === 'securemail' && newVal === 'False'
 		&& store.getValue(25) !== 'False') {
