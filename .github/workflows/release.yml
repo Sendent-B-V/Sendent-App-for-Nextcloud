@@ -121,6 +121,7 @@ jobs:
           tar xjf nextcloud.tar.bz2
 
       - name: Code-sign app
+        id: sign
         env:
           APP_PRIVATE_KEY: ${{ secrets.APP_PRIVATE_KEY }}
         run: |
@@ -128,7 +129,7 @@ jobs:
             echo "::error::APP_PRIVATE_KEY secret is not set."
             exit 1
           fi
-          printf '%s\n' "$APP_PRIVATE_KEY" > private_key.pem
+          printf '%s\n' "$APP_PRIVATE_KEY" | tr -d '\r' > private_key.pem
           curl -fsSL -o "${APP_NAME}.crt" \
             "https://raw.githubusercontent.com/nextcloud/app-certificate-requests/master/${APP_NAME}/${APP_NAME}.crt"
           php nextcloud/occ integrity:sign-app \
@@ -137,7 +138,11 @@ jobs:
             --path="${PWD}/stage/${APP_NAME}"
           # sign the staged copy, then re-pack it unchanged so the signed and shipped files are identical
           tar czf "${APP_NAME}.tar.gz" -C stage "${APP_NAME}"
+          # release signature over the exact tarball we upload (store verifies it against the cert)
+          SIGNATURE=$(openssl dgst -sha512 -sign private_key.pem "${APP_NAME}.tar.gz" | openssl base64 -A)
           rm -f private_key.pem
+          if [ -z "$SIGNATURE" ]; then echo "::error::failed to create release signature (openssl could not read the key)"; exit 1; fi
+          echo "signature=${SIGNATURE}" >> "$GITHUB_OUTPUT"
 
       - name: Verify tarball contents
         run: |
@@ -168,10 +173,15 @@ jobs:
       - name: Publish to Nextcloud App Store
         # TEMPORARY
         if: github.ref == 'refs/heads/feat/release-workflow'
-        uses: nextcloud-releases/nextcloud-appstore-push-action@a011fe619bcf6e77ddebc96f9908e1af4071b9c1 # v1.0.3
-        with:
-          app_name: ${{ env.APP_NAME }}
-          appstore_token: ${{ secrets.NEXTCLOUD_APPSTORE_TOKEN }}
-          download_url: https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.tag }}/${{ env.APP_NAME }}.tar.gz
-          app_private_key: ${{ secrets.APP_PRIVATE_KEY }}
-          nightly: true   # TEMPORARY
+        env:
+          NEXTCLOUD_APPSTORE_TOKEN: ${{ secrets.NEXTCLOUD_APPSTORE_TOKEN }}
+          SIGNATURE: ${{ steps.sign.outputs.signature }}
+        run: |
+          DOWNLOAD_URL="https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.tag }}/${APP_NAME}.tar.gz"
+          HTTP=$(curl -sS -o response.txt -w '%{http_code}' -X POST \
+            -H "Authorization: Token ${NEXTCLOUD_APPSTORE_TOKEN}" \
+            -H "Content-Type: application/json" \
+            -d "{\"download\":\"${DOWNLOAD_URL}\",\"signature\":\"${SIGNATURE}\",\"nightly\":true}" \
+            https://apps.nextcloud.com/api/v1/apps/releases)
+          echo "HTTP ${HTTP}"; cat response.txt; echo
+          if [ "$HTTP" -ge 400 ]; then echo "::error::App Store publish failed (HTTP ${HTTP})"; exit 1; fi
