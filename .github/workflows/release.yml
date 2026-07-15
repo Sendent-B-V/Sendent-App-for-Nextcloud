@@ -138,7 +138,7 @@ jobs:
 
       - name: Verify tarball contents
         run: |
-          if ! tar tzf "${APP_NAME}.tar.gz" | grep -q "^${APP_NAME}/signature.json$"; then
+          if ! tar tzf "${APP_NAME}.tar.gz" | grep -q "^${APP_NAME}/appinfo/signature.json$"; then
             echo "::error::signature.json missing - code signing did not run correctly."
             exit 1
           fi
