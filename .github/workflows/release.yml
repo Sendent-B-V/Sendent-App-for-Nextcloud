@@ -3,7 +3,7 @@ name: Release
 on:
   workflow_dispatch:
   push:
-    branches: [fix/secure-mail-settings-fix]   # temporary
+    branches: [fix/release-workflow]   # temporary
 
 env:
   APP_NAME: sendent
