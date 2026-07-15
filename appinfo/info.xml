@@ -25,6 +25,15 @@
         <nextcloud min-version="30" max-version="34"/>
     </dependencies>
 
+    <repair-steps>
+        <post-migration>
+            <step>OCA\Sendent\Migration\RepairInitialLoad</step>
+        </post-migration>
+        <install>
+            <step>OCA\Sendent\Migration\RepairInitialLoad</step>
+        </install>
+    </repair-steps>
+
     <settings>
         <admin>OCA\Sendent\Settings\SendentSettings</admin>
         <admin-section>OCA\Sendent\Settings\SendentSection</admin-section>
