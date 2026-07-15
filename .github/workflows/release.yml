@@ -3,7 +3,7 @@ name: Release
 on:
   workflow_dispatch:
   push:
-    branches: [fix/release-workflow]   # temporary
+    branches: [feat/release-workflow]   # TEMPORARY
 
 env:
   APP_NAME: sendent
