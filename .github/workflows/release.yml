@@ -139,9 +139,9 @@ jobs:
           # sign the staged copy, then re-pack it unchanged so the signed and shipped files are identical
           tar czf "${APP_NAME}.tar.gz" -C stage "${APP_NAME}"
           # release signature over the exact tarball we upload (store verifies it against the cert)
-          SIGNATURE=$(openssl dgst -sha512 -sign private_key.pem "${APP_NAME}.tar.gz" | openssl base64 -A)
+          SIGNATURE=$(php -r '$k=openssl_pkey_get_private(file_get_contents("private_key.pem")); if($k===false){fwrite(STDERR,"PHP could not load private key\n");exit(1);} openssl_sign(file_get_contents(getenv("APP_NAME").".tar.gz"), $s, $k, OPENSSL_ALGO_SHA512); echo base64_encode($s);')
           rm -f private_key.pem
-          if [ -z "$SIGNATURE" ]; then echo "::error::failed to create release signature (openssl could not read the key)"; exit 1; fi
+          if [ -z "$SIGNATURE" ]; then echo "::error::failed to create release signature"; exit 1; fi
           echo "signature=${SIGNATURE}" >> "$GITHUB_OUTPUT"
 
       - name: Verify tarball contents
