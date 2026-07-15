@@ -70,6 +70,11 @@ jobs:
             --exclude="./${APP_NAME}/.git" \
             --exclude="./${APP_NAME}/.github" \
             --exclude="./${APP_NAME}/.gitignore" \
+            --exclude="./${APP_NAME}/.editorconfig" \
+            --exclude="./${APP_NAME}/.l10nignore" \
+            --exclude="./${APP_NAME}/.nvmrc" \
+            --exclude="./${APP_NAME}/.yarnrc" \
+            --exclude="./${APP_NAME}/.tx" \
             --exclude="./${APP_NAME}/.eslintrc.*" \
             --exclude="./${APP_NAME}/.php_cs*" \
             --exclude="./${APP_NAME}/.php-cs-fixer.dist.php" \
@@ -92,9 +97,7 @@ jobs:
             --exclude="./${APP_NAME}/composer.lock" \
             --exclude="./${APP_NAME}/composer.phar" \
             --exclude="./${APP_NAME}/yarn.lock" \
-            --exclude="./${APP_NAME}/webpack.common.js" \
-            --exclude="./${APP_NAME}/webpack.dev.js" \
-            --exclude="./${APP_NAME}/webpack.prod.js" \
+            --exclude="./${APP_NAME}/webpack.*" \
             --exclude="./${APP_NAME}/tsconfig.json" \
             --exclude="./${APP_NAME}/Makefile" \
             --exclude="./${APP_NAME}/psalm.xml" \
