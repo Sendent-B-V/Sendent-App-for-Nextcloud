@@ -57,7 +57,7 @@ class UserLookupServiceTest extends TestCase {
 
 	/**
 	 * @param array<string, IUser[]> $byEmail map email => matched users
-	 * @param array<string, IUser>   $byUid   map uid => user (for get())
+	 * @param array<string, IUser> $byUid map uid => user (for get())
 	 */
 	private function userManager(array $byEmail, array $byUid = []): IUserManager {
 		$manager = $this->createMock(IUserManager::class);

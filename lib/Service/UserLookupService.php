@@ -84,7 +84,7 @@ class UserLookupService {
 	 *
 	 * @param string[] $emails
 	 * @return array<string, array{userId: string, type: string}|null> keyed by
-	 *         the exact input email; value is null when no account is resolvable.
+	 *                                                                 the exact input email; value is null when no account is resolvable.
 	 */
 	public function resolve(array $emails, string $callerId): array {
 		// Honour the admin's exact-match enumeration privacy settings, exactly as
@@ -93,8 +93,8 @@ class UserLookupService {
 		// sub-key are enabled (both default 'yes'). Note that disabling general
 		// enumeration (shareapi_allow_share_dialog_user_enumeration) does NOT
 		// block exact matches, so we deliberately do not gate on it.
-		$emailLookupAllowed =
-			$this->config->getAppValue('core', 'shareapi_restrict_user_enumeration_full_match', 'yes') === 'yes'
+		$emailLookupAllowed
+			= $this->config->getAppValue('core', 'shareapi_restrict_user_enumeration_full_match', 'yes') === 'yes'
 			&& $this->config->getAppValue('core', 'shareapi_restrict_user_enumeration_full_match_email', 'yes') === 'yes';
 
 		$onlyGroupMembers = $this->config->getAppValue('core', 'shareapi_only_share_with_group_members', 'no') === 'yes';
