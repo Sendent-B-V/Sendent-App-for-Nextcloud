@@ -28,6 +28,7 @@ use OCP\AppFramework\ApiController;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
+use OCP\AppFramework\Http\Attribute\UserRateLimit;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\IRequest;
 
@@ -55,21 +56,30 @@ class UserLookupApiController extends ApiController {
 	 *
 	 * Authenticated (any logged-in user); not a public page. Body:
 	 *   { "emails": ["a@example.com", "b@example.com"] }
-	 * Response is keyed by the exact email sent:
+	 * Response is always a JSON object keyed by the exact email sent:
 	 *   { "a@example.com": { "userId": "alice", "type": "user" },
 	 *     "b@example.com": { "userId": "…", "type": "guest" },
 	 *     "unknown@example.com": null }
 	 *
-	 * @param string[] $emails
+	 * The parameter is deliberately untyped: the AppFramework dispatcher does
+	 * not coerce request params to array, so an `array` type declaration turns
+	 * a malformed body like {"emails": "hello"} into a TypeError (HTTP 500)
+	 * instead of the 400 below.
+	 *
+	 * @param mixed $emails string[] on well-formed requests
 	 */
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
-	public function resolve(array $emails = []): DataResponse {
+	#[UserRateLimit(limit: 10, period: 60)]
+	public function resolve(mixed $emails = []): DataResponse {
 		if ($this->userId === null) {
 			return new DataResponse(['error' => 'Authentication required'], Http::STATUS_UNAUTHORIZED);
 		}
+		if (!is_array($emails)) {
+			return new DataResponse(['error' => 'emails must be an array'], Http::STATUS_BAD_REQUEST);
+		}
 		if ($emails === []) {
-			return new DataResponse([]);
+			return new DataResponse(new \stdClass());
 		}
 		if (count($emails) > self::MAX_EMAILS) {
 			return new DataResponse(
@@ -78,6 +88,6 @@ class UserLookupApiController extends ApiController {
 			);
 		}
 
-		return new DataResponse($this->service->resolve($emails, $this->userId));
+		return new DataResponse((object)$this->service->resolve($emails, $this->userId));
 	}
 }
