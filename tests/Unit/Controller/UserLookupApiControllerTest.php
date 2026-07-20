@@ -57,14 +57,38 @@ class UserLookupApiControllerTest extends TestCase {
 		$this->assertSame(Http::STATUS_UNAUTHORIZED, $response->getStatus());
 	}
 
-	public function testEmptyListReturnsEmptyResult(): void {
+	public function testEmptyListReturnsEmptyObject(): void {
 		$service = $this->service();
 		$service->expects($this->never())->method('resolve');
 
 		$response = $this->controller($service, 'caller')->resolve([]);
 
 		$this->assertSame(Http::STATUS_OK, $response->getStatus());
-		$this->assertSame([], $response->getData());
+		// Must serialize as {} rather than [] so the response shape is
+		// consistently an object.
+		$this->assertEquals(new \stdClass(), $response->getData());
+		$this->assertSame('{}', json_encode($response->getData()));
+	}
+
+	/**
+	 * @dataProvider nonArrayEmailsProvider
+	 */
+	public function testNonArrayEmailsReturns400(mixed $emails): void {
+		$service = $this->service();
+		$service->expects($this->never())->method('resolve');
+
+		$response = $this->controller($service, 'caller')->resolve($emails);
+
+		$this->assertSame(Http::STATUS_BAD_REQUEST, $response->getStatus());
+	}
+
+	public static function nonArrayEmailsProvider(): array {
+		return [
+			'string' => ['hello'],
+			'int' => [42],
+			'bool' => [true],
+			'null is not the default' => [null],
+		];
 	}
 
 	public function testTooManyEmailsReturns400(): void {
@@ -93,6 +117,7 @@ class UserLookupApiControllerTest extends TestCase {
 		$response = $this->controller($service, 'caller')->resolve($emails);
 
 		$this->assertSame(Http::STATUS_OK, $response->getStatus());
-		$this->assertSame($expected, $response->getData());
+		// Cast to object so the endpoint always emits a JSON object.
+		$this->assertEquals((object)$expected, $response->getData());
 	}
 }
