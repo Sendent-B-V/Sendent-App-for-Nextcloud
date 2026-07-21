@@ -320,6 +320,52 @@ class UserLookupServiceTest extends TestCase {
 		$this->assertSame(['shared@example.com' => null], $service->resolve(['shared@example.com'], self::CALLER));
 	}
 
+	public function testAmbiguousEmailResolvesWhenGatesLeaveSingleAccount(): void {
+		// Two accounts share the email, but the group-members gate hides bob
+		// from the caller: from the caller's perspective the match is
+		// unambiguous, so it must resolve — and not log an ambiguity warning.
+		// bob is deliberately listed first to prove this is gate-filtering, not
+		// first-element picking.
+		$logger = $this->createMock(LoggerInterface::class);
+		$logger->expects($this->never())->method('warning');
+
+		$service = $this->service(
+			$this->userManager(
+				['shared@example.com' => [$this->user('bob'), $this->user('alice')]],
+				[self::CALLER => $this->user(self::CALLER)],
+			),
+			$this->config(['shareapi_only_share_with_group_members' => 'yes']),
+			$this->groupManager([self::CALLER => ['g1'], 'alice' => ['g1'], 'bob' => ['g9']]),
+			null,
+			$logger,
+		);
+
+		$this->assertSame(
+			['shared@example.com' => ['userId' => 'alice', 'type' => 'user']],
+			$service->resolve(['shared@example.com'], self::CALLER),
+		);
+	}
+
+	public function testAmbiguousEmailWithNoResolvableAccountIsNullWithoutWarning(): void {
+		// Gates hide every account holding the email: plain unresolvable, not
+		// ambiguous — no warning must be logged.
+		$logger = $this->createMock(LoggerInterface::class);
+		$logger->expects($this->never())->method('warning');
+
+		$service = $this->service(
+			$this->userManager(
+				['shared@example.com' => [$this->user('alice'), $this->user('bob')]],
+				[self::CALLER => $this->user(self::CALLER)],
+			),
+			$this->config(['shareapi_only_share_with_group_members' => 'yes']),
+			$this->groupManager([self::CALLER => ['g1'], 'alice' => ['g8'], 'bob' => ['g9']]),
+			null,
+			$logger,
+		);
+
+		$this->assertSame(['shared@example.com' => null], $service->resolve(['shared@example.com'], self::CALLER));
+	}
+
 	public function testAmbiguousEmailDoesNotBlockOtherEmailsInBatch(): void {
 		$service = $this->service(
 			$this->userManager(

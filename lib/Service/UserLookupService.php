@@ -88,7 +88,9 @@ class UserLookupService {
 	 *
 	 * @param string[] $emails
 	 * @return array<string, array{userId: string, type: string}|null> keyed by
-	 *                                                                 the exact input email; value is null when no account is resolvable.
+	 *                                                                 the exact input email; value is null when no single account is
+	 *                                                                 resolvable (unknown, gated, or ambiguous — several visible accounts
+	 *                                                                 hold the email).
 	 */
 	public function resolve(array $emails, string $callerId): array {
 		// Honour the admin's exact-match enumeration privacy settings, exactly as
@@ -135,57 +137,67 @@ class UserLookupService {
 				continue;
 			}
 
-			$user = $this->findAccount($email);
-			if ($user === null) {
+			// Nextcloud does not enforce unique email addresses, so one email can
+			// belong to several accounts. Ambiguity is judged on the accounts the
+			// CALLER may see (the privacy gates below), not on the raw matches: a
+			// gate-hidden duplicate does not make the visible match ambiguous.
+			// Only when several accounts survive the gates would resolving pick
+			// one arbitrarily — those emails resolve to null and are logged.
+			$resolvable = [];
+			foreach ($this->findCandidates($email) as $candidate) {
+				if ($this->isResolvableBy($candidate, $callerId, $caller, $onlyGroupMembers, $callerGroups, $restrictToPhone)) {
+					$resolvable[] = $candidate;
+				}
+			}
+
+			if (count($resolvable) > 1) {
+				$this->logger->warning(
+					'Email address {email} belongs to multiple accounts ({userIds}); refusing to resolve it in the bulk user lookup.',
+					[
+						'email' => $email,
+						'userIds' => implode(', ', array_map(static fn (IUser $u): string => $u->getUID(), $resolvable)),
+					],
+				);
 				continue;
 			}
-			if (!$this->isResolvableBy($user, $callerId, $caller, $onlyGroupMembers, $callerGroups, $restrictToPhone)) {
+			if ($resolvable === []) {
 				continue;
 			}
 
 			$result[$email] = [
-				'userId' => $user->getUID(),
-				'type' => $this->typeOf($user),
+				'userId' => $resolvable[0]->getUID(),
+				'type' => $this->typeOf($resolvable[0]),
 			];
 		}
 
 		return $result;
 	}
 
-	private function findAccount(string $email): ?IUser {
+	/**
+	 * All accounts holding this email, before the caller's privacy gates.
+	 *
+	 * @return IUser[]
+	 */
+	private function findCandidates(string $email): array {
 		// Primary path: matches the account's system email address across every
 		// user backend, including guests (the guests app stores the guest's email
 		// via setSystemEMailAddress(), so getByEmail() finds them too).
 		$users = $this->userManager->getByEmail($email);
-
-		// Nextcloud does not enforce unique email addresses, so one email can
-		// belong to several accounts. Picking one would silently resolve to an
-		// arbitrary account; an ambiguous email is not resolved at all (and must
-		// not fall through to the guest-uid path below).
-		if (count($users) > 1) {
-			$this->logger->warning(
-				'Email address {email} belongs to multiple accounts ({userIds}); refusing to resolve it in the bulk user lookup.',
-				[
-					'email' => $email,
-					'userIds' => implode(', ', array_map(static fn (IUser $u): string => $u->getUID(), $users)),
-				],
-			);
-			return null;
+		if ($users !== []) {
+			return array_values($users);
 		}
-
-		$user = $users[0] ?? null;
 
 		// Fallback for legacy guest accounts whose uid IS the email address but
 		// whose system email may not be populated. Only trusted when the matched
 		// account is actually a guest, to avoid resolving on an unrelated uid.
-		if ($user === null) {
-			$byUid = $this->userManager->get($email);
-			if ($byUid !== null && $byUid->getBackendClassName() === self::GUESTS_BACKEND) {
-				$user = $byUid;
-			}
+		// Deliberately not reached when getByEmail() matched anything: an email
+		// held by real accounts must not sidestep them via the uid path.
+		$byUid = $this->userManager->get($email);
+		if ($byUid !== null && $byUid->getBackendClassName() === self::GUESTS_BACKEND) {
+			return [$byUid];
 		}
 
-		return $user;
+		return [];
 	}
 
 	/**
