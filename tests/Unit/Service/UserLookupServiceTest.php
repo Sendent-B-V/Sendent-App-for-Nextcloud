@@ -30,6 +30,7 @@ use OCP\IGroupManager;
 use OCP\IUser;
 use OCP\IUserManager;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 
 class UserLookupServiceTest extends TestCase {
 
@@ -99,12 +100,14 @@ class UserLookupServiceTest extends TestCase {
 		IConfig $config,
 		?IGroupManager $groupManager = null,
 		?KnownUserService $knownUsers = null,
+		?LoggerInterface $logger = null,
 	): UserLookupService {
 		return new UserLookupService(
 			$userManager,
 			$config,
 			$groupManager ?? $this->groupManager(),
 			$knownUsers ?? $this->knownUsers(),
+			$logger ?? $this->createMock(LoggerInterface::class),
 		);
 	}
 
@@ -270,6 +273,72 @@ class UserLookupServiceTest extends TestCase {
 		$result = $service->resolve([self::CALLER . '@example.com'], self::CALLER);
 
 		$this->assertSame([self::CALLER . '@example.com' => ['userId' => self::CALLER, 'type' => 'user']], $result);
+	}
+
+	public function testAmbiguousEmailResolvesNullAndLogsWarning(): void {
+		// Nextcloud does not enforce unique email addresses: two accounts can
+		// share one. Resolving would silently pick an arbitrary account, so an
+		// ambiguous email must resolve to null and be logged as a warning.
+		$logger = $this->createMock(LoggerInterface::class);
+		$logger->expects($this->once())
+			->method('warning')
+			->with(
+				$this->stringContains('multiple accounts'),
+				$this->callback(
+					static fn (array $context): bool => ($context['email'] ?? null) === 'shared@example.com'
+				),
+			);
+
+		$service = $this->service(
+			$this->userManager(
+				['shared@example.com' => [$this->user('alice'), $this->user('bob')]],
+				[self::CALLER => $this->user(self::CALLER)],
+			),
+			$this->config(),
+			null,
+			null,
+			$logger,
+		);
+
+		$this->assertSame(['shared@example.com' => null], $service->resolve(['shared@example.com'], self::CALLER));
+	}
+
+	public function testAmbiguousEmailDoesNotFallBackToGuestUid(): void {
+		// The uid fallback is only for emails that matched NO account; an
+		// ambiguous email must not sidestep the ambiguity via the guest path.
+		$service = $this->service(
+			$this->userManager(
+				['shared@example.com' => [$this->user('alice'), $this->user('bob')]],
+				[
+					self::CALLER => $this->user(self::CALLER),
+					'shared@example.com' => $this->user('shared@example.com', 'Guests'),
+				],
+			),
+			$this->config(),
+		);
+
+		$this->assertSame(['shared@example.com' => null], $service->resolve(['shared@example.com'], self::CALLER));
+	}
+
+	public function testAmbiguousEmailDoesNotBlockOtherEmailsInBatch(): void {
+		$service = $this->service(
+			$this->userManager(
+				[
+					'shared@example.com' => [$this->user('alice'), $this->user('bob')],
+					'carol@example.com' => [$this->user('carol')],
+				],
+				[self::CALLER => $this->user(self::CALLER)],
+			),
+			$this->config(),
+		);
+
+		$this->assertSame(
+			[
+				'shared@example.com' => null,
+				'carol@example.com' => ['userId' => 'carol', 'type' => 'user'],
+			],
+			$service->resolve(['shared@example.com', 'carol@example.com'], self::CALLER),
+		);
 	}
 
 	public function testKeysByExactInputTrimsAndSkipsBlanks(): void {

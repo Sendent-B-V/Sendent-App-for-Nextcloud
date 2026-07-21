@@ -28,6 +28,7 @@ use OCP\IConfig;
 use OCP\IGroupManager;
 use OCP\IUser;
 use OCP\IUserManager;
+use Psr\Log\LoggerInterface;
 
 /**
  * Resolves email addresses to Nextcloud accounts in bulk.
@@ -65,17 +66,20 @@ class UserLookupService {
 	private IConfig $config;
 	private IGroupManager $groupManager;
 	private KnownUserService $knownUserService;
+	private LoggerInterface $logger;
 
 	public function __construct(
 		IUserManager $userManager,
 		IConfig $config,
 		IGroupManager $groupManager,
 		KnownUserService $knownUserService,
+		LoggerInterface $logger,
 	) {
 		$this->userManager = $userManager;
 		$this->config = $config;
 		$this->groupManager = $groupManager;
 		$this->knownUserService = $knownUserService;
+		$this->logger = $logger;
 	}
 
 	/**
@@ -153,6 +157,22 @@ class UserLookupService {
 		// user backend, including guests (the guests app stores the guest's email
 		// via setSystemEMailAddress(), so getByEmail() finds them too).
 		$users = $this->userManager->getByEmail($email);
+
+		// Nextcloud does not enforce unique email addresses, so one email can
+		// belong to several accounts. Picking one would silently resolve to an
+		// arbitrary account; an ambiguous email is not resolved at all (and must
+		// not fall through to the guest-uid path below).
+		if (count($users) > 1) {
+			$this->logger->warning(
+				'Email address {email} belongs to multiple accounts ({userIds}); refusing to resolve it in the bulk user lookup.',
+				[
+					'email' => $email,
+					'userIds' => implode(', ', array_map(static fn (IUser $u): string => $u->getUID(), $users)),
+				],
+			);
+			return null;
+		}
+
 		$user = $users[0] ?? null;
 
 		// Fallback for legacy guest accounts whose uid IS the email address but
