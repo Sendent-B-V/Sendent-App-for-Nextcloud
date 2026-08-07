@@ -38,6 +38,8 @@ class ReleasesApiController extends ApiController {
 		'outlook-cross-platform' => 'outlook-cross-platform',
 		'ms-teams' => 'ms-teams',
 		'outlook-windows' => 'outlook-windows',
+		'thunderbird' => 'thunderbird',
+		'mac-mail' => 'mac-mail',
 	];
 
 	private $httpClient;

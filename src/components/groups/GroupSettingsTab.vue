@@ -69,7 +69,7 @@ const groupsStore = useGroupsStore()
 
 const subtabs = [
 	{ id: 'license', label: 'License' },
-	{ id: 'outlook', label: 'Outlook Settings' },
+	{ id: 'outlook', label: 'Mail Settings' },
 	{ id: 'teams', label: 'Teams Settings' },
 ]
 </script>
