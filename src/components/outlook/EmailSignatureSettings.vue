@@ -19,20 +19,14 @@
   - along with this program. If not, see <http://www.gnu.org/licenses/>.
   -->
 <template>
-	<div>
-		<SettingsSection title="Email Signature"
-			:definitions="definitions"
-			:labels="labels" />
-		<SignaturePreview v-if="signatureEnabled" :template="signatureTemplate" />
-	</div>
+	<SettingsSection title="Email Signature"
+		:definitions="definitions"
+		:labels="labels" />
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 import SettingsSection from '../settings/SettingsSection.vue'
-import SignaturePreview from '../settings/SignaturePreview.vue'
 import { getSettingsForSection } from '../../common/settingsRegistry'
-import { useSettingsStore } from '../../stores/settings'
 
 const definitions = getSettingsForSection('EmailSignature')
 
@@ -40,8 +34,4 @@ const labels: Record<string, string> = {
 	enablesignaturepush: 'Enable signature push',
 	signaturehtml: 'Signature template',
 }
-
-const store = useSettingsStore()
-const signatureEnabled = computed(() => store.getValue(800) === 'True') // enablesignaturepush
-const signatureTemplate = computed(() => store.getValue(801)) // signaturehtml
 </script>

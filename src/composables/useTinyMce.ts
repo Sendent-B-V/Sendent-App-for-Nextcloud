@@ -43,6 +43,33 @@ import type { Editor } from 'tinymce'
 /** Placeholder used in email templates for the organisation logo */
 const LOGO_PLACEHOLDER = '{LOGO}'
 
+/**
+ * TinyMCE's internal helper rules, copied verbatim from
+ * tinymce/skins/ui/oxide/content.css. With `skin: false` + `content_css: false`
+ * NO stylesheet reaches the editable iframe, so TinyMCE's own in-body helper
+ * elements (fake-caret containers, resize handles, offscreen selection clones,
+ * table cell selection overlays) render in normal document flow — shifting the
+ * layout mid-click and breaking caret placement around table-based templates.
+ * These rules restore the positioning TinyMCE's editing logic assumes.
+ */
+const CONTENT_HELPER_CSS = [
+	'.mce-content-body .mce-visual-caret { background-color: black; background-color: currentColor; position: absolute; }',
+	'.mce-content-body .mce-visual-caret-hidden { display: none; }',
+	'.mce-content-body *[data-mce-caret] { left: -1000px; margin: 0; padding: 0; position: absolute; right: auto; top: 0; }',
+	'.mce-content-body .mce-offscreen-selection { left: -2000000px; max-width: 1000000px; position: absolute; }',
+	'.mce-content-body div.mce-resizehandle { background-color: #4099ff; border-color: #4099ff; border-style: solid; border-width: 1px; box-sizing: border-box; height: 10px; position: absolute; width: 10px; z-index: 1298; }',
+	'.mce-content-body td[data-mce-selected], .mce-content-body th[data-mce-selected] { position: relative; }',
+	".mce-content-body td[data-mce-selected]::after, .mce-content-body th[data-mce-selected]::after { background-color: rgba(180, 215, 255, 0.7); border: 1px solid rgba(180, 215, 255, 0.7); bottom: -1px; content: ''; left: -1px; mix-blend-mode: multiply; position: absolute; right: -1px; top: -1px; }",
+	// Snooker table-resize bars: invisible strips laid across every row/column
+	// boundary. `user-select: none` is load-bearing — without it the browser
+	// places the CARET inside these bogus divs on near-boundary clicks, making
+	// the caret "jump" (confirmed via selectionchange logging on Chromium).
+	'.ephox-snooker-resizer-bar { background-color: #b4d7ff; opacity: 0; -webkit-user-select: none; user-select: none; }',
+	'.ephox-snooker-resizer-cols { cursor: col-resize; }',
+	'.ephox-snooker-resizer-rows { cursor: row-resize; }',
+	'.ephox-snooker-resizer-bar.ephox-snooker-resizer-bar-dragging { opacity: 1; }',
+].join(' ')
+
 const TEMPLATE_VARIABLES = [
 	'{URL}',
 	'{PASSWORD}',
@@ -86,9 +113,9 @@ export function useTinyMce(options: TinyMceOptions) {
 			license_key: 'gpl',
 			skin: false,
 			content_css: false,
-			content_style: options.signatureMode
-				? 'body { font-family: Arial, sans-serif; font-size: 13px; }'
-				: `img[src="${LOGO_PLACEHOLDER}"] { content: url(${options.logoUrl.value}); }`,
+			content_style: CONTENT_HELPER_CSS + (options.signatureMode
+				? ' body { font-family: Arial, sans-serif; font-size: 13px; }'
+				: ` img[src="${LOGO_PLACEHOLDER}"] { content: url(${options.logoUrl.value}); }`),
 			height: 400,
 			menubar: false,
 			branding: false,
