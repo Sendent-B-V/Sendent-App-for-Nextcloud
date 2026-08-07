@@ -26,6 +26,8 @@ namespace OCA\Sendent\Service;
 use OCP\Accounts\IAccount;
 use OCP\Accounts\IAccountManager;
 use OCP\Accounts\PropertyDoesNotExistException;
+use OCP\IConfig;
+use OCP\IURLGenerator;
 use OCP\IUserManager;
 use Psr\Log\LoggerInterface;
 
@@ -49,6 +51,11 @@ use Psr\Log\LoggerInterface;
  * IAccountManager::PROPERTY_PRONOUNS constant only exists from NC 31 and this
  * app supports NC 30. Missing properties resolve to ''.
  *
+ * {LOGO} is the one org-level (not per-user) tag: it resolves to the
+ * instance's theming logo (falling back to core's default logo when no
+ * custom logo has been uploaded — see logoUrl()), or '' if resolution fails
+ * entirely (e.g. theming app disabled).
+ *
  * Escaping contract: substituted values are HTML-escaped (and BIOGRAPHY is
  * additionally nl2br'd), so tags may only be placed in HTML text content or
  * quoted-attribute contexts — never inside a <script>/<style> block or an
@@ -62,15 +69,21 @@ class SignatureService {
 
 	private IUserManager $userManager;
 	private IAccountManager $accountManager;
+	private IConfig $config;
+	private IURLGenerator $urlGenerator;
 	private LoggerInterface $logger;
 
 	public function __construct(
 		IUserManager $userManager,
 		IAccountManager $accountManager,
+		IConfig $config,
+		IURLGenerator $urlGenerator,
 		LoggerInterface $logger,
 	) {
 		$this->userManager = $userManager;
 		$this->accountManager = $accountManager;
+		$this->config = $config;
+		$this->urlGenerator = $urlGenerator;
 		$this->logger = $logger;
 	}
 
@@ -102,6 +115,7 @@ class SignatureService {
 			'{ROLE}' => $this->escape($this->propertyValue($account, IAccountManager::PROPERTY_ROLE)),
 			'{HEADLINE}' => $this->escape($this->propertyValue($account, IAccountManager::PROPERTY_HEADLINE)),
 			'{BIOGRAPHY}' => nl2br($this->escape($this->propertyValue($account, IAccountManager::PROPERTY_BIOGRAPHY))),
+			'{LOGO}' => $this->escape($this->logoUrl()),
 		];
 
 		// strtr() scans the subject once, left to right, so a profile value that
@@ -128,6 +142,34 @@ class SignatureService {
 
 	private function escape(string $value): string {
 		return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5, 'UTF-8');
+	}
+
+	/**
+	 * Absolute URL of the instance logo: the theming app's uploaded logo when
+	 * one exists, else core's default logo. The theming getImage route 404s
+	 * without an uploaded logo, so the logoMime check mirrors core's own
+	 * ThemingDefaults::getLogo() fallback. useSvg=0 requests the PNG
+	 * conversion (SVG does not render in Outlook/Gmail); passed as 0, not
+	 * 'false', because AppFramework's bool coercion treats any non-empty
+	 * string as true. ?v= cache-buster mirrors core (the route caches 3600s).
+	 * {LOGO} is the one org-level tag — all others are per-user profile fields.
+	 */
+	private function logoUrl(): string {
+		try {
+			$cacheBuster = $this->config->getAppValue('theming', 'cachebuster', '0');
+			if ($this->config->getAppValue('theming', 'logoMime', '') === '') {
+				return $this->urlGenerator->getAbsoluteURL(
+					$this->urlGenerator->imagePath('core', 'logo/logo.png')
+				) . '?v=' . $cacheBuster;
+			}
+			return $this->urlGenerator->linkToRouteAbsolute(
+				'theming.Theming.getImage',
+				['key' => 'logo', 'useSvg' => 0, 'v' => $cacheBuster]
+			);
+		} catch (\Throwable $e) {
+			$this->logger->debug('Could not resolve instance logo for {LOGO} signature tag.', ['exception' => $e]);
+			return '';
+		}
 	}
 
 	/**

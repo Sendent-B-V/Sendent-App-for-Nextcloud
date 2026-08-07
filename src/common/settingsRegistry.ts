@@ -35,6 +35,7 @@ export const SIGNATURE_TEMPLATE_VARIABLES = [
 	'{ROLE}',
 	'{HEADLINE}',
 	'{BIOGRAPHY}',
+	'{LOGO}',
 ]
 
 /**

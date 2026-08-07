@@ -24,6 +24,7 @@
 namespace OCA\Sendent\Controller;
 
 use OCA\Sendent\Service\SignatureService;
+use OCA\Sendent\Service\UserSettingsResolver;
 use OCP\AppFramework\ApiController;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -31,7 +32,14 @@ use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\Attribute\UserRateLimit;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\IRequest;
+use Psr\Log\LoggerInterface;
 
+/**
+ * NOTE: no #[CORS] attribute is present on any action in this class — if the
+ * Outlook/Thunderbird add-ins ever call these endpoints via browser fetch
+ * from a foreign origin rather than a native HTTP client, this controller
+ * (like user_lookup_api#resolve) will need one.
+ */
 class SignatureApiController extends ApiController {
 
 	/** Byte cap on the SUBMITTED template (input only — rendering can grow
@@ -39,17 +47,28 @@ class SignatureApiController extends ApiController {
 	 * setSignatureAsync limit is the caller's responsibility). */
 	private const MAX_TEMPLATE_LENGTH = 100000;
 
+	/** SettingKey ids for the signature settings; kept here to tie get()'s
+	 * resolver lookups to the names the frontend settings registry uses. */
+	private const SETTINGKEY_ENABLE_SIGNATURE_PUSH = 800; // enablesignaturepush
+	private const SETTINGKEY_SIGNATURE_HTML = 801; // signaturehtml
+
 	private SignatureService $service;
+	private UserSettingsResolver $resolver;
+	private LoggerInterface $logger;
 	private ?string $userId;
 
 	public function __construct(
 		string $appName,
 		IRequest $request,
 		SignatureService $service,
+		UserSettingsResolver $resolver,
+		LoggerInterface $logger,
 		?string $userId,
 	) {
 		parent::__construct($appName, $request);
 		$this->service = $service;
+		$this->resolver = $resolver;
+		$this->logger = $logger;
 		$this->userId = $userId;
 	}
 
@@ -57,10 +76,7 @@ class SignatureApiController extends ApiController {
 	 * Render a signature template with the CALLING user's own profile data.
 	 * Used by the admin preview; intended also for the Outlook/Thunderbird
 	 * add-ins (which fetch the applicable template via the existing settings
-	 * endpoints first, so group inheritance stays in one place). NOTE: no
-	 * #[CORS] attribute is present — if the add-ins call this via browser
-	 * fetch from a foreign origin rather than a native HTTP client, this
-	 * endpoint (like user_lookup_api#resolve) will need one.
+	 * endpoints first, so group inheritance stays in one place).
 	 *
 	 * Body: { "html": "<table>...{DISPLAYNAME}...</table>" }
 	 * Response: { "html": "<table>...Luc Pasmans...</table>" }
@@ -92,5 +108,39 @@ class SignatureApiController extends ApiController {
 		}
 
 		return new DataResponse(['html' => $this->service->render($html, $this->userId)]);
+	}
+
+	/**
+	 * The signature that applies to the CALLING user, fully resolved:
+	 * the user's sendent group decides which template applies (group override
+	 * with default-group fallback), and the template is rendered with the
+	 * caller's own profile fields. Consumed by the Outlook/Thunderbird
+	 * add-ins; `hash` lets clients skip re-pushing an unchanged signature.
+	 */
+	#[NoAdminRequired]
+	#[NoCSRFRequired]
+	#[UserRateLimit(limit: 30, period: 60)]
+	public function get(): DataResponse {
+		if ($this->userId === null) {
+			return new DataResponse(['error' => 'Authentication required'], Http::STATUS_UNAUTHORIZED);
+		}
+
+		$ncgroup = $this->resolver->sendentGroupFor($this->userId);
+		$enabled = $this->resolver->effectiveValue(self::SETTINGKEY_ENABLE_SIGNATURE_PUSH, $ncgroup) === 'True';
+		$template = $enabled ? $this->resolver->effectiveValue(self::SETTINGKEY_SIGNATURE_HTML, $ncgroup) : null;
+		if ($enabled && ($template === null || $template === '')) {
+			$this->logger->warning(
+				'Signature push is enabled for group {group} but no template resolved; the stored value may have spilled to an appdata file that is missing.',
+				['group' => $ncgroup]
+			);
+		}
+		if (!$enabled || $template === null || $template === '') {
+			return new DataResponse(['enabled' => false, 'html' => null, 'hash' => null]);
+		}
+
+		$html = $this->service->render($template, $this->userId);
+		// sha1: change detection only, never a security boundary — clients
+		// compare it to skip re-pushing an unchanged signature.
+		return new DataResponse(['enabled' => true, 'html' => $html, 'hash' => sha1($html)]);
 	}
 }

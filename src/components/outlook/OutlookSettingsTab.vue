@@ -21,13 +21,13 @@
 <template>
 	<div class="outlook-settings-tab">
 		<GeneralSettings />
+		<EmailSignatureSettings />
 		<TalkSettings />
 		<ArchivingSettings />
 		<DomainExceptions />
 		<AttachmentSettings />
 		<FileHandlingSettings />
 		<SecureMailSettings />
-		<EmailSignatureSettings />
 		<GuestAccountSettings />
 		<AdvancedTheming />
 	</div>
@@ -35,13 +35,13 @@
 
 <script setup lang="ts">
 import GeneralSettings from './GeneralSettings.vue'
+import EmailSignatureSettings from './EmailSignatureSettings.vue'
 import TalkSettings from './TalkSettings.vue'
 import ArchivingSettings from './ArchivingSettings.vue'
 import DomainExceptions from './DomainExceptions.vue'
 import AttachmentSettings from './AttachmentSettings.vue'
 import FileHandlingSettings from './FileHandlingSettings.vue'
 import SecureMailSettings from './SecureMailSettings.vue'
-import EmailSignatureSettings from './EmailSignatureSettings.vue'
 import GuestAccountSettings from './GuestAccountSettings.vue'
 import AdvancedTheming from './AdvancedTheming.vue'
 </script>

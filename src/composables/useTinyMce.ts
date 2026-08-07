@@ -113,9 +113,9 @@ export function useTinyMce(options: TinyMceOptions) {
 			license_key: 'gpl',
 			skin: false,
 			content_css: false,
-			content_style: CONTENT_HELPER_CSS + (options.signatureMode
-				? ' body { font-family: Arial, sans-serif; font-size: 13px; }'
-				: ` img[src="${LOGO_PLACEHOLDER}"] { content: url(${options.logoUrl.value}); }`),
+			content_style: CONTENT_HELPER_CSS
+				+ ` img[src="${LOGO_PLACEHOLDER}"] { content: url(${options.logoUrl.value}); }`
+				+ (options.signatureMode ? ' body { font-family: Arial, sans-serif; font-size: 13px; }' : ''),
 			height: 400,
 			menubar: false,
 			branding: false,
@@ -151,7 +151,13 @@ export function useTinyMce(options: TinyMceOptions) {
 							type: 'menuitem' as const,
 							text: tag,
 							onAction() {
-								ed.insertContent(tag)
+								if (options.signatureMode && tag === LOGO_PLACEHOLDER) {
+									// {LOGO} only works as an image source; inserting it as
+									// text would render a bare URL in the signature.
+									ed.insertContent(`<img src="${LOGO_PLACEHOLDER}" alt="" style="border:0;">`)
+								} else {
+									ed.insertContent(tag)
+								}
 							},
 						}))
 						callback(items)

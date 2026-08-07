@@ -28,6 +28,8 @@ use OCP\Accounts\IAccount;
 use OCP\Accounts\IAccountManager;
 use OCP\Accounts\IAccountProperty;
 use OCP\Accounts\PropertyDoesNotExistException;
+use OCP\IConfig;
+use OCP\IURLGenerator;
 use OCP\IUser;
 use OCP\IUserManager;
 use PHPUnit\Framework\TestCase;
@@ -76,12 +78,67 @@ class SignatureServiceTest extends TestCase {
 		return $manager;
 	}
 
+	/**
+	 * Config stub for logoUrl(): 'theming'/'logoMime' drives which branch is
+	 * taken ('' = no custom logo uploaded = core-fallback path), 'cachebuster'
+	 * feeds the ?v= query param. Defaults to '' (no custom logo) since this is
+	 * the stock state and existing tests' templates never reference {LOGO}.
+	 */
+	private function config(string $logoMime = '', string $cacheBuster = '0'): IConfig {
+		$config = $this->createMock(IConfig::class);
+		$config->method('getAppValue')->willReturnMap([
+			['theming', 'cachebuster', '0', $cacheBuster],
+			['theming', 'logoMime', '', $logoMime],
+		]);
+		return $config;
+	}
+
+	/**
+	 * Stubs the core-fallback logo path taken when config('') (no custom logo)
+	 * is used: logoUrl() calls imagePath('core', 'logo/logo.png') then
+	 * getAbsoluteURL() on the result. Pair with config() (its default).
+	 */
+	private function urlGenerator(): IURLGenerator {
+		$generator = $this->createMock(IURLGenerator::class);
+		$generator->method('imagePath')->with('core', 'logo/logo.png')->willReturn('/core/img/logo/logo.png');
+		$generator->method('getAbsoluteURL')->with('/core/img/logo/logo.png')->willReturn('https://cloud.example.com/core/img/logo/logo.png');
+		return $generator;
+	}
+
+	/**
+	 * Stubs the themed logo path taken when config('image/png') (a custom logo
+	 * is uploaded) is used: logoUrl() calls
+	 * linkToRouteAbsolute('theming.Theming.getImage', ['key' => 'logo', 'useSvg' => 0, 'v' => $cacheBuster]).
+	 *
+	 * @param string|null $logoUrl Return value; null makes it throw \RuntimeException,
+	 *                              simulating the theming route being unavailable.
+	 */
+	private function themedUrlGenerator(?string $logoUrl, string $cacheBuster = '0'): IURLGenerator {
+		$generator = $this->createMock(IURLGenerator::class);
+		$expectation = $generator->method('linkToRouteAbsolute')
+			->with('theming.Theming.getImage', ['key' => 'logo', 'useSvg' => 0, 'v' => $cacheBuster]);
+		if ($logoUrl === null) {
+			$expectation->willThrowException(new \RuntimeException('theming route unavailable'));
+		} else {
+			$expectation->willReturn($logoUrl);
+		}
+		return $generator;
+	}
+
 	private function service(
 		IUserManager $userManager,
 		IAccountManager $accountManager,
 		?LoggerInterface $logger = null,
+		?IConfig $config = null,
+		?IURLGenerator $urlGenerator = null,
 	): SignatureService {
-		return new SignatureService($userManager, $accountManager, $logger ?? $this->createMock(LoggerInterface::class));
+		return new SignatureService(
+			$userManager,
+			$accountManager,
+			$config ?? $this->config(),
+			$urlGenerator ?? $this->urlGenerator(),
+			$logger ?? $this->createMock(LoggerInterface::class),
+		);
 	}
 
 	/**
@@ -90,12 +147,14 @@ class SignatureServiceTest extends TestCase {
 	 *
 	 * @param array<string, string> $properties map of account property name => value
 	 */
-	private function serviceFor(string $displayName, string $email, array $properties, ?LoggerInterface $logger = null): SignatureService {
+	private function serviceFor(string $displayName, string $email, array $properties, ?LoggerInterface $logger = null, ?IConfig $config = null, ?IURLGenerator $urlGenerator = null): SignatureService {
 		$user = $this->user($displayName, $email);
 		return $this->service(
 			$this->userManager($user),
 			$this->accountManager($user, $this->account($properties)),
 			$logger,
+			$config,
+			$urlGenerator,
 		);
 	}
 
@@ -168,7 +227,7 @@ class SignatureServiceTest extends TestCase {
 		$this->assertSame('{DISPLAYNAME}', $service->render('{DISPLAYNAME}', 'ghost'));
 	}
 
-	public function testRendersAllThirteenTags(): void {
+	public function testRendersAllFourteenTags(): void {
 		// All values are free of HTML-special characters and BIOGRAPHY is kept to
 		// a single line, so the expected string does not need to account for
 		// escaping or nl2br() — it stays a plain, readable comparison. 'pronouns'
@@ -184,18 +243,78 @@ class SignatureServiceTest extends TestCase {
 			IAccountManager::PROPERTY_ROLE => 'Engineer',
 			IAccountManager::PROPERTY_HEADLINE => 'Building things',
 			IAccountManager::PROPERTY_BIOGRAPHY => 'Loves coffee',
-		]);
+		], null, $this->config('image/png'), $this->themedUrlGenerator('https://cloud.example.com/apps/theming/image/logo'));
 
 		$template = '{DISPLAYNAME}|{FIRSTNAME}|{MIDDLENAME}|{LASTNAME}|{PRONOUNS}|{EMAIL}|'
-			. '{PHONE}|{LOCATION}|{WEBSITE}|{ORGANISATION}|{ROLE}|{HEADLINE}|{BIOGRAPHY}';
+			. '{PHONE}|{LOCATION}|{WEBSITE}|{ORGANISATION}|{ROLE}|{HEADLINE}|{BIOGRAPHY}|{LOGO}';
 
 		$result = $service->render($template, self::USER_ID);
 
 		$this->assertSame(
 			'Eva de Wit|Eva|de|Wit|she/her|eva@example.com|'
-				. '+31600000000|Amsterdam|https://example.com|Sendent|Engineer|Building things|Loves coffee',
+				. '+31600000000|Amsterdam|https://example.com|Sendent|Engineer|Building things|Loves coffee|'
+				. 'https://cloud.example.com/apps/theming/image/logo',
 			$result
 		);
+	}
+
+	public function testLogoFallsBackToCoreLogoWhenNoCustomLogoUploaded(): void {
+		$urlGenerator = $this->urlGenerator();
+		$urlGenerator->expects($this->never())->method('linkToRouteAbsolute');
+
+		$service = $this->serviceFor('Luc Pasmans', 'l@s.com', [], null, $this->config(''), $urlGenerator);
+
+		$this->assertSame(
+			'https://cloud.example.com/core/img/logo/logo.png?v=0',
+			$service->render('{LOGO}', self::USER_ID)
+		);
+	}
+
+	public function testLogoResolvesToEmptyStringWhenThemingRouteUnavailable(): void {
+		$logger = $this->createMock(LoggerInterface::class);
+		$logger->expects($this->never())->method('warning');
+		$logger->expects($this->once())->method('debug');
+
+		$service = $this->serviceFor(
+			'Luc Pasmans',
+			'l@s.com',
+			[],
+			$logger,
+			$this->config('image/png'),
+			$this->themedUrlGenerator(null)
+		);
+
+		$this->assertSame('()', $service->render('({LOGO})', self::USER_ID));
+	}
+
+	public function testLogoUrlIsHtmlEscaped(): void {
+		$service = $this->serviceFor(
+			'Luc Pasmans',
+			'l@s.com',
+			[],
+			null,
+			$this->config('image/png'),
+			$this->themedUrlGenerator('https://cloud.example.com/logo?a=1&b=2')
+		);
+
+		$result = $service->render('{LOGO}', self::USER_ID);
+
+		$this->assertSame('https://cloud.example.com/logo?a=1&amp;b=2', $result);
+	}
+
+	public function testLogoRendersInsideImgSrcAttribute(): void {
+		$service = $this->serviceFor(
+			'Luc Pasmans',
+			'l@s.com',
+			[],
+			null,
+			$this->config('image/png'),
+			$this->themedUrlGenerator('https://cloud.example.com/apps/theming/image/logo')
+		);
+
+		$result = $service->render('<img src="{LOGO}">', self::USER_ID);
+
+		$this->assertSame('<img src="https://cloud.example.com/apps/theming/image/logo">', $result);
 	}
 
 	public function testSingleTokenDisplayName(): void {
