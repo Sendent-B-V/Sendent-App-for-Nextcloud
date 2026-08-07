@@ -129,6 +129,8 @@ return [
 			'requirements' => ['path' => '.+']
 		],
 		['name' => 'user_lookup_api#resolve', 'url' => '/api/1.0/users/resolve', 'verb' => 'POST'],
+		['name' => 'signature_api#render', 'url' => '/api/1.0/signature/render', 'verb' => 'POST'],
+		['name' => 'signature_api#get', 'url' => '/api/1.0/signature', 'verb' => 'GET'],
 
 		['name' => 'folder_mapping#getFolderIdByMsId', 'url' => '/api/1.0/mapping/{msId}', 'verb' => 'GET',    'requirements' => ['msId' => '.+']],
 		['name' => 'folder_mapping#createMapping',      'url' => '/api/1.0/mapping',         'verb' => 'POST'],

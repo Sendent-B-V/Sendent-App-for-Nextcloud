@@ -20,6 +20,24 @@
  */
 import type { SettingDefinition } from '../types/settings'
 
+/** Placeholder tags resolved from the Nextcloud user profile (see SignatureService.php). */
+export const SIGNATURE_TEMPLATE_VARIABLES = [
+	'{DISPLAYNAME}',
+	'{FIRSTNAME}',
+	'{MIDDLENAME}',
+	'{LASTNAME}',
+	'{PRONOUNS}',
+	'{EMAIL}',
+	'{PHONE}',
+	'{LOCATION}',
+	'{WEBSITE}',
+	'{ORGANISATION}',
+	'{ROLE}',
+	'{HEADLINE}',
+	'{BIOGRAPHY}',
+	'{LOGO}',
+]
+
 /**
  * Registry of all 64 setting definitions.
  * - key: numeric settingkeyid (used in API URLs)
@@ -407,6 +425,29 @@ export const settingsRegistry: SettingDefinition[] = [
 		section: 'GuestAccounts',
 		inputType: 'textarea',
 		visibilityRule: { dependsOn: 'guestaccountsenabled', showWhen: 'True' },
+	},
+
+	// ── EmailSignature ───────────────────────────────────
+	{
+		key: 800,
+		name: 'enablesignaturepush',
+		templateId: 0,
+		section: 'EmailSignature',
+		inputType: 'select',
+		options: [
+			{ value: 'True', label: 'Enabled' },
+			{ value: 'False', label: 'Disabled' },
+		],
+	},
+	{
+		key: 801,
+		name: 'signaturehtml',
+		templateId: 0,
+		section: 'EmailSignature',
+		inputType: 'textarea',
+		visibilityRule: { dependsOn: 'enablesignaturepush', showWhen: 'True' },
+		templateVariables: SIGNATURE_TEMPLATE_VARIABLES,
+		signatureMode: true,
 	},
 
 	// ── Advanced Theming (templateId: 1) ─────────────────

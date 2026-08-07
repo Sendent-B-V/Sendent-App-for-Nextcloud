@@ -19,29 +19,19 @@
   - along with this program. If not, see <http://www.gnu.org/licenses/>.
   -->
 <template>
-	<div class="outlook-settings-tab">
-		<GeneralSettings />
-		<EmailSignatureSettings />
-		<TalkSettings />
-		<ArchivingSettings />
-		<DomainExceptions />
-		<AttachmentSettings />
-		<FileHandlingSettings />
-		<SecureMailSettings />
-		<GuestAccountSettings />
-		<AdvancedTheming />
-	</div>
+	<SettingsSection title="Email Signature"
+		:definitions="definitions"
+		:labels="labels" />
 </template>
 
 <script setup lang="ts">
-import GeneralSettings from './GeneralSettings.vue'
-import EmailSignatureSettings from './EmailSignatureSettings.vue'
-import TalkSettings from './TalkSettings.vue'
-import ArchivingSettings from './ArchivingSettings.vue'
-import DomainExceptions from './DomainExceptions.vue'
-import AttachmentSettings from './AttachmentSettings.vue'
-import FileHandlingSettings from './FileHandlingSettings.vue'
-import SecureMailSettings from './SecureMailSettings.vue'
-import GuestAccountSettings from './GuestAccountSettings.vue'
-import AdvancedTheming from './AdvancedTheming.vue'
+import SettingsSection from '../settings/SettingsSection.vue'
+import { getSettingsForSection } from '../../common/settingsRegistry'
+
+const definitions = getSettingsForSection('EmailSignature')
+
+const labels: Record<string, string> = {
+	enablesignaturepush: 'Enable signature push',
+	signaturehtml: 'Signature template',
+}
 </script>
