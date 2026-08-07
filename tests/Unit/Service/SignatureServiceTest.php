@@ -111,7 +111,7 @@ class SignatureServiceTest extends TestCase {
 	 * linkToRouteAbsolute('theming.Theming.getImage', ['key' => 'logo', 'useSvg' => 0, 'v' => $cacheBuster]).
 	 *
 	 * @param string|null $logoUrl Return value; null makes it throw \RuntimeException,
-	 *                              simulating the theming route being unavailable.
+	 *                             simulating the theming route being unavailable.
 	 */
 	private function themedUrlGenerator(?string $logoUrl, string $cacheBuster = '0'): IURLGenerator {
 		$generator = $this->createMock(IURLGenerator::class);
