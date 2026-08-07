@@ -82,6 +82,8 @@ import { useDependenciesStore } from '../../stores/dependencies'
 const props = defineProps<{
 	modelValue: string
 	disabled: boolean
+	templateVariables?: string[]
+	signatureMode?: boolean
 }>()
 
 const { themingLogoUrl } = storeToRefs(useDependenciesStore())
@@ -103,6 +105,8 @@ const { getContent } = useTinyMce({
 	value: toRef(props, 'modelValue'),
 	disabled: toRef(props, 'disabled'),
 	logoUrl: themingLogoUrl,
+	variables: props.templateVariables,
+	signatureMode: props.signatureMode,
 })
 
 function openModal() {

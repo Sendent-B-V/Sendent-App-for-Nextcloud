@@ -262,7 +262,7 @@ class SettingGroupValueApiController extends ApiController {
 		try {
 			$result = $this->mapper->findBySettingKeyId($settingkeyid, $ncgroup);
 			if ($this->valueIsSettingGroupValueFilePath($result->getValue()) !== false) {
-				$result->setValue($this->FileStorageManager->getContent($result->getGroupid(), $result->getSettingkeyid()));
+				$result->setValue($this->FileStorageManager->getContent($result->getGroupid(), $result->getSettingkeyid(), $result->getNcgroup()));
 			}
 			return new DataResponse($result);
 		} catch (Exception $e) {

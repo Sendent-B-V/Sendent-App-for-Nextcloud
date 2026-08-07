@@ -63,6 +63,10 @@ interface TinyMceOptions {
 	value: Ref<string>
 	disabled: Ref<boolean>
 	logoUrl: Ref<string>
+	/** Placeholder tags for the "Insert variable" menu; defaults to TEMPLATE_VARIABLES. */
+	variables?: string[]
+	/** Strip elements/styles that break email clients (classic Outlook = Word engine). */
+	signatureMode?: boolean
 }
 
 /**
@@ -75,12 +79,16 @@ export function useTinyMce(options: TinyMceOptions) {
 	let editor: Editor | null = null
 
 	function initEditor(el: HTMLElement) {
+		const variables = options.variables ?? TEMPLATE_VARIABLES
+
 		window.tinymce.init({
 			target: el,
 			license_key: 'gpl',
 			skin: false,
 			content_css: false,
-			content_style: `img[src="${LOGO_PLACEHOLDER}"] { content: url(${options.logoUrl.value}); }`,
+			content_style: options.signatureMode
+				? 'body { font-family: Arial, sans-serif; font-size: 13px; }'
+				: `img[src="${LOGO_PLACEHOLDER}"] { content: url(${options.logoUrl.value}); }`,
 			height: 400,
 			menubar: false,
 			branding: false,
@@ -95,13 +103,24 @@ export function useTinyMce(options: TinyMceOptions) {
 			link_default_target: '_blank',
 			readonly: options.disabled.value,
 
+			// Email-signature safety: classic Outlook renders with the Word engine.
+			// Remove/unwrap elements it cannot render and strip styles it ignores or mangles.
+			...(options.signatureMode
+				? {
+					invalid_elements: 'script,iframe,form,input,button,select,option,optgroup,textarea,fieldset,object,embed,svg,video,audio',
+					invalid_styles: {
+						'*': 'float position display max-width max-height overflow overflow-x overflow-y z-index background background-image',
+					},
+				}
+				: {}),
+
 			setup(ed: Editor) {
 				editor = ed
 
 				ed.ui.registry.addMenuButton('templatevars', {
 					text: 'Insert variable',
 					fetch(callback) {
-						const items = TEMPLATE_VARIABLES.map(tag => ({
+						const items = variables.map(tag => ({
 							type: 'menuitem' as const,
 							text: tag,
 							onAction() {

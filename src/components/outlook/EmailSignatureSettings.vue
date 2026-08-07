@@ -19,29 +19,29 @@
   - along with this program. If not, see <http://www.gnu.org/licenses/>.
   -->
 <template>
-	<div class="outlook-settings-tab">
-		<GeneralSettings />
-		<TalkSettings />
-		<ArchivingSettings />
-		<DomainExceptions />
-		<AttachmentSettings />
-		<FileHandlingSettings />
-		<SecureMailSettings />
-		<EmailSignatureSettings />
-		<GuestAccountSettings />
-		<AdvancedTheming />
+	<div>
+		<SettingsSection title="Email Signature"
+			:definitions="definitions"
+			:labels="labels" />
+		<SignaturePreview v-if="signatureEnabled" :template="signatureTemplate" />
 	</div>
 </template>
 
 <script setup lang="ts">
-import GeneralSettings from './GeneralSettings.vue'
-import TalkSettings from './TalkSettings.vue'
-import ArchivingSettings from './ArchivingSettings.vue'
-import DomainExceptions from './DomainExceptions.vue'
-import AttachmentSettings from './AttachmentSettings.vue'
-import FileHandlingSettings from './FileHandlingSettings.vue'
-import SecureMailSettings from './SecureMailSettings.vue'
-import EmailSignatureSettings from './EmailSignatureSettings.vue'
-import GuestAccountSettings from './GuestAccountSettings.vue'
-import AdvancedTheming from './AdvancedTheming.vue'
+import { computed } from 'vue'
+import SettingsSection from '../settings/SettingsSection.vue'
+import SignaturePreview from '../settings/SignaturePreview.vue'
+import { getSettingsForSection } from '../../common/settingsRegistry'
+import { useSettingsStore } from '../../stores/settings'
+
+const definitions = getSettingsForSection('EmailSignature')
+
+const labels: Record<string, string> = {
+	enablesignaturepush: 'Enable signature push',
+	signaturehtml: 'Signature template',
+}
+
+const store = useSettingsStore()
+const signatureEnabled = computed(() => store.getValue(800) === 'True') // enablesignaturepush
+const signatureTemplate = computed(() => store.getValue(801)) // signaturehtml
 </script>
