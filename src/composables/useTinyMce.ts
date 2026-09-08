@@ -38,6 +38,7 @@ import 'tinymce/plugins/preview'
 import 'tinymce/plugins/table'
 
 import { onBeforeUnmount, watch, type Ref } from 'vue'
+import { translate as t } from '@nextcloud/l10n'
 import type { Editor } from 'tinymce'
 
 /** Placeholder used in email templates for the organisation logo */
@@ -99,7 +100,7 @@ export function useTinyMce(options: TinyMceOptions) {
 				editor = ed
 
 				ed.ui.registry.addMenuButton('templatevars', {
-					text: 'Insert variable',
+					text: t('sendent', 'Insert variable'),
 					fetch(callback) {
 						const items = TEMPLATE_VARIABLES.map(tag => ({
 							type: 'menuitem' as const,

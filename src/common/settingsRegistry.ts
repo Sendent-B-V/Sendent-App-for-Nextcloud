@@ -18,6 +18,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+import { translate as t } from '@nextcloud/l10n'
 import type { SettingDefinition } from '../types/settings'
 
 /**
@@ -35,14 +36,14 @@ export const settingsRegistry: SettingDefinition[] = [
 		section: 'General',
 		inputType: 'select',
 		options: [
-			{ value: 'en', label: 'English' },
-			{ value: 'nl', label: 'Nederlands' },
-			{ value: 'fr', label: 'Français' },
-			{ value: 'de', label: 'Deutsch' },
-			{ value: 'it', label: 'Italiano' },
-			{ value: 'es', label: 'Español' },
-			{ value: 'da', label: 'Dansk' },
-			{ value: 'ru', label: 'Russkiy' },
+			{ value: 'en', label: t('sendent', 'English') },
+			{ value: 'nl', label: t('sendent', 'Nederlands') },
+			{ value: 'fr', label: t('sendent', 'Français') },
+			{ value: 'de', label: t('sendent', 'Deutsch') },
+			{ value: 'it', label: t('sendent', 'Italiano') },
+			{ value: 'es', label: t('sendent', 'Español') },
+			{ value: 'da', label: t('sendent', 'Dansk') },
+			{ value: 'ru', label: t('sendent', 'Russkiy') },
 		],
 	},
 	{
@@ -52,8 +53,8 @@ export const settingsRegistry: SettingDefinition[] = [
 		section: 'General',
 		inputType: 'select',
 		options: [
-			{ value: 'True', label: 'At cursor' },
-			{ value: 'False', label: 'Top of email body' },
+			{ value: 'True', label: t('sendent', 'At cursor') },
+			{ value: 'False', label: t('sendent', 'Top of email body') },
 		],
 	},
 	{
@@ -63,8 +64,8 @@ export const settingsRegistry: SettingDefinition[] = [
 		section: 'General',
 		inputType: 'select',
 		options: [
-			{ value: 'True', label: 'Add upload date to folder path' },
-			{ value: 'False', label: 'Do not add upload date to folder path' },
+			{ value: 'True', label: t('sendent', 'Add upload date to folder path') },
+			{ value: 'False', label: t('sendent', 'Do not add upload date to folder path') },
 		],
 	},
 	{
@@ -74,8 +75,8 @@ export const settingsRegistry: SettingDefinition[] = [
 		section: 'General',
 		inputType: 'select',
 		options: [
-			{ value: 'True', label: 'Enabled' },
-			{ value: 'False', label: 'Disabled' },
+			{ value: 'True', label: t('sendent', 'Enabled') },
+			{ value: 'False', label: t('sendent', 'Disabled') },
 		],
 	},
 	{
@@ -85,8 +86,8 @@ export const settingsRegistry: SettingDefinition[] = [
 		section: 'General',
 		inputType: 'select',
 		options: [
-			{ value: 'False', label: 'Enabled' },
-			{ value: 'True', label: 'Disabled' },
+			{ value: 'False', label: t('sendent', 'Enabled') },
+			{ value: 'True', label: t('sendent', 'Disabled') },
 		],
 	},
 	{
@@ -96,9 +97,9 @@ export const settingsRegistry: SettingDefinition[] = [
 		section: 'General',
 		inputType: 'select',
 		options: [
-			{ value: 'Off', label: 'Off' },
-			{ value: 'BeforeSend', label: 'Before sending' },
-			{ value: 'BeforeSendAndAfter', label: 'Before and after sending' },
+			{ value: 'Off', label: t('sendent', 'Off') },
+			{ value: 'BeforeSend', label: t('sendent', 'Before sending') },
+			{ value: 'BeforeSendAndAfter', label: t('sendent', 'Before and after sending') },
 		],
 	},
 	{
@@ -108,9 +109,9 @@ export const settingsRegistry: SettingDefinition[] = [
 		section: 'General',
 		inputType: 'select',
 		options: [
-			{ value: 'CurrentMail', label: 'Include in email body' },
-			{ value: 'Separate', label: 'Send in separate email' },
-			{ value: 'External', label: 'Use external service (like sms-gateway)' },
+			{ value: 'CurrentMail', label: t('sendent', 'Include in email body') },
+			{ value: 'Separate', label: t('sendent', 'Send in separate email') },
+			{ value: 'External', label: t('sendent', 'Use external service (like sms-gateway)') },
 		],
 	},
 	{
@@ -128,8 +129,8 @@ export const settingsRegistry: SettingDefinition[] = [
 		section: 'General',
 		inputType: 'select',
 		options: [
-			{ value: 'True', label: 'Enabled' },
-			{ value: 'False', label: 'Disabled' },
+			{ value: 'True', label: t('sendent', 'Enabled') },
+			{ value: 'False', label: t('sendent', 'Disabled') },
 		],
 	},
 	{
@@ -140,8 +141,8 @@ export const settingsRegistry: SettingDefinition[] = [
 		inputType: 'select',
 		defaultValue: 'False',
 		options: [
-			{ value: 'True', label: 'Enabled' },
-			{ value: 'False', label: 'Disabled' },
+			{ value: 'True', label: t('sendent', 'Enabled') },
+			{ value: 'False', label: t('sendent', 'Disabled') },
 		],
 	},
 	{
@@ -162,8 +163,8 @@ export const settingsRegistry: SettingDefinition[] = [
 		section: 'Talk',
 		inputType: 'select',
 		options: [
-			{ value: 'True', label: 'Enabled' },
-			{ value: 'False', label: 'Disabled' },
+			{ value: 'True', label: t('sendent', 'Enabled') },
+			{ value: 'False', label: t('sendent', 'Disabled') },
 		],
 	},
 	{
@@ -173,8 +174,8 @@ export const settingsRegistry: SettingDefinition[] = [
 		section: 'Talk',
 		inputType: 'select',
 		options: [
-			{ value: 'True', label: 'Enabled' },
-			{ value: 'False', label: 'Disabled' },
+			{ value: 'True', label: t('sendent', 'Enabled') },
+			{ value: 'False', label: t('sendent', 'Disabled') },
 		],
 	},
 	{
@@ -187,8 +188,8 @@ export const settingsRegistry: SettingDefinition[] = [
 		section: 'Talk',
 		inputType: 'select',
 		options: [
-			{ value: 'True', label: 'Enabled' },
-			{ value: 'False', label: 'Disabled' },
+			{ value: 'True', label: t('sendent', 'Enabled') },
+			{ value: 'False', label: t('sendent', 'Disabled') },
 		],
 	},
 	{
@@ -203,8 +204,8 @@ export const settingsRegistry: SettingDefinition[] = [
 		section: 'Archiving',
 		inputType: 'select',
 		options: [
-			{ value: 'True', label: 'Enabled' },
-			{ value: 'False', label: 'Disabled' },
+			{ value: 'True', label: t('sendent', 'Enabled') },
+			{ value: 'False', label: t('sendent', 'Disabled') },
 		],
 	},
 	{
@@ -217,9 +218,9 @@ export const settingsRegistry: SettingDefinition[] = [
 		section: 'Archiving',
 		inputType: 'select',
 		options: [
-			{ value: '1', label: 'Upload Attachments' },
-			{ value: '2', label: 'Upload Attachments and original email' },
-			{ value: '3', label: 'Upload Attachments, original email and use Secure Mail' },
+			{ value: '1', label: t('sendent', 'Upload Attachments') },
+			{ value: '2', label: t('sendent', 'Upload Attachments and original email') },
+			{ value: '3', label: t('sendent', 'Upload Attachments, original email and use Secure Mail') },
 		],
 	},
 	{
@@ -229,8 +230,8 @@ export const settingsRegistry: SettingDefinition[] = [
 		section: 'Archiving',
 		inputType: 'select',
 		options: [
-			{ value: 'True', label: 'Enabled' },
-			{ value: 'False', label: 'Disabled' },
+			{ value: 'True', label: t('sendent', 'Enabled') },
+			{ value: 'False', label: t('sendent', 'Disabled') },
 		],
 	},
 
@@ -248,8 +249,8 @@ export const settingsRegistry: SettingDefinition[] = [
 		section: 'DomainExceptions',
 		inputType: 'select',
 		options: [
-			{ value: 'True', label: 'Enabled' },
-			{ value: 'False', label: 'Disabled' },
+			{ value: 'True', label: t('sendent', 'Enabled') },
+			{ value: 'False', label: t('sendent', 'Disabled') },
 		],
 	},
 
@@ -261,9 +262,9 @@ export const settingsRegistry: SettingDefinition[] = [
 		section: 'Attachments',
 		inputType: 'select',
 		options: [
-			{ value: 'MaximumAttachmentSize', label: 'Trigger on maximum attachment size' },
-			{ value: 'Ask', label: 'Ask every time' },
-			{ value: 'Off', label: 'None' },
+			{ value: 'MaximumAttachmentSize', label: t('sendent', 'Trigger on maximum attachment size') },
+			{ value: 'Ask', label: t('sendent', 'Ask every time') },
+			{ value: 'Off', label: t('sendent', 'None') },
 		],
 	},
 	{
@@ -298,8 +299,8 @@ export const settingsRegistry: SettingDefinition[] = [
 		section: 'FileHandling',
 		inputType: 'select',
 		options: [
-			{ value: 'True', label: 'Enabled' },
-			{ value: 'False', label: 'Disabled' },
+			{ value: 'True', label: t('sendent', 'Enabled') },
+			{ value: 'False', label: t('sendent', 'Disabled') },
 		],
 	},
 
@@ -311,8 +312,8 @@ export const settingsRegistry: SettingDefinition[] = [
 		section: 'SecureMail',
 		inputType: 'select',
 		options: [
-			{ value: 'True', label: 'Enabled' },
-			{ value: 'False', label: 'Disabled' },
+			{ value: 'True', label: t('sendent', 'Enabled') },
+			{ value: 'False', label: t('sendent', 'Disabled') },
 		],
 	},
 	{
@@ -323,8 +324,8 @@ export const settingsRegistry: SettingDefinition[] = [
 		inputType: 'select',
 		visibilityRule: { dependsOn: 'securemail', showWhen: 'True' },
 		options: [
-			{ value: 'True', label: 'Enabled' },
-			{ value: 'False', label: 'Disabled' },
+			{ value: 'True', label: t('sendent', 'Enabled') },
+			{ value: 'False', label: t('sendent', 'Disabled') },
 		],
 	},
 	{
@@ -335,8 +336,8 @@ export const settingsRegistry: SettingDefinition[] = [
 		inputType: 'select',
 		visibilityRule: { dependsOn: 'securemail', showWhen: 'True' },
 		options: [
-			{ value: 'toolbar', label: 'Toolbar in message compose window' },
-			{ value: 'button', label: 'Button in ribbon' },
+			{ value: 'toolbar', label: t('sendent', 'Toolbar in message compose window') },
+			{ value: 'button', label: t('sendent', 'Button in ribbon') },
 		],
 	},
 	{
@@ -364,8 +365,8 @@ export const settingsRegistry: SettingDefinition[] = [
 		section: 'GuestAccounts',
 		inputType: 'select',
 		options: [
-			{ value: 'True', label: 'Enabled' },
-			{ value: 'False', label: 'Disabled' },
+			{ value: 'True', label: t('sendent', 'Enabled') },
+			{ value: 'False', label: t('sendent', 'Disabled') },
 		],
 	},
 	{
@@ -376,8 +377,8 @@ export const settingsRegistry: SettingDefinition[] = [
 		inputType: 'select',
 		visibilityRule: { dependsOn: 'guestaccountsenabled', showWhen: 'True' },
 		options: [
-			{ value: 'True', label: 'Enabled' },
-			{ value: 'False', label: 'Disabled' },
+			{ value: 'True', label: t('sendent', 'Enabled') },
+			{ value: 'False', label: t('sendent', 'Disabled') },
 		],
 	},
 	{
@@ -388,8 +389,8 @@ export const settingsRegistry: SettingDefinition[] = [
 		inputType: 'select',
 		visibilityRule: { dependsOn: 'guestaccountsenabled', showWhen: 'True' },
 		options: [
-			{ value: 'True', label: 'Enabled' },
-			{ value: 'False', label: 'Disabled' },
+			{ value: 'True', label: t('sendent', 'Enabled') },
+			{ value: 'False', label: t('sendent', 'Disabled') },
 		],
 	},
 	{
@@ -417,8 +418,8 @@ export const settingsRegistry: SettingDefinition[] = [
 		section: 'AdvancedTheming',
 		inputType: 'select',
 		options: [
-			{ value: 'true', label: 'Enabled' },
-			{ value: 'false', label: 'Disabled' },
+			{ value: 'true', label: t('sendent', 'Enabled') },
+			{ value: 'false', label: t('sendent', 'Disabled') },
 		],
 	},
 	{
@@ -459,9 +460,9 @@ export const settingsRegistry: SettingDefinition[] = [
 		section: 'Teams',
 		inputType: 'select',
 		options: [
-			{ value: 'Off', label: 'Off' },
-			{ value: 'webdav', label: 'Via WebDAV' },
-			{ value: 'desktop', label: 'Via Nextcloud Desktop Client' },
+			{ value: 'Off', label: t('sendent', 'Off') },
+			{ value: 'webdav', label: t('sendent', 'Via WebDAV') },
+			{ value: 'desktop', label: t('sendent', 'Via Nextcloud Desktop Client') },
 		],
 	},
 ]

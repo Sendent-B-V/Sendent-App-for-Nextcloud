@@ -26,13 +26,13 @@
 			<input :value="item"
 				type="text"
 				:disabled="disabled"
-				:placeholder="index === items.length - 1 ? 'Add new...' : ''"
+				:placeholder="index === items.length - 1 ? t('sendent', 'Add new …') : ''"
 				@input="onItemInput(index, ($event.target as HTMLInputElement).value)"
 				@change="emitValue">
 			<button v-if="item && !disabled"
 				class="multi-input-list__delete"
 				type="button"
-				title="Remove"
+				:title="t('sendent', 'Remove')"
 				@click="removeItem(index)">
 				×
 			</button>
@@ -41,6 +41,7 @@
 </template>
 
 <script setup lang="ts">
+import { translate as t } from '@nextcloud/l10n'
 import { ref, watch } from 'vue'
 
 const props = defineProps<{

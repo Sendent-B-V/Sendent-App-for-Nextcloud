@@ -19,19 +19,20 @@
   - along with this program. If not, see <http://www.gnu.org/licenses/>.
   -->
 <template>
-	<SettingsSection title="Teams"
+	<SettingsSection :title="t('sendent', 'Teams')"
 		:definitions="definitions"
 		:labels="labels" />
 </template>
 
 <script setup lang="ts">
+import { translate as t } from '@nextcloud/l10n'
 import SettingsSection from '../settings/SettingsSection.vue'
 import { getSettingsForSection } from '../../common/settingsRegistry'
 
 const definitions = getSettingsForSection('Teams')
 
 const labels: Record<string, string> = {
-	teams_pathuploadfiles: 'Path for uploaded files',
-	teams_openfilemode: 'Open files locally via',
+	teams_pathuploadfiles: t('sendent', 'Path for uploaded files'),
+	teams_openfilemode: t('sendent', 'Open files locally via'),
 }
 </script>

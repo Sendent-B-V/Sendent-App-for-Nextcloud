@@ -19,21 +19,22 @@
   - along with this program. If not, see <http://www.gnu.org/licenses/>.
   -->
 <template>
-	<SettingsSection title="Archiving"
+	<SettingsSection :title="t('sendent', 'Archiving')"
 		:definitions="definitions"
 		:labels="labels" />
 </template>
 
 <script setup lang="ts">
+import { translate as t } from '@nextcloud/l10n'
 import SettingsSection from '../settings/SettingsSection.vue'
 import { getSettingsForSection } from '../../common/settingsRegistry'
 
 const definitions = getSettingsForSection('Archiving')
 
 const labels: Record<string, string> = {
-	archivingenabled: 'Activate Archiving',
-	patharchiving: 'Path for Archiving',
-	archivemode: 'Archive mode',
-	archivecreatefolder: 'Archive create folder',
+	archivingenabled: t('sendent', 'Activate Archiving'),
+	patharchiving: t('sendent', 'Path for Archiving'),
+	archivemode: t('sendent', 'Archive mode'),
+	archivecreatefolder: t('sendent', 'Archive create folder'),
 }
 </script>
