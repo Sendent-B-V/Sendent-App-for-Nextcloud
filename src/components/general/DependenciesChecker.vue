@@ -20,14 +20,14 @@
   -->
 <template>
 	<div class="dependencies">
-		<h3>Dependencies</h3>
+		<h3>{{ t('sendent', 'Dependencies') }}</h3>
 		<div v-if="depsStore.loading" class="dependencies__loading">
 			<span class="icon-loading" />
-			Checking dependencies...
+			{{ t('sendent', 'Checking dependencies …') }}
 		</div>
 		<div v-else class="dependencies__columns">
 			<div class="dependencies__group">
-				<h4>Required</h4>
+				<h4>{{ t('sendent', 'Required') }}</h4>
 				<div v-for="app in depsStore.requiredApps"
 					:key="app.id"
 					class="dependencies__item"
@@ -37,7 +37,7 @@
 				</div>
 			</div>
 			<div class="dependencies__group">
-				<h4>Recommended</h4>
+				<h4>{{ t('sendent', 'Recommended') }}</h4>
 				<div v-for="app in depsStore.recommendedApps"
 					:key="app.id"
 					class="dependencies__item"
@@ -51,6 +51,7 @@
 </template>
 
 <script setup lang="ts">
+import { translate as t } from '@nextcloud/l10n'
 import { onMounted } from 'vue'
 import { useDependenciesStore } from '../../stores/dependencies'
 

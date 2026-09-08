@@ -20,10 +20,10 @@
   -->
 <template>
 	<div class="license-section">
-		<h3>License</h3>
+		<h3>{{ t('sendent', 'License') }}</h3>
 		<div v-if="licenseStore.loading" class="license-section__loading">
 			<span class="icon-loading" />
-			Loading license status...
+			{{ t('sendent', 'Loading license status …') }}
 		</div>
 		<template v-else>
 			<!-- Inheritance checkbox for non-default groups -->
@@ -32,35 +32,35 @@
 					<input type="checkbox"
 						:checked="licenseStore.isInherited() && !overrideInherit"
 						@change="onToggleInherit">
-					Use default group license
+					{{ t('sendent', 'Use default group license') }}
 				</label>
 			</div>
 
 			<!-- License form -->
 			<div class="license-section__form">
 				<div class="license-section__field">
-					<label>Email address</label>
+					<label>{{ t('sendent', 'Email address') }}</label>
 					<input v-model="licenseStore.email"
 						type="email"
 						:disabled="isDisabled"
-						placeholder="Enter email address">
+						:placeholder="t('sendent', 'Enter email address')">
 				</div>
 				<div class="license-section__field">
-					<label>License key</label>
+					<label>{{ t('sendent', 'License key') }}</label>
 					<input v-model="licenseStore.licenseKey"
 						type="text"
 						:disabled="isDisabled"
-						placeholder="Enter license key">
+						:placeholder="t('sendent', 'Enter license key')">
 				</div>
 				<div class="license-section__actions">
 					<button class="primary"
 						:disabled="isDisabled || !licenseStore.email || !licenseStore.licenseKey"
 						@click="onActivate">
-						Activate License
+						{{ t('sendent', 'Activate License') }}
 					</button>
 					<button :disabled="isDisabled"
 						@click="onClear">
-						Clear License
+						{{ t('sendent', 'Clear License') }}
 					</button>
 				</div>
 			</div>
@@ -74,6 +74,7 @@
 </template>
 
 <script setup lang="ts">
+import { translate as t } from '@nextcloud/l10n'
 import { computed, ref } from 'vue'
 import { useLicenseStore } from '../../stores/license'
 import { useGroupsStore } from '../../stores/groups'

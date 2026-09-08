@@ -21,14 +21,14 @@
 <template>
 	<div class="product-releases">
 		<div v-if="offlineMode" class="product-releases__offline">
-			OFFLINE mode — release checks are disabled.
+			{{ t('sendent', 'OFFLINE mode — release checks are disabled.') }}
 		</div>
 		<div v-else-if="loading" class="product-releases__loading">
 			<span class="icon-loading" />
-			Loading release info...
+			{{ t('sendent', 'Loading release info …') }}
 		</div>
 		<div v-else-if="Object.keys(releases).length === 0" class="product-releases__empty">
-			No release information available.
+			{{ t('sendent', 'No release information available.') }}
 		</div>
 		<div v-else class="product-releases__grid">
 			<div v-for="product in products"
@@ -57,7 +57,7 @@
 
 					<div class="product-card__body">
 						<div v-if="releases[product.slug].date" class="product-card__info">
-							<span class="product-card__info-label">Released</span>
+							<span class="product-card__info-label">{{ t('sendent', 'Released') }}</span>
 							<span class="product-card__info-value"
 								title="dd-MM-yyyy">{{ formatDate(releases[product.slug].date) }}</span>
 						</div>
@@ -66,14 +66,14 @@
 					<div class="product-card__footer">
 						<button class="button primary"
 							@click="toggleNotes(product.slug)">
-							View release notes
+							{{ t('sendent', 'View release notes') }}
 						</button>
 						<a v-if="product.slug === 'outlook-windows' && hasValidLicense"
 							class="button primary product-card__download"
 							:href="'https://download.sendent.com/addin/' + extractVersion(releases[product.slug].title) + '/Sendent_Outlook.zip'"
 							target="_blank"
 							rel="noopener noreferrer">
-							Download
+							{{ t('sendent', 'Download') }}
 						</a>
 					</div>
 				</div>
@@ -100,6 +100,7 @@
 </template>
 
 <script setup lang="ts">
+import { translate as t } from '@nextcloud/l10n'
 import { ref, computed, watch } from 'vue'
 import type { ReleaseEntry } from '../../types/releases'
 import { fetchLatestReleases } from '../../services/releasesApi'

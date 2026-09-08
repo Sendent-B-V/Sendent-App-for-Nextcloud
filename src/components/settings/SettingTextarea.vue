@@ -25,12 +25,12 @@
 				class="setting-textarea__open"
 				:disabled="disabled"
 				@click="openModal">
-				Edit template
+				{{ t('sendent', 'Edit template') }}
 			</button>
 			<button class="setting-textarea__reset"
 				:disabled="disabled"
 				@click="$emit('reset')">
-				Reset to default
+				{{ t('sendent', 'Reset to default') }}
 			</button>
 		</div>
 		<Teleport to="body">
@@ -43,11 +43,11 @@
 				<div class="sendent-editor-modal__dialog">
 					<header class="sendent-editor-modal__header">
 						<h2 :id="titleId" class="sendent-editor-modal__title">
-							Edit template
+							{{ t('sendent', 'Edit template') }}
 						</h2>
 						<button type="button"
 							class="sendent-editor-modal__close"
-							aria-label="Close"
+							:aria-label="t('sendent', 'Close')"
 							@click="closeModal">
 							×
 						</button>
@@ -59,12 +59,12 @@
 						<button type="button"
 							class="sendent-editor-modal__btn"
 							@click="closeModal">
-							Close
+							{{ t('sendent', 'Close') }}
 						</button>
 						<button type="button"
 							class="sendent-editor-modal__btn sendent-editor-modal__btn--primary"
 							@click="save">
-							Save
+							{{ t('sendent', 'Save') }}
 						</button>
 					</footer>
 				</div>
@@ -74,6 +74,7 @@
 </template>
 
 <script setup lang="ts">
+import { translate as t } from '@nextcloud/l10n'
 import { nextTick, ref, toRef, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useTinyMce } from '../../composables/useTinyMce'

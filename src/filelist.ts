@@ -20,6 +20,7 @@
  */
 import './filelist.scss'
 import { generateUrl } from '@nextcloud/router'
+import { translate as t } from '@nextcloud/l10n'
 import { getNavigation } from '@nextcloud/files'
 import { subscribe } from '@nextcloud/event-bus'
 import axios from '@nextcloud/axios'
@@ -119,7 +120,7 @@ class FooterFile {
 			// Add a "Message" header so it's clear this is the email body
 			const header = document.createElement('h3')
 			header.className = 'sendent-content__header'
-			header.textContent = 'Message'
+			header.textContent = t('sendent', 'Message')
 			container.appendChild(header)
 
 			container.appendChild(this.generateIframeElement(content))

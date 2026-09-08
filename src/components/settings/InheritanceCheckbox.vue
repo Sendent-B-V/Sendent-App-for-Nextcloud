@@ -24,12 +24,13 @@
 			<input type="checkbox"
 				:checked="inherited"
 				@change="onToggle">
-			Use default group settings
+			{{ t('sendent', 'Use default group settings') }}
 		</label>
 	</div>
 </template>
 
 <script setup lang="ts">
+import { translate as t } from '@nextcloud/l10n'
 defineProps<{
 	inherited: boolean
 	showCheckbox: boolean

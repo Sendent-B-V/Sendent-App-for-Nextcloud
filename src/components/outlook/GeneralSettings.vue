@@ -32,7 +32,7 @@ import { getSettingsForSection } from '../../common/settingsRegistry'
 const definitions = getSettingsForSection('General')
 
 const labels: Record<string, string> = {
-	setlanguage: t('sendent', 'Language'),
+	setlanguage: t('sendent', 'Add-in language'),
 	insertatcursor: t('sendent', 'Insert snippet location'),
 	dateaddition: t('sendent', 'Add upload date to folder path'),
 	debugmode: t('sendent', 'Debug mode'),

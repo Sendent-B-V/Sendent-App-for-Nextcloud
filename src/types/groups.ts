@@ -21,4 +21,6 @@
 export interface GroupItem {
 	displayName: string
 	gid: string
+	/** Set by the backend when the Nextcloud group no longer exists */
+	deleted?: boolean
 }
