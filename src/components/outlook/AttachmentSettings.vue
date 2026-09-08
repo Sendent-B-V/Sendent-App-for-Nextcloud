@@ -19,20 +19,21 @@
   - along with this program. If not, see <http://www.gnu.org/licenses/>.
   -->
 <template>
-	<SettingsSection title="Attachments"
+	<SettingsSection :title="t('sendent', 'Attachments')"
 		:definitions="definitions"
 		:labels="labels" />
 </template>
 
 <script setup lang="ts">
+import { translate as t } from '@nextcloud/l10n'
 import SettingsSection from '../settings/SettingsSection.vue'
 import { getSettingsForSection } from '../../common/settingsRegistry'
 
 const definitions = getSettingsForSection('Attachments')
 
 const labels: Record<string, string> = {
-	attachmentmode: 'Attachment mode',
-	attachmentsize: 'Maximum attachment size (MB)',
-	senderexceptions: 'Sender exceptions',
+	attachmentmode: t('sendent', 'Attachment mode'),
+	attachmentsize: t('sendent', 'Maximum attachment size (MB)'),
+	senderexceptions: t('sendent', 'Sender exceptions'),
 }
 </script>
