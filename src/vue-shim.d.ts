@@ -26,7 +26,6 @@ declare module '*.vue' {
 
 declare module '@nextcloud/vue/*'
 declare module '@nextcloud/router'
-declare module '@nextcloud/l10n'
 declare module '@nextcloud/logger'
 declare module '@nextcloud/initial-state'
 declare module '@nextcloud/password-confirmation'
