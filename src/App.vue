@@ -25,7 +25,7 @@
 
 		<!-- Main app content -->
 		<template v-if="termsStore.agreed">
-			<h2>Sendent for Outlook / Teams</h2>
+			<h2>{{ t('sendent', 'Sendent for Outlook / Teams') }}</h2>
 			<TabContainer :tabs="mainTabs" default-tab="general" hash-key="tab">
 				<template #general>
 					<GeneralTab />
@@ -44,6 +44,7 @@
 </template>
 
 <script setup lang="ts">
+import { translate as t } from '@nextcloud/l10n'
 import { onMounted } from 'vue'
 import { useTermsStore } from './stores/terms'
 import { useGroupsStore } from './stores/groups'
@@ -60,8 +61,8 @@ const licenseStore = useLicenseStore()
 const retentionStore = useRetentionStore()
 
 const mainTabs = [
-	{ id: 'general', label: 'General' },
-	{ id: 'groups', label: 'Group Settings' },
+	{ id: 'general', label: t('sendent', 'General') },
+	{ id: 'groups', label: t('sendent', 'Group Settings') },
 ]
 
 onMounted(async () => {

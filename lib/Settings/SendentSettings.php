@@ -152,7 +152,8 @@ class SendentSettings implements ISettings {
 			} else {
 				return [
 					'displayName' => $this->l->t('%s *** DELETED GROUP ***', [$gid]),
-					'gid' => $gid
+					'gid' => $gid,
+					'deleted' => true
 				];
 			}
 		}, $sendentGroups);
