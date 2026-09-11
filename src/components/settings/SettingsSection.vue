@@ -24,7 +24,7 @@
 			{{ title }}
 		</h3>
 		<p class="settings-section__autosave">
-			Changes are saved automatically
+			{{ t('sendent', 'Changes are saved automatically') }}
 		</p>
 		<SettingField v-for="def in definitions"
 			:key="def.key"
@@ -34,6 +34,7 @@
 </template>
 
 <script setup lang="ts">
+import { translate as t } from '@nextcloud/l10n'
 import type { SettingDefinition } from '../../types/settings'
 import SettingField from './SettingField.vue'
 

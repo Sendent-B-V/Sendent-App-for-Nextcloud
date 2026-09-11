@@ -73,7 +73,7 @@ export const useGroupsStore = defineStore('groups', () => {
 		if (index === -1) return
 		const [group] = sendentGroups.value.splice(index, 1)
 		// Only add back if not a deleted group
-		if (!group.displayName.includes('*** DELETED GROUP ***')) {
+		if (!group.deleted) {
 			ncGroups.value.push(group)
 			ncGroups.value.sort((a, b) => a.gid.localeCompare(b.gid))
 		}

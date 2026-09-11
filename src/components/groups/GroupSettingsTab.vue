@@ -23,30 +23,30 @@
 		<GroupsManagement />
 		<div v-if="settingsStore.loading" class="group-settings-tab__loading">
 			<span class="icon-loading" />
-			Loading settings...
+			{{ t('sendent', 'Loading settings …') }}
 		</div>
 		<div v-else class="group-settings-tab__content">
 			<TabContainer :tabs="subtabs" default-tab="license" hash-key="subtab">
 				<template #license>
 					<DocumentationLink :links="[
-						{ href: 'https://help.sendent.com/sendent-app-for-nextcloud-outlook-ms-teams/how-to-configure-your-license-information-on-the-sendent-server-app', label: 'How to configure your license' },
+						{ href: 'https://help.sendent.com/sendent-app-for-nextcloud-outlook-ms-teams/how-to-configure-your-license-information-on-the-sendent-server-app', label: t('sendent', 'How to configure your license') },
 					]" />
-					<h3 class="group-settings-tab__active-group">Editing: {{ groupsStore.selectedGroup?.displayName || 'Default' }}</h3>
+					<h3 class="group-settings-tab__active-group">{{ editingHeading }}</h3>
 					<LicenseSection />
 				</template>
 				<template #outlook>
 					<DocumentationLink :links="[
-						{ href: 'https://help.sendent.com/sendent-for-outlook-cross-platform/3019/getting-started-administrator', label: 'Cross-Platform Outlook' },
-						{ href: 'https://help.sendent.com/sendent-for-outlook-windows-only/3021/getting-started-administrator', label: 'Windows Only Outlook Classic' },
+						{ href: 'https://help.sendent.com/sendent-for-outlook-cross-platform/3019/getting-started-administrator', label: t('sendent', 'Cross-Platform Outlook') },
+						{ href: 'https://help.sendent.com/sendent-for-outlook-windows-only/3021/getting-started-administrator', label: t('sendent', 'Windows Only Outlook Classic') },
 					]" />
-					<h3 class="group-settings-tab__active-group">Editing: {{ groupsStore.selectedGroup?.displayName || 'Default' }}</h3>
+					<h3 class="group-settings-tab__active-group">{{ editingHeading }}</h3>
 					<OutlookSettingsTab />
 				</template>
 				<template #teams>
 					<DocumentationLink :links="[
-						{ href: 'https://help.sendent.com/sendent-for-ms-teams/3024/getting-started-administrator', label: 'Sendent for Microsoft Teams' },
+						{ href: 'https://help.sendent.com/sendent-for-ms-teams/3024/getting-started-administrator', label: t('sendent', 'Sendent for Microsoft Teams') },
 					]" />
-					<h3 class="group-settings-tab__active-group">Editing: {{ groupsStore.selectedGroup?.displayName || 'Default' }}</h3>
+					<h3 class="group-settings-tab__active-group">{{ editingHeading }}</h3>
 					<TeamsSettingsTab />
 				</template>
 			</TabContainer>
@@ -55,6 +55,8 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
+import { translate as t } from '@nextcloud/l10n'
 import { useSettingsStore } from '../../stores/settings'
 import { useGroupsStore } from '../../stores/groups'
 import GroupsManagement from './GroupsManagement.vue'
@@ -67,10 +69,16 @@ import TeamsSettingsTab from '../teams/TeamsSettingsTab.vue'
 const settingsStore = useSettingsStore()
 const groupsStore = useGroupsStore()
 
+/** "Editing: <group>" heading. Rendered as text, so placeholder escaping and sanitizing are disabled. */
+const editingHeading = computed(() => {
+	const group = groupsStore.selectedGroup?.displayName || t('sendent', 'Default')
+	return t('sendent', 'Editing: {group}', { group }, undefined, { escape: false, sanitize: false })
+})
+
 const subtabs = [
-	{ id: 'license', label: 'License' },
-	{ id: 'outlook', label: 'Outlook Settings' },
-	{ id: 'teams', label: 'Teams Settings' },
+	{ id: 'license', label: t('sendent', 'License') },
+	{ id: 'outlook', label: t('sendent', 'Outlook Settings') },
+	{ id: 'teams', label: t('sendent', 'Teams Settings') },
 ]
 </script>
 

@@ -29,6 +29,7 @@
 </template>
 
 <script setup lang="ts">
+import { translate as t } from '@nextcloud/l10n'
 interface DocLink {
 	href: string
 	label: string
@@ -37,7 +38,7 @@ interface DocLink {
 withDefaults(defineProps<{
 	links: DocLink[]
 	intro?: string
-}>(), { intro: 'Find the latest documentation:' })
+}>(), { intro: t('sendent', 'Find the latest documentation:') })
 </script>
 
 <style scoped>

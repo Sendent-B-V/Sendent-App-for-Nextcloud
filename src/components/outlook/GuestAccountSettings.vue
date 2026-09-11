@@ -19,22 +19,23 @@
   - along with this program. If not, see <http://www.gnu.org/licenses/>.
   -->
 <template>
-	<SettingsSection title="Guest Accounts"
+	<SettingsSection :title="t('sendent', 'Guest Accounts')"
 		:definitions="definitions"
 		:labels="labels" />
 </template>
 
 <script setup lang="ts">
+import { translate as t } from '@nextcloud/l10n'
 import SettingsSection from '../settings/SettingsSection.vue'
 import { getSettingsForSection } from '../../common/settingsRegistry'
 
 const definitions = getSettingsForSection('GuestAccounts')
 
 const labels: Record<string, string> = {
-	guestaccountsenabled: 'Activate Guest Accounts',
-	guestaccountsenforced: 'Enforce Guest Accounts',
-	disableanonymousshare: 'Disable anonymous share',
-	htmlsnippetguestaccounts: 'Guest accounts snippet',
-	htmlsnippetpublicaccounts: 'Public accounts snippet',
+	guestaccountsenabled: t('sendent', 'Activate Guest Accounts'),
+	guestaccountsenforced: t('sendent', 'Enforce Guest Accounts'),
+	disableanonymousshare: t('sendent', 'Disable anonymous share'),
+	htmlsnippetguestaccounts: t('sendent', 'Guest accounts snippet'),
+	htmlsnippetpublicaccounts: t('sendent', 'Public accounts snippet'),
 }
 </script>

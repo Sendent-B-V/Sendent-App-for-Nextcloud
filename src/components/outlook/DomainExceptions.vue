@@ -19,20 +19,21 @@
   - along with this program. If not, see <http://www.gnu.org/licenses/>.
   -->
 <template>
-	<SettingsSection title="Domain Exceptions"
+	<SettingsSection :title="t('sendent', 'Domain Exceptions')"
 		:definitions="definitions"
 		:labels="labels" />
 </template>
 
 <script setup lang="ts">
+import { translate as t } from '@nextcloud/l10n'
 import SettingsSection from '../settings/SettingsSection.vue'
 import { getSettingsForSection } from '../../common/settingsRegistry'
 
 const definitions = getSettingsForSection('DomainExceptions')
 
 const labels: Record<string, string> = {
-	attachmentdomainexceptionsinternal: 'Internal domain exceptions',
-	attachmentdomainexceptions: 'External domain exceptions',
-	attachmentdomainexceptionsexternalpopup: 'External domain exceptions popup',
+	attachmentdomainexceptionsinternal: t('sendent', 'Internal domain exceptions'),
+	attachmentdomainexceptions: t('sendent', 'External domain exceptions'),
+	attachmentdomainexceptionsexternalpopup: t('sendent', 'External domain exceptions popup'),
 }
 </script>

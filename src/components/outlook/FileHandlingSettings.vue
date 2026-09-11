@@ -19,22 +19,23 @@
   - along with this program. If not, see <http://www.gnu.org/licenses/>.
   -->
 <template>
-	<SettingsSection title="File Handling"
+	<SettingsSection :title="t('sendent', 'File Handling')"
 		:definitions="definitions"
 		:labels="labels" />
 </template>
 
 <script setup lang="ts">
+import { translate as t } from '@nextcloud/l10n'
 import SettingsSection from '../settings/SettingsSection.vue'
 import { getSettingsForSection } from '../../common/settingsRegistry'
 
 const definitions = getSettingsForSection('FileHandling')
 
 const labels: Record<string, string> = {
-	pathuploadfiles: 'Path for uploaded files',
-	sharefilehtml: 'File share snippet',
-	pathpublicshare: 'Path for public share',
-	sharefolderhtml: 'Folder share snippet',
-	enforceFiledrop: 'Enforce file drop',
+	pathuploadfiles: t('sendent', 'Path for uploaded files'),
+	sharefilehtml: t('sendent', 'File share snippet'),
+	pathpublicshare: t('sendent', 'Path for public share'),
+	sharefolderhtml: t('sendent', 'Folder share snippet'),
+	enforceFiledrop: t('sendent', 'Enforce file drop'),
 }
 </script>

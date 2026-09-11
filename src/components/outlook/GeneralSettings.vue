@@ -19,28 +19,29 @@
   - along with this program. If not, see <http://www.gnu.org/licenses/>.
   -->
 <template>
-	<SettingsSection title="General"
+	<SettingsSection :title="t('sendent', 'General')"
 		:definitions="definitions"
 		:labels="labels" />
 </template>
 
 <script setup lang="ts">
+import { translate as t } from '@nextcloud/l10n'
 import SettingsSection from '../settings/SettingsSection.vue'
 import { getSettingsForSection } from '../../common/settingsRegistry'
 
 const definitions = getSettingsForSection('General')
 
 const labels: Record<string, string> = {
-	setlanguage: 'Language',
-	insertatcursor: 'Insert snippet location',
-	dateaddition: 'Add upload date to folder path',
-	debugmode: 'Debug mode',
-	disablesettings: 'Access to settings',
-	passwordcontrolbehavior: 'Password control behavior',
-	sendmode: 'Password communication mode',
-	htmlsnippetpassword: 'Password communication snippet',
-	statussync: 'Presence Synchronization',
-	sharedaysenabled: 'Share expiration days',
-	sharedays: 'Number of days',
+	setlanguage: t('sendent', 'Add-in language'),
+	insertatcursor: t('sendent', 'Insert snippet location'),
+	dateaddition: t('sendent', 'Add upload date to folder path'),
+	debugmode: t('sendent', 'Debug mode'),
+	disablesettings: t('sendent', 'Access to settings'),
+	passwordcontrolbehavior: t('sendent', 'Password control behavior'),
+	sendmode: t('sendent', 'Password communication mode'),
+	htmlsnippetpassword: t('sendent', 'Password communication snippet'),
+	statussync: t('sendent', 'Presence Synchronization'),
+	sharedaysenabled: t('sendent', 'Share expiration days'),
+	sharedays: t('sendent', 'Number of days'),
 }
 </script>
