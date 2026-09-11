@@ -190,6 +190,10 @@ class InitialLoadManager {
 			if ($this->SettingKeyMapper->settingKeyCount('5') < 1) {
 				$this->addSenderExceptionSettings();
 			}
+			if ($this->SettingKeyMapper->settingKeyCount('800') < 1) {
+				$this->logger->info('email signature settingkeys (800/801) not present, creating them. ');
+				$this->addEmailSignatureSettings();
+			}
 			// NOTE: key 204 is the sentinel initialLoadSucceeded() uses to detect a
 			// completed run. If you add creation steps below this block, move the
 			// sentinel to the new last key.
@@ -716,6 +720,12 @@ class InitialLoadManager {
 		$this->createKey('600', 'securemailuimode', '0', 'select-one');
 		$this->createGroupValue('0', '600', 'toolbar');
 	}
+	public function addEmailSignatureSettings(): void {
+		$this->createKey('800', 'enablesignaturepush', '0', 'select-one');
+		$this->createGroupValue('0', '800', 'False');
+		$this->createKey('801', 'signaturehtml', '0', 'textarea');
+		$this->createGroupValue('0', '801', $this->getsignaturehtml());
+	}
 	public function createKey(string $key, string $name, string $templatekey, string $valuetype) {
 		try {
 			$SettingKey = new settingkey();
@@ -859,6 +869,10 @@ class InitialLoadManager {
 		return $this->getHTMLTemplate('htmlsnippetpublicaccounts');
 	}
 
+	public function getsignaturehtml(): string {
+		return $this->getHTMLTemplate('signaturehtml');
+	}
+
 	/**
 	 * Return the factory-default HTML for a textarea setting key, or null if the key
 	 * has no hardcoded HTML default (e.g. non-template settings).
@@ -875,6 +889,7 @@ class InitialLoadManager {
 				case 303: return $this->getguestaccountspublicsharehtml();
 				case 203: return $this->gethtmltalksnippet();
 				case 210: return $this->gethtmltalkpwsnippet();
+				case 801: return $this->getsignaturehtml();
 				default: return null;
 			}
 		} catch (Exception $e) {

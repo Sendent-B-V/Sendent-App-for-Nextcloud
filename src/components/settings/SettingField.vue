@@ -62,6 +62,8 @@
 			<SettingTextarea v-else-if="definition.inputType === 'textarea'"
 				:model-value="localValue"
 				:disabled="disabled"
+				:template-variables="definition.templateVariables"
+				:signature-mode="definition.signatureMode"
 				@save="onTextareaSave"
 				@reset="onTextareaReset" />
 		</div>

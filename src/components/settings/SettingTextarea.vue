@@ -53,7 +53,28 @@
 						</button>
 					</header>
 					<div class="sendent-editor-modal__body">
-						<div ref="editorRef" />
+						<div v-if="signatureMode" class="sendent-editor-modal__tabs">
+							<button type="button"
+								class="sendent-editor-modal__tab"
+								:class="{ 'sendent-editor-modal__tab--active': activeTab === 'template' }"
+								:aria-pressed="activeTab === 'template'"
+								@click="activeTab = 'template'">
+								Template
+							</button>
+							<button type="button"
+								class="sendent-editor-modal__tab"
+								:class="{ 'sendent-editor-modal__tab--active': activeTab === 'preview' }"
+								:aria-pressed="activeTab === 'preview'"
+								@click="openPreviewTab">
+								Preview
+							</button>
+						</div>
+						<div v-show="!signatureMode || activeTab === 'template'">
+							<div ref="editorRef" />
+						</div>
+						<div v-if="signatureMode && activeTab === 'preview'" class="sendent-editor-modal__preview">
+							<SignaturePreview :template="previewTemplate" />
+						</div>
 					</div>
 					<footer class="sendent-editor-modal__footer">
 						<button type="button"
@@ -78,10 +99,13 @@ import { nextTick, ref, toRef, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useTinyMce } from '../../composables/useTinyMce'
 import { useDependenciesStore } from '../../stores/dependencies'
+import SignaturePreview from './SignaturePreview.vue'
 
 const props = defineProps<{
 	modelValue: string
 	disabled: boolean
+	templateVariables?: string[]
+	signatureMode?: boolean
 }>()
 
 const { themingLogoUrl } = storeToRefs(useDependenciesStore())
@@ -95,6 +119,8 @@ const showModal = ref(false)
 const editorRef = ref<HTMLElement | null>(null)
 const triggerRef = ref<HTMLButtonElement | null>(null)
 const titleId = `sendent-editor-title-${crypto.randomUUID().slice(0, 8)}`
+const activeTab = ref<'template' | 'preview'>('template')
+const previewTemplate = ref('')
 
 let previouslyFocused: HTMLElement | null = null
 
@@ -103,6 +129,8 @@ const { getContent } = useTinyMce({
 	value: toRef(props, 'modelValue'),
 	disabled: toRef(props, 'disabled'),
 	logoUrl: themingLogoUrl,
+	variables: props.templateVariables,
+	signatureMode: props.signatureMode,
 })
 
 function openModal() {
@@ -114,6 +142,8 @@ function openModal() {
 
 function closeModal() {
 	showModal.value = false
+	activeTab.value = 'template'
+	previewTemplate.value = ''
 	nextTick(() => {
 		previouslyFocused?.focus()
 		previouslyFocused = null
@@ -124,6 +154,12 @@ function save() {
 	const content = getContent()
 	emit('save', content)
 	closeModal()
+}
+
+/** Snapshot the current editor content and switch to the preview tab. */
+function openPreviewTab() {
+	previewTemplate.value = getContent()
+	activeTab.value = 'preview'
 }
 
 function onEscape(event: KeyboardEvent) {
@@ -275,6 +311,33 @@ watch(showModal, (isOpen) => {
 	background: var(--color-primary-element);
 	color: white;
 	border-color: var(--color-primary-element);
+}
+
+.sendent-editor-modal__tabs {
+	display: flex;
+	gap: 4px;
+	margin-bottom: 12px;
+	border-bottom: 1px solid var(--color-border, #e0e0e0);
+}
+
+.sendent-editor-modal__tab {
+	padding: 6px 14px;
+	font-size: 13px;
+	background: none;
+	border: none;
+	border-bottom: 2px solid transparent;
+	cursor: pointer;
+	color: var(--color-main-text, inherit);
+}
+
+.sendent-editor-modal__tab--active {
+	border-bottom-color: var(--color-primary-element);
+	color: var(--color-primary-element);
+	font-weight: 600;
+}
+
+.sendent-editor-modal__preview :deep(.signature-preview) {
+	max-width: none;
 }
 </style>
 

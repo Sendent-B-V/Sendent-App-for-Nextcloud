@@ -29,6 +29,7 @@ export type Section =
 	| 'FileHandling'
 	| 'SecureMail'
 	| 'GuestAccounts'
+	| 'EmailSignature'
 	| 'AdvancedTheming'
 	| 'Teams'
 
@@ -51,6 +52,10 @@ export interface SettingDefinition {
 	options?: SelectOption[]
 	visibilityRule?: VisibilityRule
 	defaultValue?: string
+	/** Placeholder tags offered by the TinyMCE "Insert variable" menu for this field. */
+	templateVariables?: string[]
+	/** Restrict the TinyMCE editor to email-signature-safe HTML. */
+	signatureMode?: boolean
 }
 
 export interface SettingValue {
