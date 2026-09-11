@@ -30,54 +30,61 @@
 		<div v-else-if="Object.keys(releases).length === 0" class="product-releases__empty">
 			No release information available.
 		</div>
-		<div v-else class="product-releases__grid">
-			<div v-for="product in products"
-				:key="product.slug"
-				class="product-card"
-				:class="'product-card--' + product.slug">
-				<div v-if="releases[product.slug]" class="product-card__content">
-					<div class="product-card__header">
-						<div class="product-card__title">
-							<h3>{{ product.label }}</h3>
-							<div class="product-card__badges">
-								<div class="product-card__version-badge">
-									v{{ extractVersion(releases[product.slug].title) }}
+		<div v-else class="product-releases__sections">
+			<section v-for="section in sections"
+				:key="section.title"
+				class="product-releases__section">
+				<h3 class="product-releases__section-title">
+					{{ section.title }}
+				</h3>
+				<div class="product-releases__grid">
+					<div v-for="product in section.products"
+						:key="product.slug"
+						class="product-card"
+						:class="'product-card--' + product.slug">
+						<div class="product-card__content">
+							<div class="product-card__header">
+								<h4 class="product-card__name">
+									{{ product.label }}
+								</h4>
+								<div class="product-card__badges">
+									<div class="product-card__version-badge">
+										v{{ extractVersion(releases[product.slug].title) }}
+									</div>
+									<div v-if="releases[product.slug].tags?.length" class="product-card__tags">
+										<span v-for="tag in releases[product.slug].tags"
+											:key="tag"
+											class="product-card__tag"
+											:class="{ 'product-card__tag--important': tag.toLowerCase() === 'important' }">
+											{{ tag }}
+										</span>
+									</div>
 								</div>
-								<div v-if="releases[product.slug].tags?.length" class="product-card__tags">
-									<span v-for="tag in releases[product.slug].tags"
-										:key="tag"
-										class="product-card__tag"
-										:class="{ 'product-card__tag--important': tag.toLowerCase() === 'important' }">
-										{{ tag }}
-									</span>
-								</div>
+							</div>
+
+							<div v-if="releases[product.slug].date" class="product-card__info">
+								<span class="product-card__info-label">Released</span>
+								<span class="product-card__info-value"
+									title="dd-MM-yyyy">{{ formatDate(releases[product.slug].date) }}</span>
+							</div>
+
+							<div class="product-card__footer">
+								<button class="button primary"
+									@click="toggleNotes(product.slug)">
+									View release notes
+								</button>
+								<a v-if="product.slug === 'outlook-windows' && hasValidLicense"
+									class="button primary product-card__download"
+									:href="'https://download.sendent.com/addin/' + extractVersion(releases[product.slug].title) + '/Sendent_Outlook.zip'"
+									target="_blank"
+									rel="noopener noreferrer">
+									Download
+								</a>
 							</div>
 						</div>
 					</div>
-
-					<div class="product-card__body">
-						<div v-if="releases[product.slug].date" class="product-card__info">
-							<span class="product-card__info-label">Released</span>
-							<span class="product-card__info-value"
-								title="dd-MM-yyyy">{{ formatDate(releases[product.slug].date) }}</span>
-						</div>
-					</div>
-
-					<div class="product-card__footer">
-						<button class="button primary"
-							@click="toggleNotes(product.slug)">
-							View release notes
-						</button>
-						<a v-if="product.slug === 'outlook-windows' && hasValidLicense"
-							class="button primary product-card__download"
-							:href="'https://download.sendent.com/addin/' + extractVersion(releases[product.slug].title) + '/Sendent_Outlook.zip'"
-							target="_blank"
-							rel="noopener noreferrer">
-							Download
-						</a>
-					</div>
 				</div>
-			</div>
+			</section>
 		</div>
 
 		<!-- Release notes modal -->
@@ -106,11 +113,18 @@ import { fetchLatestReleases } from '../../services/releasesApi'
 import { formatDate } from '../../utils/date-utils'
 import { useLicenseStore } from '../../stores/license'
 
-const products = [
-	{ slug: 'outlook-cross-platform', label: 'Outlook (Cross-Platform)' },
+const mailProducts = [
 	{ slug: 'outlook-windows', label: 'Outlook (Windows)' },
+	{ slug: 'outlook-cross-platform', label: 'Outlook (Cross-Platform)' },
+	{ slug: 'thunderbird', label: 'Thunderbird' },
+	{ slug: 'mac-mail', label: 'Mac Mail' },
+]
+
+const teamsProducts = [
 	{ slug: 'ms-teams', label: 'MS Teams' },
 ]
+
+const products = [...mailProducts, ...teamsProducts]
 
 const licenseStore = useLicenseStore()
 const releases = ref<Record<string, ReleaseEntry>>({})
@@ -121,6 +135,13 @@ const activeNotesSlug = ref('')
 const activeProductLabel = computed(() =>
 	products.find(p => p.slug === activeNotesSlug.value)?.label ?? '',
 )
+
+// Only show cards for products that actually have release data,
+// and hide a section entirely when none of its products do.
+const sections = computed(() => [
+	{ title: 'Mail clients', products: mailProducts.filter(p => releases.value[p.slug]) },
+	{ title: 'Teams', products: teamsProducts.filter(p => releases.value[p.slug]) },
+].filter(section => section.products.length > 0))
 
 /**
  * Extracts a version number from a release title like "Release Notes v2.3.0"
@@ -187,11 +208,23 @@ watch(() => licenseStore.loading, async (isLoading) => {
 	border: 1px dashed var(--color-border);
 }
 
+.product-releases__section {
+	margin-bottom: 20px;
+}
+
+.product-releases__section-title {
+	font-size: 13px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	color: var(--color-text-maxcontrast);
+	margin: 0 0 8px 0;
+}
+
 .product-releases__grid {
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-	gap: 24px;
-	margin-bottom: 32px;
+	grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+	gap: 12px;
 }
 
 .product-card {
@@ -211,7 +244,7 @@ watch(() => licenseStore.loading, async (isLoading) => {
 	top: 0;
 	left: 0;
 	right: 0;
-	height: 4px;
+	height: 3px;
 	background: var(--color-primary-element);
 	border-radius: var(--border-radius-large) var(--border-radius-large) 0 0;
 }
@@ -219,6 +252,14 @@ watch(() => licenseStore.loading, async (isLoading) => {
 .product-card--outlook-cross-platform::before,
 .product-card--outlook-windows::before {
 	background-color: #0078d4;
+}
+
+.product-card--thunderbird::before {
+	background-color: #0a84ff;
+}
+
+.product-card--mac-mail::before {
+	background-color: #34aadc;
 }
 
 .product-card--ms-teams::before {
@@ -230,20 +271,20 @@ watch(() => licenseStore.loading, async (isLoading) => {
 }
 
 .product-card__content {
-	padding: 24px;
+	padding: 12px 14px;
 	display: flex;
 	flex-direction: column;
 	flex-grow: 1;
 }
 
 .product-card__header {
-	margin-bottom: 20px;
+	margin-bottom: 8px;
 }
 
-.product-card__title h3 {
-	font-size: 18px;
+.product-card__name {
+	font-size: 14px;
 	font-weight: 600;
-	margin: 0 0 10px 0;
+	margin: 0 0 6px 0;
 	color: var(--color-text-main);
 }
 
@@ -287,19 +328,15 @@ watch(() => licenseStore.loading, async (isLoading) => {
 	border-color: #c00;
 }
 
-.product-card__body {
-	flex-grow: 1;
-	margin-bottom: 24px;
-}
-
 .product-card__info {
 	display: flex;
-	flex-direction: column;
-	gap: 2px;
+	align-items: baseline;
+	gap: 6px;
+	margin-bottom: 10px;
 }
 
 .product-card__info-label {
-	font-size: 11px;
+	font-size: 10px;
 	text-transform: uppercase;
 	letter-spacing: 0.5px;
 	color: var(--color-text-maxcontrast);
@@ -307,15 +344,12 @@ watch(() => licenseStore.loading, async (isLoading) => {
 }
 
 .product-card__info-value {
-	font-size: 14px;
+	font-size: 12px;
 	color: var(--color-text-main);
 }
 
 .product-card__footer {
 	margin-top: auto;
-}
-
-.product-card__footer {
 	display: flex;
 	gap: 8px;
 }
@@ -329,6 +363,13 @@ watch(() => licenseStore.loading, async (isLoading) => {
 	flex: 1;
 	text-align: center;
 	text-decoration: none;
+}
+
+.product-card__footer button,
+.product-card__footer .product-card__download {
+	min-height: 32px;
+	padding: 4px 12px;
+	font-size: 13px;
 }
 
 /* Release notes modal */
