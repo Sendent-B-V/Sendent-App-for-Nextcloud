@@ -36,8 +36,15 @@ import { generateUrl } from '@nextcloud/router'
 import SettingsSection from '../settings/SettingsSection.vue'
 import { getSettingsForSection } from '../../common/settingsRegistry'
 import { useDependenciesStore } from '../../stores/dependencies'
+import type { Client } from '../../types/settings'
+
+const props = defineProps<{
+	/** Settings tab that renders this section. Settings restricted to other clients are skipped. */
+	client: Client
+}>()
 
 const definitions = getSettingsForSection('GuestAccounts')
+	.filter(def => !def.clients || def.clients.includes(props.client))
 
 const labels: Record<string, string> = {
 	guestaccountsenabled: t('sendent', 'Activate Guest Accounts'),

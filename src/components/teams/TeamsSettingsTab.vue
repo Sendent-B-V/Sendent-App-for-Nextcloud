@@ -19,14 +19,18 @@
   - along with this program. If not, see <http://www.gnu.org/licenses/>.
   -->
 <template>
-	<SettingsSection :title="t('sendent', 'Teams')"
-		:definitions="definitions"
-		:labels="labels" />
+	<div class="teams-settings-tab">
+		<SettingsSection :title="t('sendent', 'Teams')"
+			:definitions="definitions"
+			:labels="labels" />
+		<GuestAccountSettings client="teams" />
+	</div>
 </template>
 
 <script setup lang="ts">
 import { translate as t } from '@nextcloud/l10n'
 import SettingsSection from '../settings/SettingsSection.vue'
+import GuestAccountSettings from '../outlook/GuestAccountSettings.vue'
 import { getSettingsForSection } from '../../common/settingsRegistry'
 
 const definitions = getSettingsForSection('Teams')
