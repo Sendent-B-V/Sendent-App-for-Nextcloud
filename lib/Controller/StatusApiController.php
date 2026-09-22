@@ -134,7 +134,7 @@ class StatusApiController extends ApiController {
 				}
 			}
 
-		} catch (Exception $e) {
+		} catch (\Exception $e) {
 
 		}
 		// Returns license status

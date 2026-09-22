@@ -48,7 +48,7 @@ class Status implements JsonSerializable {
 	public function __construct() {
 		// add types in constructor
 	}
-	public function jsonSerialize() {
+	public function jsonSerialize(): array {
 		return [
 			'Version' => $this->version,
 			'CurrentUserId' => $this->currentuserid,
