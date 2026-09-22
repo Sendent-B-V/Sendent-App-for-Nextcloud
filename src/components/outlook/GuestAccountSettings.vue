@@ -21,13 +21,21 @@
 <template>
 	<SettingsSection :title="t('sendent', 'Guest Accounts')"
 		:definitions="definitions"
-		:labels="labels" />
+		:labels="labels">
+		<p v-if="guestsAppMissing" class="guest-accounts__warning">
+			{{ t('sendent', 'Guest accounts require the Nextcloud Guests app.') }}
+			<a :href="appsUrl">{{ t('sendent', 'Enable it under Apps') }}</a>
+		</p>
+	</SettingsSection>
 </template>
 
 <script setup lang="ts">
+import { computed, onMounted } from 'vue'
 import { translate as t } from '@nextcloud/l10n'
+import { generateUrl } from '@nextcloud/router'
 import SettingsSection from '../settings/SettingsSection.vue'
 import { getSettingsForSection } from '../../common/settingsRegistry'
+import { useDependenciesStore } from '../../stores/dependencies'
 
 const definitions = getSettingsForSection('GuestAccounts')
 
@@ -38,4 +46,27 @@ const labels: Record<string, string> = {
 	htmlsnippetguestaccounts: t('sendent', 'Guest accounts snippet'),
 	htmlsnippetpublicaccounts: t('sendent', 'Public accounts snippet'),
 }
+
+const depsStore = useDependenciesStore()
+const appsUrl = generateUrl('/settings/apps')
+
+/** False while the capabilities check has not run yet, so nothing is shown until the answer is known. */
+const guestsAppMissing = computed(() => depsStore.recommendedApps.find(app => app.id === 'guests')?.installed === false)
+
+onMounted(() => {
+	// The Dependencies panel on the General tab normally fills the store; fetch here if this tab was opened first.
+	if (depsStore.recommendedApps.length === 0) {
+		depsStore.checkDependencies()
+	}
+})
 </script>
+
+<style scoped>
+.guest-accounts__warning {
+	margin: 0 0 16px;
+	padding: 8px 12px;
+	border-left: 4px solid var(--color-warning);
+	border-radius: var(--border-radius);
+	background-color: var(--color-background-hover);
+}
+</style>

@@ -26,6 +26,7 @@
 		<p class="settings-section__autosave">
 			{{ t('sendent', 'Changes are saved automatically') }}
 		</p>
+		<slot />
 		<SettingField v-for="def in definitions"
 			:key="def.key"
 			:definition="def"
