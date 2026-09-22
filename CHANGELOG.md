@@ -330,3 +330,11 @@
 ## 3.0.21 - 2025-05-02
 ### Feature
 - Added support for Archiving settings.
+
+## 4.6.0 - 2026-09-22
+### Feature
+- Status endpoint reports whether the Nextcloud Guests app is enabled and its version (GuestsAppEnabled, GuestsAppVersion), so the add-ins can tell whether guest accounts can work on this server.
+- Guest Accounts settings show a warning when the Guests app is not enabled. Guests is listed under recommended dependencies.
+- Guest Accounts settings are also available in the Teams settings tab.
+### Fix
+- Building from source inside a Nextcloud installation no longer fails on the server's browserslist configuration.
