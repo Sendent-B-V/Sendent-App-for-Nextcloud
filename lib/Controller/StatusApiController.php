@@ -76,6 +76,14 @@ class StatusApiController extends ApiController {
 		$statusobj->maxusers = 0;
 		$statusobj->currentusers = 0;
 		$statusobj->validLicense = false;
+
+		// Guest accounts are created through the Guests app, so clients need to know
+		// whether it is available. Set before the licence checks so both fields are
+		// present for unlicensed users too.
+		$statusobj->guestsAppEnabled = $this->appManager->isEnabledForUser('guests');
+		$statusobj->guestsAppVersion = $statusobj->guestsAppEnabled
+			? $this->appManager->getAppVersion('guests')
+			: null;
 		try {
 			// Finds out user's license
 			$result = $this->licenseservice->findUserLicense($this->userId);

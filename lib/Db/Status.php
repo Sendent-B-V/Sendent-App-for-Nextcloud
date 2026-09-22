@@ -40,6 +40,11 @@ class Status implements JsonSerializable {
 	public $latestVSTOAddinVersion;
 	public $latestNCAppVersion;
 
+	/** Whether the Nextcloud Guests app (nextcloud/guests) is enabled for the calling user. */
+	public bool $guestsAppEnabled = false;
+	/** Version of the Guests app when it is enabled, otherwise null. */
+	public ?string $guestsAppVersion = null;
+
 	public function __construct() {
 		// add types in constructor
 	}
@@ -56,7 +61,9 @@ class Status implements JsonSerializable {
 			'MaxGraceUsers' => $this->maxusersgrace,
 			'CurrentUserCount' => $this->currentusers,
 			'LatestVSTOAddinVersion' => $this->latestVSTOAddinVersion,
-			'LatestNCAppVersion' => $this->latestNCAppVersion
+			'LatestNCAppVersion' => $this->latestNCAppVersion,
+			'GuestsAppEnabled' => $this->guestsAppEnabled,
+			'GuestsAppVersion' => $this->guestsAppVersion
 		];
 	}
 }
