@@ -43,6 +43,7 @@ const REQUIRED_APPS = [
 const RECOMMENDED_APPS = [
 	{ id: 'activity', name: 'Activity' },
 	{ id: 'spreed', name: 'Talk' },
+	{ id: 'guests', name: 'Guests' },
 ]
 
 export const useDependenciesStore = defineStore('dependencies', () => {
