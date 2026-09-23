@@ -21,7 +21,7 @@
 <template>
 	<div v-if="visible"
 		class="setting-field"
-		:class="{ 'setting-field--block': isBlockInput }">
+		:class="{ 'setting-field--block': isBlockInput, 'setting-field--warning': exceedsNextcloudMaxShareDays }">
 		<div class="setting-field__header">
 			<label class="setting-field__label">{{ label }}</label>
 			<SaveIndicator :saving="saving" :saved="saved" />
@@ -203,6 +203,11 @@ async function onTextareaReset() {
 .setting-field__input input[type="text"],
 .setting-field__input input[type="number"] {
 	width: 100%;
+}
+
+/* Keep the label level with the input text instead of centering it against input + warning */
+.setting-field--warning {
+	align-items: baseline;
 }
 
 .setting-field__warning {
