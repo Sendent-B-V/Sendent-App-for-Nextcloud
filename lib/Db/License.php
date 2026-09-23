@@ -50,7 +50,7 @@ class License extends Entity implements JsonSerializable {
 	public function __construct() {
 		// add types in constructor
 	}
-	public function jsonSerialize() {
+	public function jsonSerialize(): array {
 		return [
 			'id' => $this->id,
 			'licensekey' => $this->licensekey,

@@ -20,6 +20,9 @@
  */
 export type InputType = 'select' | 'text' | 'textarea' | 'color' | 'multiInput' | 'numeric'
 
+/** Add-ins that have their own settings tab. */
+export type Client = 'outlook' | 'teams'
+
 export type Section =
 	| 'General'
 	| 'Talk'
@@ -52,6 +55,8 @@ export interface SettingDefinition {
 	options?: SelectOption[]
 	visibilityRule?: VisibilityRule
 	defaultValue?: string
+	/** Clients whose settings tab shows this setting. Omitted means every client. */
+	clients?: Client[]
 	/** Placeholder tags offered by the TinyMCE "Insert variable" menu for this field. */
 	templateVariables?: string[]
 	/** Restrict the TinyMCE editor to email-signature-safe HTML. */

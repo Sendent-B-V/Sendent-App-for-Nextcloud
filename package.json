@@ -5,6 +5,9 @@
   "author": "Sendent",
   "license": "agpl",
   "private": true,
+  "browserslist": [
+    "defaults"
+  ],
   "scripts": {
     "build": "webpack --node-env production --progress",
     "dev": "webpack --node-env development --progress",

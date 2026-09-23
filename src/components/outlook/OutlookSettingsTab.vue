@@ -28,7 +28,7 @@
 		<AttachmentSettings />
 		<FileHandlingSettings />
 		<SecureMailSettings />
-		<GuestAccountSettings />
+		<GuestAccountSettings client="outlook" />
 		<AdvancedTheming />
 	</div>
 </template>
