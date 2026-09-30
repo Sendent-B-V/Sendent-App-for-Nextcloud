@@ -152,12 +152,7 @@ export const settingsRegistry: SettingDefinition[] = [
 		],
 	},
 	{
-		key: 402,
-		name: 'presencedomains',
-		templateId: 0,
-		section: 'General',
-		inputType: 'multiInput',
-		visibilityRule: { dependsOn: 'statussync', showWhen: 'True' },
+		key: 402, name: 'presencedomains', templateId: 0, section: 'General', inputType: 'multiInput',
 	},
 	{
 		key: 33,
