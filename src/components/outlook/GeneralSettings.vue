@@ -41,6 +41,7 @@ const labels: Record<string, string> = {
 	sendmode: t('sendent', 'Password communication mode'),
 	htmlsnippetpassword: t('sendent', 'Password communication snippet'),
 	statussync: t('sendent', 'Presence Synchronization'),
+	presencedomains: t('sendent', 'Presence filter domains'),
 	sharedaysenabled: t('sendent', 'Share expiration days'),
 	sharedays: t('sendent', 'Number of days'),
 }

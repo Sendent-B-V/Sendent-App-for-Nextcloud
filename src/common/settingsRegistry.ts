@@ -152,6 +152,9 @@ export const settingsRegistry: SettingDefinition[] = [
 		],
 	},
 	{
+		key: 402, name: 'presencedomains', templateId: 0, section: 'General', inputType: 'multiInput',
+	},
+	{
 		key: 33,
 		name: 'sharedaysenabled',
 		templateId: 0,
