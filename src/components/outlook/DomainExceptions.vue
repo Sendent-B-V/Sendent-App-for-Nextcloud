@@ -35,6 +35,5 @@ const labels: Record<string, string> = {
 	attachmentdomainexceptionsinternal: t('sendent', 'Internal domain exceptions'),
 	attachmentdomainexceptions: t('sendent', 'External domain exceptions'),
 	attachmentdomainexceptionsexternalpopup: t('sendent', 'External domain exceptions popup'),
-	presencedomains: t('sendent', 'Presence domains'),
 }
 </script>

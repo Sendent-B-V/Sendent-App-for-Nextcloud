@@ -152,6 +152,14 @@ export const settingsRegistry: SettingDefinition[] = [
 		],
 	},
 	{
+		key: 402,
+		name: 'presencedomains',
+		templateId: 0,
+		section: 'General',
+		inputType: 'multiInput',
+		visibilityRule: { dependsOn: 'statussync', showWhen: 'True' },
+	},
+	{
 		key: 33,
 		name: 'sharedaysenabled',
 		templateId: 0,
@@ -270,9 +278,6 @@ export const settingsRegistry: SettingDefinition[] = [
 			{ value: 'True', label: t('sendent', 'Enabled') },
 			{ value: 'False', label: t('sendent', 'Disabled') },
 		],
-	},
-	{
-		key: 402, name: 'presencedomains', templateId: 0, section: 'DomainExceptions', inputType: 'multiInput',
 	},
 
 	// ── Attachments ──────────────────────────────────────
