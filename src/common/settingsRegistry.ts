@@ -271,6 +271,9 @@ export const settingsRegistry: SettingDefinition[] = [
 			{ value: 'False', label: t('sendent', 'Disabled') },
 		],
 	},
+	{
+		key: 402, name: 'presencedomains', templateId: 0, section: 'DomainExceptions', inputType: 'multiInput',
+	},
 
 	// ── Attachments ──────────────────────────────────────
 	{

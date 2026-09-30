@@ -194,6 +194,10 @@ class InitialLoadManager {
 				$this->logger->info('email signature settingkeys (800/801) not present, creating them. ');
 				$this->addEmailSignatureSettings();
 			}
+			if ($this->SettingKeyMapper->settingKeyCount('402') < 1) {
+				$this->logger->info('presencedomains settingkey (402) not present, creating it. ');
+				$this->addPresenceDomains();
+			}
 			// NOTE: key 204 is the sentinel initialLoadSucceeded() uses to detect a
 			// completed run. If you add creation steps below this block, move the
 			// sentinel to the new last key.
@@ -725,6 +729,10 @@ class InitialLoadManager {
 		$this->createGroupValue('0', '800', 'False');
 		$this->createKey('801', 'signaturehtml', '0', 'textarea');
 		$this->createGroupValue('0', '801', $this->getsignaturehtml());
+	}
+	public function addPresenceDomains(): void {
+		$this->createKey('402', 'presencedomains', '0', 'text');
+		$this->createGroupValue('0', '402', '');
 	}
 	public function createKey(string $key, string $name, string $templatekey, string $valuetype) {
 		try {

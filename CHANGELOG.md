@@ -336,5 +336,6 @@
 - Status endpoint reports whether the Nextcloud Guests app is enabled and its version (GuestsAppEnabled, GuestsAppVersion), so the add-ins can tell whether guest accounts can work on this server.
 - Guest Accounts settings show a warning when the Guests app is not enabled. Guests is listed under recommended dependencies.
 - Guest Accounts settings are also available in the Teams settings tab.
+- Presence domains setting (Outlook, Domain Exceptions): optional allowlist of email domains the Outlook add-in looks up on Nextcloud for IM presence. Empty means no filtering.
 ### Fix
 - Building from source inside a Nextcloud installation no longer fails on the server's browserslist configuration.
