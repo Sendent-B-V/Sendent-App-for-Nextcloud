@@ -21,7 +21,7 @@
 <template>
 	<div v-if="visible"
 		class="setting-field"
-		:class="{ 'setting-field--block': isBlockInput }">
+		:class="{ 'setting-field--block': isBlockInput, 'setting-field--warning': exceedsNextcloudMaxShareDays }">
 		<div class="setting-field__header">
 			<label class="setting-field__label">{{ label }}</label>
 			<SaveIndicator :saving="saving" :saved="saved" />
@@ -46,7 +46,6 @@
 				v-model="localValue"
 				type="number"
 				:disabled="disabled"
-				:max="numericMax"
 				:min="numericMin"
 				@change="onNumericChange">
 			<input v-else-if="definition.inputType === 'color'"
@@ -66,6 +65,12 @@
 				:signature-mode="definition.signatureMode"
 				@save="onTextareaSave"
 				@reset="onTextareaReset" />
+			<p v-if="exceedsNextcloudMaxShareDays" class="setting-field__warning">
+				{{ n('sendent',
+					'Nextcloud limits shared links to %n day, so shares created from the add-ins will expire after %n day.',
+					'Nextcloud limits shared links to %n days, so shares created from the add-ins will expire after %n days.',
+					nextcloudMaxShareDays) }}
+			</p>
 		</div>
 		<InheritanceCheckbox :inherited="inherited"
 			:show-checkbox="isGroupSelected"
@@ -76,6 +81,7 @@
 <script setup lang="ts">
 import { computed, watch } from 'vue'
 import { storeToRefs } from 'pinia'
+import { translatePlural as n } from '@nextcloud/l10n'
 import type { SettingDefinition } from '../../types/settings'
 import { useSettingField } from '../../composables/useSettingField'
 import { useSettingsStore } from '../../stores/settings'
@@ -108,7 +114,8 @@ const isBlockInput = computed(() =>
 	props.definition.inputType === 'textarea' || props.definition.inputType === 'multiInput',
 )
 
-const numericMax = computed(() => {
+/** Maximum share days enforced by Nextcloud; the add-ins cap the Sendent value at it. */
+const nextcloudMaxShareDays = computed(() => {
 	if (props.definition.name === 'sharedays'
 		&& shareExpirationEnforced.value
 		&& shareExpirationDays.value > 0) {
@@ -116,6 +123,10 @@ const numericMax = computed(() => {
 	}
 	return undefined
 })
+
+const exceedsNextcloudMaxShareDays = computed(() =>
+	nextcloudMaxShareDays.value !== undefined && Number(localValue.value) > nextcloudMaxShareDays.value,
+)
 
 const numericMin = computed(() => {
 	if (props.definition.name === 'sharedays') {
@@ -128,9 +139,6 @@ function onNumericChange() {
 	const val = Number(localValue.value)
 	if (numericMin.value && val < numericMin.value) {
 		localValue.value = String(numericMin.value)
-	}
-	if (numericMax.value && val > numericMax.value) {
-		localValue.value = String(numericMax.value)
 	}
 	save()
 }
@@ -195,6 +203,19 @@ async function onTextareaReset() {
 .setting-field__input input[type="text"],
 .setting-field__input input[type="number"] {
 	width: 100%;
+}
+
+/* Keep the label level with the input text instead of centering it against input + warning */
+.setting-field--warning {
+	align-items: baseline;
+}
+
+.setting-field__warning {
+	margin: 8px 0 0;
+	padding: 8px 12px;
+	border-left: 4px solid var(--color-warning);
+	border-radius: var(--border-radius);
+	background-color: var(--color-background-hover);
 }
 
 .setting-field__color {
