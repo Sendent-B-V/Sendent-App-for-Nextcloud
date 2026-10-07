@@ -338,3 +338,4 @@
 - Guest Accounts settings are also available in the Teams settings tab.
 ### Fix
 - Building from source inside a Nextcloud installation no longer fails on the server's browserslist configuration.
+- Dependency check no longer lists OCM as required. Nextcloud 33+ no longer exposes it in capabilities and the Sendent app never used it, so it falsely showed as missing.
