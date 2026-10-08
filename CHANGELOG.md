@@ -339,3 +339,7 @@
 - Presence filter domains setting (Outlook, General, under Presence Synchronization): optional allowlist of email domains the Outlook add-in looks up on Nextcloud for IM presence. Empty means no filtering.
 ### Fix
 - Building from source inside a Nextcloud installation no longer fails on the server's browserslist configuration.
+
+## 4.6.1 - 2026-10-08
+### Fix
+- Dependency check no longer lists OCM as required. Nextcloud 33+ no longer exposes it in capabilities and the Sendent app never used it, so it falsely showed as missing.

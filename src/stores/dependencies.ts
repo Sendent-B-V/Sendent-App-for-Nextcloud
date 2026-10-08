@@ -34,7 +34,6 @@ const REQUIRED_APPS = [
 	{ id: 'core', name: 'Core' },
 	{ id: 'files', name: 'Files' },
 	{ id: 'dav', name: 'WebDAV' },
-	{ id: 'ocm', name: 'OCM' },
 	{ id: 'files_sharing', name: 'Files Sharing' },
 	{ id: 'password_policy', name: 'Password Policy' },
 	{ id: 'theming', name: 'Theming' },
