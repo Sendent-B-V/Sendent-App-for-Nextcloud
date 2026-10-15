@@ -194,9 +194,8 @@ class LicenseApiController extends ApiController {
 				&& $result[0]->getLevel() != 'Error_clear' && $result[0]->getLevel() != 'Error_incomplete') {
 
 
-					$this->logger->info('Check needed for license ' . $result[0]->getId());
 					try {
-						$this->licensemanager->renewLicense($result[0]);
+						$this->licensemanager->renewLicenseIfDue($result[0]);
 						$result = $this->service->findByGroup($result[0]->getNcgroup());
 						if (isset($result) && $result !== null && $result !== false) {
 							if (is_array($result) && count($result) > 0
@@ -319,9 +318,8 @@ class LicenseApiController extends ApiController {
 				&& $result[0]->getLevel() != 'Error_clear' && $result[0]->getLevel() != 'Error_incomplete') {
 
 
-					$this->logger->info('Check needed for license ' . $result[0]->getId());
 					try {
-						$this->licensemanager->renewLicense($result[0]);
+						$this->licensemanager->renewLicenseIfDue($result[0]);
 						$result = $this->service->findByGroup($result[0]->getNcgroup());
 						if (isset($result) && $result !== null && $result !== false) {
 							if (is_array($result) && count($result) > 0

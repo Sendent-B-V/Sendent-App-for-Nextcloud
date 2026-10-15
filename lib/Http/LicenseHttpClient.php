@@ -65,6 +65,9 @@ class LicenseHttpClient {
 				'headers' => [
 					'api-version' => '2.0',
 				],
+				// Called while handling client requests, so don't wait the 30s default when the license server is slow
+				'connect_timeout' => 5,
+				'timeout' => 10,
 			]);
 		} catch (BadResponseException $e) {
 			$this->logger->warning('License client received error response with status ' . $e->getResponse()->getStatusCode());
