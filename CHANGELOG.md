@@ -343,3 +343,8 @@
 ## 4.6.1 - 2026-10-08
 ### Fix
 - Dependency check no longer lists OCM as required. Nextcloud 33+ no longer exposes it in capabilities and the Sendent app never used it, so it falsely showed as missing.
+
+## 4.6.3 - 2026-10-15
+### Fix
+- License status requests no longer contact the license server on every call. The license is revalidated at most once every 4 hours, so add-in panes that request the license status in parallel no longer each wait on the license server.
+- Requests to the license server time out after 10 seconds instead of 30, so a slow or unreachable license server delays requests less.

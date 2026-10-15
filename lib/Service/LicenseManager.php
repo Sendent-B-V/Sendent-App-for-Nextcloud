@@ -29,10 +29,16 @@ use OCA\Sendent\Http\SubscriptionValidationHttpClient;
 
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Db\MultipleObjectsReturnedException;
+use OCP\ICache;
+use OCP\ICacheFactory;
+use OCP\IMemcache;
 
 use Psr\Log\LoggerInterface;
 
 class LicenseManager {
+	// Minimum number of seconds between two license server validations triggered by license status requests
+	private const RENEW_INTERVAL = 4 * 3600;
+
 	protected $licenseservice;
 	protected $connecteduserservice;
 	protected $subscriptionvalidationhttpclient;
@@ -40,13 +46,18 @@ class LicenseManager {
 	/** @var LoggerInterface */
 	private $logger;
 
+	/** @var ICache */
+	private $cache;
+
 	public function __construct(LicenseService $licenseservice, LoggerInterface $logger,
 		ConnectedUserService $connecteduserservice,
-		SubscriptionValidationHttpClient $subscriptionvalidationhttpclient) {
+		SubscriptionValidationHttpClient $subscriptionvalidationhttpclient,
+		ICacheFactory $cacheFactory) {
 		$this->licenseservice = $licenseservice;
 		$this->logger = $logger;
 		$this->connecteduserservice = $connecteduserservice;
 		$this->subscriptionvalidationhttpclient = $subscriptionvalidationhttpclient;
+		$this->cache = $cacheFactory->createDistributed('sendent-license');
 	}
 
 	/**
@@ -80,6 +91,28 @@ class LicenseManager {
 		} catch (Exception $e) {
 			$this->logger->error('Error while pinging licensing server');
 		}
+	}
+
+	/**
+	 * Renews the license at most once per RENEW_INTERVAL, so frequent license status
+	 * requests don't each wait on the license server
+	 */
+	public function renewLicenseIfDue(License $license): void {
+		$key = 'renewed_' . $license->getId();
+		if ($this->cache instanceof IMemcache) {
+			// add() is atomic: of a burst of parallel requests, only the first one renews
+			$due = $this->cache->add($key, true, self::RENEW_INTERVAL);
+		} else {
+			$due = $this->cache->get($key) === null;
+			if ($due) {
+				$this->cache->set($key, true, self::RENEW_INTERVAL);
+			}
+		}
+		if (!$due) {
+			$this->logger->info('Skipping renewal of license ' . $license->getId() . ', renewed less than ' . self::RENEW_INTERVAL . ' seconds ago');
+			return;
+		}
+		$this->renewLicense($license);
 	}
 
 	public function renewLicense(License $license) {
