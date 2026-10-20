@@ -80,6 +80,13 @@
 									rel="noopener noreferrer">
 									{{ t('sendent', 'Download') }}
 								</a>
+								<a v-else-if="product.downloadUrl"
+									class="button primary product-card__download"
+									:href="product.downloadUrl"
+									target="_blank"
+									rel="noopener noreferrer">
+									{{ t('sendent', 'Download') }}
+								</a>
 							</div>
 						</div>
 					</div>
@@ -117,8 +124,8 @@ import { useLicenseStore } from '../../stores/license'
 const mailProducts = [
 	{ slug: 'outlook-windows', label: 'Outlook (Windows)' },
 	{ slug: 'outlook-cross-platform', label: 'Outlook (Cross-Platform)' },
-	{ slug: 'thunderbird', label: 'Thunderbird' },
-	{ slug: 'mac-mail', label: 'Mac Mail' },
+	{ slug: 'thunderbird', label: 'Thunderbird', downloadUrl: 'https://addons.thunderbird.net/en-US/thunderbird/addon/nextcloud-for-thunderbird/' },
+	{ slug: 'mac-mail', label: 'Mac Mail', downloadUrl: 'https://apps.apple.com/app/nextcloud-for-mail/id6758224475' },
 ]
 
 const teamsProducts = [
