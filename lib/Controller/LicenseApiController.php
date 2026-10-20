@@ -194,9 +194,8 @@ class LicenseApiController extends ApiController {
 				&& $result[0]->getLevel() != 'Error_clear' && $result[0]->getLevel() != 'Error_incomplete') {
 
 
-					$this->logger->info('Check needed for license ' . $result[0]->getId());
 					try {
-						$this->licensemanager->renewLicense($result[0]);
+						$this->licensemanager->renewLicenseIfDue($result[0]);
 						$result = $this->service->findByGroup($result[0]->getNcgroup());
 						if (isset($result) && $result !== null && $result !== false) {
 							if (is_array($result) && count($result) > 0
@@ -232,7 +231,7 @@ class LicenseApiController extends ApiController {
 						$status = $this->l->t('Revalidation of your license is required');
 						$statusKind = 'check';
 					} elseif (!$result[0]->isCheckNeeded() && !$result[0]->isLicenseExpired() && !$result[0]->isSupportedProduct()) {
-						$status = $this->l->t('Current license is not intended to be used with Sendent MS Office products. It is only intended to be used for configuring: ' . $product)
+						$status = $this->l->t('Current license is not intended to be used with Sendent MS Office products. It is only intended to be used for configuring: %s', [$product])
 							. '</br>'
 							. $this->l->t('%1$sContact support%2$s if you experience issues with configuring your license key.', ["<a href='mailto:info@sendent.com' style='color:blue'>", '</a>']);
 						$statusKind = 'expired';
@@ -319,9 +318,8 @@ class LicenseApiController extends ApiController {
 				&& $result[0]->getLevel() != 'Error_clear' && $result[0]->getLevel() != 'Error_incomplete') {
 
 
-					$this->logger->info('Check needed for license ' . $result[0]->getId());
 					try {
-						$this->licensemanager->renewLicense($result[0]);
+						$this->licensemanager->renewLicenseIfDue($result[0]);
 						$result = $this->service->findByGroup($result[0]->getNcgroup());
 						if (isset($result) && $result !== null && $result !== false) {
 							if (is_array($result) && count($result) > 0
@@ -357,7 +355,9 @@ class LicenseApiController extends ApiController {
 						$status = $this->l->t('Revalidation of your license is required');
 						$statusKind = 'check';
 					} elseif (!$result[0]->isCheckNeeded() && !$result[0]->isLicenseExpired() && !$result[0]->isSupportedProduct()) {
-						$status = $this->l->t('Current license is not intended to be used with the Sendent app. <br/>Please install/configure Sendent Synchroniser because this license is only intended to be used for configuring: ' . $product)
+						$status = $this->l->t('Current license is not intended to be used with the Sendent app.')
+							. ' <br/>'
+							. $this->l->t('Please install/configure Sendent Synchroniser because this license is only intended to be used for configuring: %s', [$product])
 							. '</br>'
 							. $this->l->t('%1$sContact support%2$s if you experience issues with configuring your license key.', ["<a href='mailto:info@sendent.com' style='color:blue'>", '</a>']);
 						$statusKind = 'expired';
@@ -385,7 +385,7 @@ class LicenseApiController extends ApiController {
 						$status = $this->l->t('Current license is valid');
 						$statusKind = 'valid';
 					} elseif (!$result[0]->isCheckNeeded() && !$result[0]->isLicenseExpired()) {
-						$status = $this->l->t('Current license is valid but there could be an issue for the supported product(s): ' . $product);
+						$status = $this->l->t('Current license is valid but there could be an issue for the supported product(s): %s', [$product]);
 						$statusKind = 'valid';
 					} elseif (!$this->licensemanager->isWithinUserCount($result[0]) && $this->licensemanager->isWithinGraceUserCount($result[0])) {
 						$status = $this->l->t('Current amount of active users exceeds licensed amount. Some users might not be able to use Sendent.');

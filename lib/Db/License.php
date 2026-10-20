@@ -50,7 +50,7 @@ class License extends Entity implements JsonSerializable {
 	public function __construct() {
 		// add types in constructor
 	}
-	public function jsonSerialize() {
+	public function jsonSerialize(): array {
 		return [
 			'id' => $this->id,
 			'licensekey' => $this->licensekey,
@@ -108,6 +108,7 @@ class License extends Entity implements JsonSerializable {
 	}
 	public function isSupportedProduct() : bool {
 		return str_contains($this->product, 'Outlook') || str_contains($this->product, 'outlook')
+			|| str_contains($this->product, 'Email') || str_contains($this->product, 'email')
 			|| str_contains($this->product, 'Basic') || str_contains($this->product, 'basic')
 			|| str_contains($this->product, 'Professional') || str_contains($this->product, 'professional')
 			|| str_contains($this->product, 'Premium') || str_contains($this->product, 'premium')

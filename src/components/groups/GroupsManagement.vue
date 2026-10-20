@@ -21,10 +21,10 @@
 <template>
 	<div class="groups-management">
 		<div class="groups-management__panel">
-			<h3>Inactive Groups</h3>
+			<h3>{{ t('sendent', 'Inactive Groups') }}</h3>
 			<input v-model="ncFilter"
 				type="text"
-				placeholder="Filter groups..."
+				:placeholder="t('sendent', 'Filter groups …')"
 				class="groups-management__filter">
 			<div class="groups-management__list">
 				<div v-for="group in filteredNcGroups"
@@ -32,19 +32,19 @@
 					class="groups-management__item"
 					@click="onAddGroup(group.gid)">
 					<span>{{ group.displayName }}</span>
-					<span class="groups-management__add-icon" title="Add to Sendent groups">&#x2192;</span>
+					<span class="groups-management__add-icon" :title="t('sendent', 'Add to Sendent groups')">&#x2192;</span>
 				</div>
 				<div v-if="filteredNcGroups.length === 0" class="groups-management__empty">
-					No groups found
+					{{ t('sendent', 'No groups found') }}
 				</div>
 			</div>
 		</div>
 
 		<div class="groups-management__panel">
-			<h3>Active Groups</h3>
+			<h3>{{ t('sendent', 'Active Groups') }}</h3>
 			<input v-model="sendentFilter"
 				type="text"
-				placeholder="Filter groups..."
+				:placeholder="t('sendent', 'Filter groups …')"
 				class="groups-management__filter">
 			<div ref="sortableRef"
 				class="groups-management__list groups-management__list--sortable">
@@ -52,7 +52,7 @@
 				<div class="groups-management__item groups-management__item--default"
 					:class="{ 'groups-management__item--selected': groupsStore.selectedGroupId === '' }"
 					@click="onSelectGroup('')">
-					<span>Default</span>
+					<span>{{ t('sendent', 'Default') }}</span>
 				</div>
 				<div v-for="group in filteredSendentGroups"
 					:key="group.gid"
@@ -60,13 +60,13 @@
 					class="groups-management__item groups-management__item--sendent"
 					:class="{
 						'groups-management__item--selected': groupsStore.selectedGroupId === group.gid,
-						'groups-management__item--deleted': group.displayName.includes('*** DELETED GROUP ***'),
+						'groups-management__item--deleted': group.deleted === true,
 					}"
 					@click="onSelectGroup(group.gid)">
-					<span class="groups-management__drag-handle" title="Drag to reorder">&#x2630;</span>
+					<span class="groups-management__drag-handle" :title="t('sendent', 'Drag to reorder')">&#x2630;</span>
 					<span class="groups-management__name">{{ group.displayName }}</span>
 					<button class="groups-management__remove"
-						title="Remove from Sendent groups"
+						:title="t('sendent', 'Remove from Sendent groups')"
 						@click.stop="onRemoveGroup(group.gid)">
 						×
 					</button>
@@ -77,6 +77,7 @@
 </template>
 
 <script setup lang="ts">
+import { translate as t } from '@nextcloud/l10n'
 import { ref, computed, onMounted } from 'vue'
 import { useGroupsStore } from '../../stores/groups'
 import { useSettingsStore } from '../../stores/settings'

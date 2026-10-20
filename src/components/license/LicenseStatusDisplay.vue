@@ -21,33 +21,34 @@
 <template>
 	<div v-if="status" class="license-status">
 		<div class="license-status__row">
-			<span class="license-status__label">Status:</span>
+			<span class="license-status__label">{{ t('sendent', 'Status:') }}</span>
 			<span class="license-status__value"
 				:class="statusClass"
 				v-html="status.status" />
 		</div>
 		<div v-if="status.level" class="license-status__row">
-			<span class="license-status__label">Level:</span>
+			<span class="license-status__label">{{ t('sendent', 'Level:') }}</span>
 			<span class="license-status__value">
-				{{ status.level === 'Offline_mode' ? 'Offline mode' : status.level }}
+				{{ status.level === 'Offline_mode' ? t('sendent', 'Offline mode') : status.level }}
 			</span>
 		</div>
 		<div v-if="status.dateExpiration" class="license-status__row">
-			<span class="license-status__label">Expiration:</span>
+			<span class="license-status__label">{{ t('sendent', 'Expiration:') }}</span>
 			<span class="license-status__value">{{ formatDate(status.dateExpiration) }}</span>
 		</div>
 		<div v-if="status.dateLastCheck" class="license-status__row">
-			<span class="license-status__label">Last check:</span>
+			<span class="license-status__label">{{ t('sendent', 'Last check:') }}</span>
 			<span class="license-status__value">{{ formatDate(status.dateLastCheck) }}</span>
 		</div>
 		<div v-if="status.product" class="license-status__product-row">
-			<span class="license-status__label">Product:</span>
+			<span class="license-status__label">{{ t('sendent', 'Product:') }}</span>
 			<span class="license-status__product" v-html="status.product" />
 		</div>
 	</div>
 </template>
 
 <script setup lang="ts">
+import { translate as t } from '@nextcloud/l10n'
 import { computed } from 'vue'
 import type { LicenseStatus } from '../../types/license'
 import { formatDate } from '../../utils/date-utils'

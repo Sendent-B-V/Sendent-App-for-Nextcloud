@@ -19,22 +19,23 @@
   - along with this program. If not, see <http://www.gnu.org/licenses/>.
   -->
 <template>
-	<SettingsSection title="Talk"
+	<SettingsSection :title="t('sendent', 'Talk')"
 		:definitions="definitions"
 		:labels="labels" />
 </template>
 
 <script setup lang="ts">
+import { translate as t } from '@nextcloud/l10n'
 import SettingsSection from '../settings/SettingsSection.vue'
 import { getSettingsForSection } from '../../common/settingsRegistry'
 
 const definitions = getSettingsForSection('Talk')
 
 const labels: Record<string, string> = {
-	talkenabled: 'Activate Talk',
-	generatetalkpassword: 'Generate password for meetings',
-	talkhtml: 'Talk snippet',
-	talkpwsepenabled: 'Activate Talk Password separate',
-	talkpwhtml: 'Talk password snippet',
+	talkenabled: t('sendent', 'Activate Talk'),
+	generatetalkpassword: t('sendent', 'Generate password for meetings'),
+	talkhtml: t('sendent', 'Talk snippet'),
+	talkpwsepenabled: t('sendent', 'Activate Talk Password separate'),
+	talkpwhtml: t('sendent', 'Talk password snippet'),
 }
 </script>

@@ -20,33 +20,34 @@
   -->
 <template>
 	<div class="default-license">
-		<h3>Default License Status</h3>
+		<h3>{{ t('sendent', 'Default License Status') }}</h3>
 		<div class="default-license__grid">
 			<div class="default-license__row">
-				<span class="default-license__label">Status:</span>
+				<span class="default-license__label">{{ t('sendent', 'Status:') }}</span>
 				<!-- eslint-disable-next-line vue/no-v-html -- trusted first-party status string from the app's PHP (translated, may contain a support mailto link), not user input -->
-				<span class="default-license__status" v-html="licenseStore.defaultLicense.status || 'Not configured'" />
+				<span class="default-license__status" v-html="licenseStore.defaultLicense.status || t('sendent', 'Not configured')" />
 			</div>
 			<div v-if="licenseStore.defaultLicense.level" class="default-license__row">
-				<span class="default-license__label">Level:</span>
+				<span class="default-license__label">{{ t('sendent', 'Level:') }}</span>
 				<span>{{ licenseStore.defaultLicense.level }}</span>
 			</div>
 			<div v-if="licenseStore.defaultLicense.expirationDate" class="default-license__row">
-				<span class="default-license__label">Expiration:</span>
+				<span class="default-license__label">{{ t('sendent', 'Expiration:') }}</span>
 				<span>{{ licenseStore.defaultLicense.expirationDate }}</span>
 			</div>
 			<div v-if="licenseStore.defaultLicense.lastCheck" class="default-license__row">
-				<span class="default-license__label">Last check:</span>
+				<span class="default-license__label">{{ t('sendent', 'Last check:') }}</span>
 				<span>{{ licenseStore.defaultLicense.lastCheck }}</span>
 			</div>
 		</div>
 		<button class="button primary" @click="licenseStore.downloadReport()">
-			Download License Report
+			{{ t('sendent', 'Download License Report') }}
 		</button>
 	</div>
 </template>
 
 <script setup lang="ts">
+import { translate as t } from '@nextcloud/l10n'
 import { useLicenseStore } from '../../stores/license'
 
 const licenseStore = useLicenseStore()

@@ -28,43 +28,36 @@ use OCA\Sendent\Db\SettingGroupValue;
 use OCA\Sendent\Db\SettingGroupValueMapper;
 use OCA\Sendent\Service\InitialLoadManager;
 use OCA\Sendent\Service\SendentFileStorageManager;
+use OCA\Sendent\Service\UserSettingsResolver;
 use OCP\AppFramework\ApiController;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\Attribute\PublicPage;
 use OCP\AppFramework\Http\DataResponse;
-use OCP\AppFramework\Services\IAppConfig;
-
-use OCP\IGroupManager;
 use OCP\IRequest;
-use OCP\IUserManager;
 
 class SettingGroupValueApiController extends ApiController {
-	private $appConfig;
 	private $mapper;
 	private $FileStorageManager;
-	private $groupManager;
 	private $userId;
-	private $userManager;
 	private $initialLoadManager;
+	private $resolver;
 
-	public function __construct(IAppConfig $appConfig, IRequest $request, SettingGroupValueMapper $mapper,
-		SendentFileStorageManager $FileStorageManager, IGroupManager $groupManager, IUserManager $userManager,
-		InitialLoadManager $initialLoadManager, $userId) {
+	public function __construct(IRequest $request, SettingGroupValueMapper $mapper,
+		SendentFileStorageManager $FileStorageManager,
+		InitialLoadManager $initialLoadManager, UserSettingsResolver $resolver, $userId) {
 		parent::__construct(
 			'sendent',
 			$request,
 			'PUT, POST, GET, DELETE, PATCH',
 			'Authorization, Content-Type, Accept',
 			3600);
-		$this->appConfig = $appConfig;
 		$this->mapper = $mapper;
 		$this->FileStorageManager = $FileStorageManager;
-		$this->groupManager = $groupManager;
 		$this->userId = $userId;
-		$this->userManager = $userManager;
 		$this->initialLoadManager = $initialLoadManager;
+		$this->resolver = $resolver;
 	}
 
 	/**
@@ -77,29 +70,8 @@ class SettingGroupValueApiController extends ApiController {
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
 	public function index(?int $templateId = null): DataResponse {
-
-		// Gets groups for which specific settings and/or license are defined
-		// Groups are ordered from highest priority to lowest
-		$sendentGroups = $this->appConfig->getAppValue('sendentGroups', '');
-		$sendentGroups = $sendentGroups !== '' ? json_decode($sendentGroups) : [];
-
-		// Gets user groups
-		$user = $this->userManager->get($this->userId);
-		$userGroups = $this->groupManager->getUserGroups($user);
-		$userGroups = array_map(function ($group) {
-			return $group->getGid();
-		}, $userGroups);
-
-		// Gets user groups that are sendentGroups
-		$userSendentGroups = array_intersect($sendentGroups, $userGroups);
-
-		// Returns settings for 1st matching group
-		if (count($userSendentGroups)) {
-			return $this->getForNCGroup($userSendentGroups[array_keys($userSendentGroups)[0]], $templateId, true);
-		} else {
-			return $this->getForNCGroup('', $templateId, true);
-		}
-
+		$ncgroup = $this->resolver->sendentGroupFor((string)$this->userId);
+		return $this->getForNCGroup($ncgroup, $templateId, true);
 	}
 	/**
 	 * Gets settings for a specific user
@@ -115,27 +87,9 @@ class SettingGroupValueApiController extends ApiController {
 		if (!isset($templateId) || $templateId == null) {
 			return $this->index();
 		}
-		// Gets groups for which specific settings and/or license are defined
-		// Groups are ordered from highest priority to lowest
-		$sendentGroups = $this->appConfig->getAppValue('sendentGroups', '');
-		$sendentGroups = $sendentGroups !== '' ? json_decode($sendentGroups) : [];
 
-		// Gets user groups
-		$user = $this->userManager->get($this->userId);
-		$userGroups = $this->groupManager->getUserGroups($user);
-		$userGroups = array_map(function ($group) {
-			return $group->getGid();
-		}, $userGroups);
-
-		// Gets user groups that are sendentGroups
-		$userSendentGroups = array_intersect($sendentGroups, $userGroups);
-
-		// Returns settings for 1st matching group
-		if (count($userSendentGroups)) {
-			return $this->getForNCGroup($userSendentGroups[array_keys($userSendentGroups)[0]], $templateId, true);
-		} else {
-			return $this->getForNCGroup('', $templateId, true);
-		}
+		$ncgroup = $this->resolver->sendentGroupFor((string)$this->userId);
+		return $this->getForNCGroup($ncgroup, $templateId, true);
 	}
 
 	/**
@@ -262,7 +216,7 @@ class SettingGroupValueApiController extends ApiController {
 		try {
 			$result = $this->mapper->findBySettingKeyId($settingkeyid, $ncgroup);
 			if ($this->valueIsSettingGroupValueFilePath($result->getValue()) !== false) {
-				$result->setValue($this->FileStorageManager->getContent($result->getGroupid(), $result->getSettingkeyid()));
+				$result->setValue($this->FileStorageManager->getContent($result->getGroupid(), $result->getSettingkeyid(), $result->getNcgroup()));
 			}
 			return new DataResponse($result);
 		} catch (Exception $e) {

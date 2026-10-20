@@ -20,10 +20,10 @@
   -->
 <template>
 	<div class="retention">
-		<h3>Retention Assistant</h3>
+		<h3>{{ t('sendent', 'Retention Assistant') }}</h3>
 		<div v-if="retentionStore.loading" class="retention__loading">
 			<span class="icon-loading" />
-			Checking retention configuration...
+			{{ t('sendent', 'Checking retention configuration …') }}
 		</div>
 		<div v-else class="retention__wizard">
 			<!-- Step 1: Automated Tagging App -->
@@ -34,14 +34,14 @@
 				</div>
 				<div class="retention__step-content">
 					<div class="retention__step-header">
-						<span>Files Automated Tagging app</span>
+						<span>{{ t('sendent', 'Files Automated Tagging app') }}</span>
 						<span class="retention__step-icon"
 							:class="retentionStore.hasTaggingApp ? 'retention__step-icon--ok' : 'retention__step-icon--fail'">
 							{{ retentionStore.hasTaggingApp ? '&#x2713;' : 'X' }}
 						</span>
 					</div>
 					<p v-if="!retentionStore.hasTaggingApp" class="retention__step-info">
-						Please install the "Files automated tagging" app from the Nextcloud app store.
+						{{ t('sendent', 'Please install the "Files automated tagging" app from the Nextcloud app store.') }}
 					</p>
 				</div>
 			</div>
@@ -55,16 +55,16 @@
 				</div>
 				<div class="retention__step-content">
 					<div class="retention__step-header">
-						<span>Upload tag workflow</span>
+						<span>{{ t('sendent', 'Upload tag workflow') }}</span>
 						<span class="retention__step-icon"
 							:class="retentionStore.hasUploadWorkflow ? 'retention__step-icon--ok' : 'retention__step-icon--warn'">
 							{{ retentionStore.hasUploadWorkflow ? '&#x2713;' : '&#x26A0;' }}
 						</span>
 					</div>
 					<div v-if="!retentionStore.hasUploadWorkflow" class="retention__step-action">
-						<p>No workflow configured for tagging Sendent uploads.</p>
+						<p>{{ t('sendent', 'No workflow configured for tagging Sendent uploads.') }}</p>
 						<button @click="createUploadWorkflow">
-							Create Workflow
+							{{ t('sendent', 'Create Workflow') }}
 						</button>
 					</div>
 				</div>
@@ -78,14 +78,14 @@
 				</div>
 				<div class="retention__step-content">
 					<div class="retention__step-header">
-						<span>Files Retention app</span>
+						<span>{{ t('sendent', 'Files Retention app') }}</span>
 						<span class="retention__step-icon"
 							:class="retentionStore.hasRetentionApp ? 'retention__step-icon--ok' : 'retention__step-icon--fail'">
 							{{ retentionStore.hasRetentionApp ? '&#x2713;' : 'X' }}
 						</span>
 					</div>
 					<p v-if="!retentionStore.hasRetentionApp" class="retention__step-info">
-						Please install the "Files retention" app from the Nextcloud app store.
+						{{ t('sendent', 'Please install the "Files retention" app from the Nextcloud app store.') }}
 					</p>
 				</div>
 			</div>
@@ -99,16 +99,16 @@
 				</div>
 				<div class="retention__step-content">
 					<div class="retention__step-header">
-						<span>Removed shares retention rule</span>
+						<span>{{ t('sendent', 'Removed shares retention rule') }}</span>
 						<span class="retention__step-icon"
 							:class="retentionStore.hasRemovedRetention ? 'retention__step-icon--ok' : 'retention__step-icon--warn'">
 							{{ retentionStore.hasRemovedRetention ? '&#x2713;' : '&#x26A0;' }}
 						</span>
 					</div>
 					<div v-if="!retentionStore.hasRemovedRetention" class="retention__step-action">
-						<p>No retention rule for removed shares (default: 30 days after creation).</p>
+						<p>{{ t('sendent', 'No retention rule for removed shares (default: 30 days after creation).') }}</p>
 						<button @click="createRemovedRetention">
-							Create Rule
+							{{ t('sendent', 'Create Rule') }}
 						</button>
 					</div>
 				</div>
@@ -123,16 +123,16 @@
 				</div>
 				<div class="retention__step-content">
 					<div class="retention__step-header">
-						<span>Expired shares retention rule</span>
+						<span>{{ t('sendent', 'Expired shares retention rule') }}</span>
 						<span class="retention__step-icon"
 							:class="retentionStore.hasExpiredRetention ? 'retention__step-icon--ok' : 'retention__step-icon--warn'">
 							{{ retentionStore.hasExpiredRetention ? '&#x2713;' : '&#x26A0;' }}
 						</span>
 					</div>
 					<div v-if="!retentionStore.hasExpiredRetention" class="retention__step-action">
-						<p>No retention rule for expired shares (default: 90 days after creation).</p>
+						<p>{{ t('sendent', 'No retention rule for expired shares (default: 90 days after creation).') }}</p>
 						<button @click="createExpiredRetention">
-							Create Rule
+							{{ t('sendent', 'Create Rule') }}
 						</button>
 					</div>
 				</div>
@@ -142,6 +142,7 @@
 </template>
 
 <script setup lang="ts">
+import { translate as t } from '@nextcloud/l10n'
 import { onMounted } from 'vue'
 import { useRetentionStore } from '../../stores/retention'
 

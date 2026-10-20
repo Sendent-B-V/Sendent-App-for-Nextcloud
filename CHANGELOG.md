@@ -330,3 +330,21 @@
 ## 3.0.21 - 2025-05-02
 ### Feature
 - Added support for Archiving settings.
+
+## 4.6.0 - 2026-09-22
+### Feature
+- Status endpoint reports whether the Nextcloud Guests app is enabled and its version (GuestsAppEnabled, GuestsAppVersion), so the add-ins can tell whether guest accounts can work on this server.
+- Guest Accounts settings show a warning when the Guests app is not enabled. Guests is listed under recommended dependencies.
+- Guest Accounts settings are also available in the Teams settings tab.
+- Presence filter domains setting (Outlook, General, under Presence Synchronization): optional allowlist of email domains the Outlook add-in looks up on Nextcloud for IM presence. Empty means no filtering.
+### Fix
+- Building from source inside a Nextcloud installation no longer fails on the server's browserslist configuration.
+
+## 4.6.1 - 2026-10-08
+### Fix
+- Dependency check no longer lists OCM as required. Nextcloud 33+ no longer exposes it in capabilities and the Sendent app never used it, so it falsely showed as missing.
+
+## 4.6.3 - 2026-10-15
+### Fix
+- License status requests no longer contact the license server on every call. The license is revalidated at most once every 4 hours, so add-in panes that request the license status in parallel no longer each wait on the license server.
+- Requests to the license server time out after 10 seconds instead of 30, so a slow or unreachable license server delays requests less.

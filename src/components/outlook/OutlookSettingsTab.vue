@@ -21,19 +21,21 @@
 <template>
 	<div class="outlook-settings-tab">
 		<GeneralSettings />
+		<EmailSignatureSettings />
 		<TalkSettings />
 		<ArchivingSettings />
 		<DomainExceptions />
 		<AttachmentSettings />
 		<FileHandlingSettings />
 		<SecureMailSettings />
-		<GuestAccountSettings />
+		<GuestAccountSettings client="outlook" />
 		<AdvancedTheming />
 	</div>
 </template>
 
 <script setup lang="ts">
 import GeneralSettings from './GeneralSettings.vue'
+import EmailSignatureSettings from './EmailSignatureSettings.vue'
 import TalkSettings from './TalkSettings.vue'
 import ArchivingSettings from './ArchivingSettings.vue'
 import DomainExceptions from './DomainExceptions.vue'

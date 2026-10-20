@@ -19,10 +19,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-interface EscapeOptions {
-	escape?: boolean;
-}
-
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 declare namespace OC {
 	namespace Util {
@@ -113,10 +109,6 @@ declare namespace OC {
 		versionString: string;
 	}
 }
-
-declare function t(app: string, string: string, vars?: { [key: string]: string }, count?: number, options?: EscapeOptions): string;
-
-declare function n(app: string, singular: string, plural: string, number: number, vars?: { [key: string]: string }): string;
 
 declare module 'NC' {
 	export interface OCSResult<T> {

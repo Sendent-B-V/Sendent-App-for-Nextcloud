@@ -34,7 +34,6 @@ const REQUIRED_APPS = [
 	{ id: 'core', name: 'Core' },
 	{ id: 'files', name: 'Files' },
 	{ id: 'dav', name: 'WebDAV' },
-	{ id: 'ocm', name: 'OCM' },
 	{ id: 'files_sharing', name: 'Files Sharing' },
 	{ id: 'password_policy', name: 'Password Policy' },
 	{ id: 'theming', name: 'Theming' },
@@ -43,6 +42,7 @@ const REQUIRED_APPS = [
 const RECOMMENDED_APPS = [
 	{ id: 'activity', name: 'Activity' },
 	{ id: 'spreed', name: 'Talk' },
+	{ id: 'guests', name: 'Guests' },
 ]
 
 export const useDependenciesStore = defineStore('dependencies', () => {
@@ -50,10 +50,10 @@ export const useDependenciesStore = defineStore('dependencies', () => {
 	const recommendedApps = ref<AppDependency[]>([])
 	const loading = ref(false)
 	// Initial fallback URL used until capabilities resolve. Two requirements:
-	//  - Use key='logo' (not 'logoheader'): the 'logo' endpoint always returns
-	//    200 (falls back to the default logo when no custom one is uploaded),
-	//    while 'logoheader' returns 404 + Cache-Control:max-age=3600 if no
-	//    custom header was set, poisoning the browser cache for an hour.
+	//  - Use key='logo' (not 'logoheader'): both endpoints 404 + set
+	//    Cache-Control:max-age=3600 when no matching custom image has been
+	//    uploaded, but 'logoheader' has no further fallback, while 'logo'
+	//    404ing just means the caller should use core's default logo instead.
 	//  - Append a cache buster: even with a valid URL, a stale 404 from a
 	//    prior session must not be served from cache. Date.now() is replaced
 	//    by the proper ?v=<cacheBuster> from capabilities once they resolve.

@@ -21,23 +21,19 @@
 <template>
 	<div v-if="!termsStore.agreed" class="sendent-terms">
 		<div class="sendent-terms__card">
-			<h2>Terms &amp; Conditions</h2>
-			<p>
-				By using Sendent, you agree to the
-				<a href="https://www.sendent.com/terms" target="_blank" rel="noopener">
-					Terms &amp; Conditions
-				</a>.
-			</p>
+			<h2>{{ t('sendent', 'Terms & Conditions', undefined, { sanitize: false }) }}</h2>
+			<!-- eslint-disable-next-line vue/no-v-html -- translated first-party sentence with a fixed link to the terms page, not user input -->
+			<p v-html="termsSentence" />
 			<div class="sendent-terms__actions">
 				<label class="sendent-terms__checkbox">
 					<input v-model="checked"
 						type="checkbox">
-					I agree to the Terms &amp; Conditions
+					{{ t('sendent', 'I agree to the Terms & Conditions', undefined, { sanitize: false }) }}
 				</label>
 				<button class="primary"
 					:disabled="!checked || termsStore.loading"
 					@click="onAgree">
-					Continue
+					{{ t('sendent', 'Continue') }}
 				</button>
 			</div>
 		</div>
@@ -45,11 +41,27 @@
 </template>
 
 <script setup lang="ts">
+import { translate as t } from '@nextcloud/l10n'
 import { ref } from 'vue'
 import { useTermsStore } from '../stores/terms'
 
 const termsStore = useTermsStore()
 const checked = ref(false)
+
+/**
+ * Sentence with an embedded link, rendered via v-html. The markup is a fixed
+ * first-party link, so placeholder escaping and sanitizing are disabled.
+ */
+const termsSentence = t(
+	'sendent',
+	'By using Sendent, you agree to the {linkstart}Terms & Conditions{linkend}.',
+	{
+		linkstart: '<a href="https://www.sendent.com/terms" target="_blank" rel="noopener">',
+		linkend: '</a>',
+	},
+	undefined,
+	{ escape: false, sanitize: false },
+)
 
 /**
  *
