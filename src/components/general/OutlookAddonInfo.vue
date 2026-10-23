@@ -27,10 +27,10 @@
 			<span class="icon-loading" />
 			{{ t('sendent', 'Loading release info …') }}
 		</div>
-		<div v-else-if="sections.length === 0" class="product-releases__empty">
-			{{ t('sendent', 'No release information available.') }}
-		</div>
 		<div v-else class="product-releases__sections">
+			<div v-if="fetchFailed" class="product-releases__error">
+				{{ t('sendent', 'Release information could not be loaded. Please try again later.') }}
+			</div>
 			<section v-for="section in sections"
 				:key="section.title"
 				class="product-releases__section">
@@ -69,6 +69,9 @@
 										</span>
 									</div>
 								</div>
+								<p v-else class="product-card__unavailable">
+									{{ t('sendent', 'Release information unavailable') }}
+								</p>
 							</div>
 
 							<div v-if="releases[product.slug]?.date" class="product-card__info">
@@ -147,6 +150,7 @@ const products = [...mailProducts, ...teamsProducts]
 const licenseStore = useLicenseStore()
 const releases = ref<Record<string, ReleaseEntry>>({})
 const loading = ref(true)
+const fetchFailed = ref(false)
 const offlineMode = ref(false)
 const hasValidLicense = computed(() => licenseStore.hasAnyValidLicense)
 const activeNotesSlug = ref('')
@@ -154,13 +158,12 @@ const activeProductLabel = computed(() =>
 	products.find(p => p.slug === activeNotesSlug.value)?.label ?? '',
 )
 
-// Show cards for products that have release data or a public download link
-// (the latter render as download-only cards), and hide empty sections.
-const isShown = (p: { slug: string, downloadUrl?: string }) => !!releases.value[p.slug] || !!p.downloadUrl
-const sections = computed(() => [
-	{ title: t('sendent', 'Nextcloud for Email Suite'), products: mailProducts.filter(isShown) },
-	{ title: t('sendent', 'Nextcloud for Microsoft Teams'), products: teamsProducts.filter(isShown) },
-].filter(section => section.products.length > 0))
+// Every product always gets a card: one without release data (its changelog fetch failed)
+// says so instead of disappearing, and keeps its public download link if it has one.
+const sections = [
+	{ title: t('sendent', 'Nextcloud for Email Suite'), products: mailProducts },
+	{ title: t('sendent', 'Nextcloud for Microsoft Teams'), products: teamsProducts },
+]
 
 /**
  * Extracts a version number from a release title like "Release Notes v2.3.0"
@@ -178,13 +181,16 @@ const RECENT_RELEASE_DAYS = 14
  * @param slug - The product slug to check
  */
 function isRecentRelease(slug: string): boolean {
-	const date = releases.value[slug]?.date
-	if (!date) return false
-	// Release dates look like "2026-10-22 00:00:00"; the "T" keeps Safari's parser happy
-	const released = new Date(date.replace(' ', 'T')).getTime()
-	if (isNaN(released)) return false
-	const age = Date.now() - released
-	return age >= 0 && age < RECENT_RELEASE_DAYS * 24 * 60 * 60 * 1000
+	// Release dates look like "2026-10-22 00:00:00" and mean a calendar day, not a moment,
+	// so compare whole days instead of parsing them as a (timezone-dependent) local time
+	const match = releases.value[slug]?.date?.match(/^(\d{4})-(\d{2})-(\d{2})/)
+	if (!match) return false
+	const released = Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3]))
+	const now = new Date()
+	const today = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate())
+	const ageDays = (today - released) / (24 * 60 * 60 * 1000)
+	// -1: viewers west of where the release was published can still be on the previous day
+	return ageDays >= -1 && ageDays < RECENT_RELEASE_DAYS
 }
 
 /**
@@ -207,7 +213,8 @@ watch(() => licenseStore.loading, async (isLoading) => {
 	try {
 		releases.value = await fetchLatestReleases()
 	} catch {
-		// Silently fail — the empty state handles this
+		// The cards still render (download links work without release data); a notice explains the gaps
+		fetchFailed.value = true
 	} finally {
 		loading.value = false
 	}
@@ -234,13 +241,14 @@ watch(() => licenseStore.loading, async (isLoading) => {
 	justify-content: center;
 }
 
-.product-releases__empty {
-	color: var(--color-text-maxcontrast);
-	padding: 32px;
-	text-align: center;
-	background: var(--color-background-hover);
+.product-releases__error {
+	margin-bottom: 12px;
+	padding: 8px 12px;
+	font-size: 13px;
 	border-radius: var(--border-radius-large);
-	border: 1px dashed var(--color-border);
+	border-inline-start: 4px solid var(--color-warning);
+	background: var(--color-background-hover);
+	color: var(--color-main-text);
 }
 
 .product-releases__section {
@@ -331,6 +339,13 @@ watch(() => licenseStore.loading, async (isLoading) => {
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
+}
+
+.product-card__unavailable {
+	margin: 0 0 10px 0;
+	font-size: 12px;
+	font-style: italic;
+	color: var(--color-text-maxcontrast);
 }
 
 .product-card__label {
