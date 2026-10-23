@@ -27,7 +27,7 @@
 			<span class="icon-loading" />
 			{{ t('sendent', 'Loading release info …') }}
 		</div>
-		<div v-else-if="Object.keys(releases).length === 0" class="product-releases__empty">
+		<div v-else-if="sections.length === 0" class="product-releases__empty">
 			{{ t('sendent', 'No release information available.') }}
 		</div>
 		<div v-else class="product-releases__sections">
@@ -46,8 +46,17 @@
 							<div class="product-card__header">
 								<h4 class="product-card__name">
 									{{ product.label }}
+									<span v-if="product.isNew" class="product-card__label product-card__label--new">
+										{{ t('sendent', 'New') }}
+									</span>
+									<span v-else-if="isRecentRelease(product.slug)" class="product-card__label product-card__label--update">
+										{{ t('sendent', 'Update') }}
+									</span>
 								</h4>
-								<div class="product-card__badges">
+								<p v-if="product.subtitle" class="product-card__subtitle" :title="product.subtitle">
+									{{ product.subtitle }}
+								</p>
+								<div v-if="releases[product.slug]" class="product-card__badges">
 									<div class="product-card__version-badge">
 										v{{ extractVersion(releases[product.slug].title) }}
 									</div>
@@ -62,18 +71,19 @@
 								</div>
 							</div>
 
-							<div v-if="releases[product.slug].date" class="product-card__info">
+							<div v-if="releases[product.slug]?.date" class="product-card__info">
 								<span class="product-card__info-label">{{ t('sendent', 'Released') }}</span>
 								<span class="product-card__info-value"
 									title="dd-MM-yyyy">{{ formatDate(releases[product.slug].date) }}</span>
 							</div>
 
 							<div class="product-card__footer">
-								<button class="button primary"
+								<button v-if="releases[product.slug]"
+									class="button primary"
 									@click="toggleNotes(product.slug)">
-									{{ t('sendent', 'View release notes') }}
+									{{ t('sendent', 'Release notes') }}
 								</button>
-								<a v-if="product.slug === 'outlook-windows' && hasValidLicense"
+								<a v-if="product.slug === 'outlook-windows' && releases[product.slug] && hasValidLicense"
 									class="button primary product-card__download"
 									:href="'https://download.sendent.com/addin/' + extractVersion(releases[product.slug].title) + '/Sendent_Outlook.zip'"
 									target="_blank"
@@ -122,14 +132,14 @@ import { formatDate } from '../../utils/date-utils'
 import { useLicenseStore } from '../../stores/license'
 
 const mailProducts = [
-	{ slug: 'outlook-windows', label: 'Outlook (Windows)' },
-	{ slug: 'outlook-cross-platform', label: 'Outlook (Cross-Platform)' },
-	{ slug: 'thunderbird', label: 'Thunderbird', downloadUrl: 'https://addons.thunderbird.net/en-US/thunderbird/addon/nextcloud-for-thunderbird/' },
-	{ slug: 'mac-mail', label: 'Mac Mail', downloadUrl: 'https://apps.apple.com/app/nextcloud-for-mail/id6758224475' },
+	{ slug: 'outlook-windows', label: 'Outlook Classic (Windows)', subtitle: t('sendent', 'Only for Outlook Classic on Windows') },
+	{ slug: 'outlook-cross-platform', label: 'Outlook (Cross-Platform)', subtitle: t('sendent', 'Windows, macOS and Outlook on the web') },
+	{ slug: 'thunderbird', label: 'Thunderbird', subtitle: t('sendent', 'Windows, macOS and Linux'), downloadUrl: 'https://addons.thunderbird.net/en-US/thunderbird/addon/nextcloud-for-thunderbird/', isNew: true },
+	{ slug: 'mac-mail', label: 'Mac Mail', subtitle: t('sendent', 'Apple Mail on macOS'), downloadUrl: 'https://apps.apple.com/app/nextcloud-for-mail/id6758224475', isNew: true },
 ]
 
 const teamsProducts = [
-	{ slug: 'ms-teams', label: 'MS Teams' },
+	{ slug: 'ms-teams', label: 'Microsoft Teams', subtitle: t('sendent', 'Windows, macOS, Web, Android and iOS') },
 ]
 
 const products = [...mailProducts, ...teamsProducts]
@@ -144,11 +154,12 @@ const activeProductLabel = computed(() =>
 	products.find(p => p.slug === activeNotesSlug.value)?.label ?? '',
 )
 
-// Only show cards for products that actually have release data,
-// and hide a section entirely when none of its products do.
+// Show cards for products that have release data or a public download link
+// (the latter render as download-only cards), and hide empty sections.
+const isShown = (p: { slug: string, downloadUrl?: string }) => !!releases.value[p.slug] || !!p.downloadUrl
 const sections = computed(() => [
-	{ title: t('sendent', 'Mail clients'), products: mailProducts.filter(p => releases.value[p.slug]) },
-	{ title: t('sendent', 'Teams'), products: teamsProducts.filter(p => releases.value[p.slug]) },
+	{ title: t('sendent', 'Nextcloud for Email Suite'), products: mailProducts.filter(isShown) },
+	{ title: t('sendent', 'Nextcloud for Microsoft Teams'), products: teamsProducts.filter(isShown) },
 ].filter(section => section.products.length > 0))
 
 /**
@@ -158,6 +169,22 @@ const sections = computed(() => [
 function extractVersion(title: string): string {
 	const match = title.match(/v?(\d+\.\d+(?:\.\d+)?)/i)
 	return match ? match[1] : title
+}
+
+const RECENT_RELEASE_DAYS = 14
+
+/**
+ * Whether the product's latest release is dated within the last RECENT_RELEASE_DAYS days.
+ * @param slug - The product slug to check
+ */
+function isRecentRelease(slug: string): boolean {
+	const date = releases.value[slug]?.date
+	if (!date) return false
+	// Release dates look like "2026-10-22 00:00:00"; the "T" keeps Safari's parser happy
+	const released = new Date(date.replace(' ', 'T')).getTime()
+	if (isNaN(released)) return false
+	const age = Date.now() - released
+	return age >= 0 && age < RECENT_RELEASE_DAYS * 24 * 60 * 60 * 1000
 }
 
 /**
@@ -243,7 +270,6 @@ watch(() => licenseStore.loading, async (isLoading) => {
 	flex-direction: column;
 	position: relative;
 	transition: border-color 0.2s ease, box-shadow 0.2s ease;
-	height: min-content;
 }
 
 .product-card::before {
@@ -294,6 +320,39 @@ watch(() => licenseStore.loading, async (isLoading) => {
 	font-weight: 600;
 	margin: 0 0 6px 0;
 	color: var(--color-text-main);
+}
+
+.product-card__subtitle {
+	margin: -4px 0 6px 0;
+	font-size: 12px;
+	line-height: 18px;
+	color: var(--color-text-maxcontrast);
+	/* Keep to one line so badges and dates line up across cards */
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.product-card__label {
+	display: inline-block;
+	margin-inline-start: 6px;
+	padding: 1px 7px;
+	font-size: 10px;
+	font-weight: 700;
+	letter-spacing: 0.5px;
+	text-transform: uppercase;
+	vertical-align: middle;
+	border-radius: var(--border-radius-pill);
+}
+
+.product-card__label--new {
+	background-color: var(--color-success);
+	color: var(--color-success-text, #fff);
+}
+
+.product-card__label--update {
+	background-color: var(--color-info);
+	color: var(--color-info-text, #fff);
 }
 
 .product-card__badges {
@@ -369,15 +428,20 @@ watch(() => licenseStore.loading, async (isLoading) => {
 
 .product-card__footer .product-card__download {
 	flex: 1;
-	text-align: center;
 	text-decoration: none;
 }
 
 .product-card__footer button,
 .product-card__footer .product-card__download {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	box-sizing: border-box;
 	min-height: 32px;
+	margin: 0;
 	padding: 4px 12px;
 	font-size: 13px;
+	line-height: 1;
 }
 
 /* Release notes modal */
@@ -449,10 +513,18 @@ watch(() => licenseStore.loading, async (isLoading) => {
 	margin-top: 0;
 }
 
-.release-notes-modal__body :deep(ul) {
+.release-notes-modal__body :deep(ul),
+.release-notes-modal__body :deep(ol) {
 	padding-left: 20px;
 	margin: 8px 0;
+}
+
+.release-notes-modal__body :deep(ul) {
 	list-style: disc;
+}
+
+.release-notes-modal__body :deep(ol) {
+	list-style: decimal;
 }
 
 .release-notes-modal__body :deep(li) {

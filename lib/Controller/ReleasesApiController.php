@@ -24,15 +24,18 @@
 namespace OCA\Sendent\Controller;
 
 use OCP\AppFramework\ApiController;
-use OCP\AppFramework\Http\Attribute\NoAdminRequired;
-use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\Http\Client\IClientService;
+use OCP\ICache;
+use OCP\ICacheFactory;
 use OCP\IRequest;
 use Psr\Log\LoggerInterface;
 
 class ReleasesApiController extends ApiController {
 	private const BASE_URL = 'https://changelog.scwcloud.sendent.nl/';
+
+	/** Seconds a fetched release entry is reused before the changelog is asked again (8 hours) */
+	private const CACHE_TTL = 8 * 60 * 60;
 
 	private const WORKSPACES = [
 		'outlook-cross-platform' => 'outlook-cross-platform',
@@ -45,32 +48,44 @@ class ReleasesApiController extends ApiController {
 	private $httpClient;
 	private $logger;
 
+	/** @var ICache */
+	private $cache;
+
 	public function __construct(
 		$appName,
 		IRequest $request,
 		IClientService $clientService,
 		LoggerInterface $logger,
+		ICacheFactory $cacheFactory,
 	) {
 		parent::__construct($appName, $request);
 		$this->httpClient = $clientService->newClient();
 		$this->logger = $logger;
+		$this->cache = $cacheFactory->createDistributed('sendent-releases');
 	}
 
 	/**
-	 * Fetches the latest release entry for all products.
+	 * Fetches the latest release entry for all products. Entries are cached for
+	 * CACHE_TTL; failed fetches are not cached, so they are retried on the next request.
+	 *
+	 * Admin only, with the CSRF check: only the admin settings page uses this.
 	 *
 	 * @return DataResponse
 	 */
-	#[NoAdminRequired]
-	#[NoCSRFRequired]
 	public function index(): DataResponse {
 		$results = [];
 		foreach (self::WORKSPACES as $slug => $uuid) {
+			$cached = $this->cache->get($slug);
+			if (is_array($cached)) {
+				$results[$slug] = $cached;
+				continue;
+			}
 			try {
 				$response = $this->httpClient->get(self::BASE_URL . $uuid, ['timeout' => 5]);
 				$data = json_decode($response->getBody(), true);
-				if ($data) {
+				if (is_array($data) && $data) {
 					$results[$slug] = $data;
+					$this->cache->set($slug, $data, self::CACHE_TTL);
 				}
 			} catch (\Exception $e) {
 				$this->logger->warning('Failed to fetch release for ' . $slug . ': ' . $e->getMessage());

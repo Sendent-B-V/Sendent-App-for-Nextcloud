@@ -348,3 +348,11 @@
 ### Fix
 - License status requests no longer contact the license server on every call. The license is revalidated at most once every 4 hours, so add-in panes that request the license status in parallel no longer each wait on the license server.
 - Requests to the license server time out after 10 seconds instead of 30, so a slow or unreachable license server delays requests less.
+
+## 4.6.4 - 2026-10-23
+### Feature
+- Release overview shows Thunderbird and Mac Mail, with a NEW label, and an UPDATE label on products released in the last 14 days.
+### Fix
+- Release notes are cached for up to 8 hours, so opening the settings page no longer waits on the changelog server for every product.
+- The release notes endpoint is restricted to administrators and requires a CSRF token.
+- Documentation links point to the new help.sendent.com locations.
