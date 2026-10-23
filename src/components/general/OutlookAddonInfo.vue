@@ -27,57 +27,84 @@
 			<span class="icon-loading" />
 			{{ t('sendent', 'Loading release info …') }}
 		</div>
-		<div v-else-if="Object.keys(releases).length === 0" class="product-releases__empty">
-			{{ t('sendent', 'No release information available.') }}
-		</div>
-		<div v-else class="product-releases__grid">
-			<div v-for="product in products"
-				:key="product.slug"
-				class="product-card"
-				:class="'product-card--' + product.slug">
-				<div v-if="releases[product.slug]" class="product-card__content">
-					<div class="product-card__header">
-						<div class="product-card__title">
-							<h3>{{ product.label }}</h3>
-							<div class="product-card__badges">
-								<div class="product-card__version-badge">
-									v{{ extractVersion(releases[product.slug].title) }}
-								</div>
-								<div v-if="releases[product.slug].tags?.length" class="product-card__tags">
-									<span v-for="tag in releases[product.slug].tags"
-										:key="tag"
-										class="product-card__tag"
-										:class="{ 'product-card__tag--important': tag.toLowerCase() === 'important' }">
-										{{ tag }}
+		<div v-else class="product-releases__sections">
+			<div v-if="fetchFailed" class="product-releases__error">
+				{{ t('sendent', 'Release information could not be loaded. Please try again later.') }}
+			</div>
+			<section v-for="section in sections"
+				:key="section.title"
+				class="product-releases__section">
+				<h3 class="product-releases__section-title">
+					{{ section.title }}
+				</h3>
+				<div class="product-releases__grid">
+					<div v-for="product in section.products"
+						:key="product.slug"
+						class="product-card"
+						:class="'product-card--' + product.slug">
+						<div class="product-card__content">
+							<div class="product-card__header">
+								<h4 class="product-card__name">
+									{{ product.label }}
+									<span v-if="product.isNew" class="product-card__label product-card__label--new">
+										{{ t('sendent', 'New') }}
 									</span>
+									<span v-else-if="isRecentRelease(product.slug)" class="product-card__label product-card__label--update">
+										{{ t('sendent', 'Update') }}
+									</span>
+								</h4>
+								<p v-if="product.subtitle" class="product-card__subtitle" :title="product.subtitle">
+									{{ product.subtitle }}
+								</p>
+								<div v-if="releases[product.slug]" class="product-card__badges">
+									<div class="product-card__version-badge">
+										v{{ extractVersion(releases[product.slug].title) }}
+									</div>
+									<div v-if="releases[product.slug].tags?.length" class="product-card__tags">
+										<span v-for="tag in releases[product.slug].tags"
+											:key="tag"
+											class="product-card__tag"
+											:class="{ 'product-card__tag--important': tag.toLowerCase() === 'important' }">
+											{{ tag }}
+										</span>
+									</div>
 								</div>
+								<p v-else class="product-card__unavailable">
+									{{ t('sendent', 'Release information unavailable') }}
+								</p>
+							</div>
+
+							<div v-if="releases[product.slug]?.date" class="product-card__info">
+								<span class="product-card__info-label">{{ t('sendent', 'Released') }}</span>
+								<span class="product-card__info-value"
+									title="dd-MM-yyyy">{{ formatDate(releases[product.slug].date) }}</span>
+							</div>
+
+							<div class="product-card__footer">
+								<button v-if="releases[product.slug]"
+									class="button primary"
+									@click="toggleNotes(product.slug)">
+									{{ t('sendent', 'Release notes') }}
+								</button>
+								<a v-if="product.slug === 'outlook-windows' && releases[product.slug] && hasValidLicense"
+									class="button primary product-card__download"
+									:href="'https://download.sendent.com/addin/' + extractVersion(releases[product.slug].title) + '/Sendent_Outlook.zip'"
+									target="_blank"
+									rel="noopener noreferrer">
+									{{ t('sendent', 'Download') }}
+								</a>
+								<a v-else-if="product.downloadUrl"
+									class="button primary product-card__download"
+									:href="product.downloadUrl"
+									target="_blank"
+									rel="noopener noreferrer">
+									{{ t('sendent', 'Download') }}
+								</a>
 							</div>
 						</div>
 					</div>
-
-					<div class="product-card__body">
-						<div v-if="releases[product.slug].date" class="product-card__info">
-							<span class="product-card__info-label">{{ t('sendent', 'Released') }}</span>
-							<span class="product-card__info-value"
-								title="dd-MM-yyyy">{{ formatDate(releases[product.slug].date) }}</span>
-						</div>
-					</div>
-
-					<div class="product-card__footer">
-						<button class="button primary"
-							@click="toggleNotes(product.slug)">
-							{{ t('sendent', 'View release notes') }}
-						</button>
-						<a v-if="product.slug === 'outlook-windows' && hasValidLicense"
-							class="button primary product-card__download"
-							:href="'https://download.sendent.com/addin/' + extractVersion(releases[product.slug].title) + '/Sendent_Outlook.zip'"
-							target="_blank"
-							rel="noopener noreferrer">
-							{{ t('sendent', 'Download') }}
-						</a>
-					</div>
 				</div>
-			</div>
+			</section>
 		</div>
 
 		<!-- Release notes modal -->
@@ -107,21 +134,36 @@ import { fetchLatestReleases } from '../../services/releasesApi'
 import { formatDate } from '../../utils/date-utils'
 import { useLicenseStore } from '../../stores/license'
 
-const products = [
-	{ slug: 'outlook-cross-platform', label: 'Outlook (Cross-Platform)' },
-	{ slug: 'outlook-windows', label: 'Outlook (Windows)' },
-	{ slug: 'ms-teams', label: 'MS Teams' },
+const mailProducts = [
+	{ slug: 'outlook-windows', label: 'Outlook Classic (Windows)', subtitle: t('sendent', 'Only for Outlook Classic on Windows') },
+	{ slug: 'outlook-cross-platform', label: 'Outlook (Cross-Platform)', subtitle: t('sendent', 'Windows, macOS and Outlook on the web') },
+	{ slug: 'thunderbird', label: 'Thunderbird', subtitle: t('sendent', 'Windows, macOS and Linux'), downloadUrl: 'https://addons.thunderbird.net/en-US/thunderbird/addon/nextcloud-for-thunderbird/', isNew: true },
+	{ slug: 'mac-mail', label: 'Mac Mail', subtitle: t('sendent', 'Apple Mail on macOS'), downloadUrl: 'https://apps.apple.com/app/nextcloud-for-mail/id6758224475', isNew: true },
 ]
+
+const teamsProducts = [
+	{ slug: 'ms-teams', label: 'Microsoft Teams', subtitle: t('sendent', 'Windows, macOS, Web, Android and iOS') },
+]
+
+const products = [...mailProducts, ...teamsProducts]
 
 const licenseStore = useLicenseStore()
 const releases = ref<Record<string, ReleaseEntry>>({})
 const loading = ref(true)
+const fetchFailed = ref(false)
 const offlineMode = ref(false)
 const hasValidLicense = computed(() => licenseStore.hasAnyValidLicense)
 const activeNotesSlug = ref('')
 const activeProductLabel = computed(() =>
 	products.find(p => p.slug === activeNotesSlug.value)?.label ?? '',
 )
+
+// Every product always gets a card: one without release data (its changelog fetch failed)
+// says so instead of disappearing, and keeps its public download link if it has one.
+const sections = [
+	{ title: t('sendent', 'Nextcloud for Email Suite'), products: mailProducts },
+	{ title: t('sendent', 'Nextcloud for Microsoft Teams'), products: teamsProducts },
+]
 
 /**
  * Extracts a version number from a release title like "Release Notes v2.3.0"
@@ -130,6 +172,25 @@ const activeProductLabel = computed(() =>
 function extractVersion(title: string): string {
 	const match = title.match(/v?(\d+\.\d+(?:\.\d+)?)/i)
 	return match ? match[1] : title
+}
+
+const RECENT_RELEASE_DAYS = 14
+
+/**
+ * Whether the product's latest release is dated within the last RECENT_RELEASE_DAYS days.
+ * @param slug - The product slug to check
+ */
+function isRecentRelease(slug: string): boolean {
+	// Release dates look like "2026-10-22 00:00:00" and mean a calendar day, not a moment,
+	// so compare whole days instead of parsing them as a (timezone-dependent) local time
+	const match = releases.value[slug]?.date?.match(/^(\d{4})-(\d{2})-(\d{2})/)
+	if (!match) return false
+	const released = Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3]))
+	const now = new Date()
+	const today = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate())
+	const ageDays = (today - released) / (24 * 60 * 60 * 1000)
+	// -1: viewers west of where the release was published can still be on the previous day
+	return ageDays >= -1 && ageDays < RECENT_RELEASE_DAYS
 }
 
 /**
@@ -152,7 +213,8 @@ watch(() => licenseStore.loading, async (isLoading) => {
 	try {
 		releases.value = await fetchLatestReleases()
 	} catch {
-		// Silently fail — the empty state handles this
+		// The cards still render (download links work without release data); a notice explains the gaps
+		fetchFailed.value = true
 	} finally {
 		loading.value = false
 	}
@@ -179,20 +241,33 @@ watch(() => licenseStore.loading, async (isLoading) => {
 	justify-content: center;
 }
 
-.product-releases__empty {
-	color: var(--color-text-maxcontrast);
-	padding: 32px;
-	text-align: center;
-	background: var(--color-background-hover);
+.product-releases__error {
+	margin-bottom: 12px;
+	padding: 8px 12px;
+	font-size: 13px;
 	border-radius: var(--border-radius-large);
-	border: 1px dashed var(--color-border);
+	border-inline-start: 4px solid var(--color-warning);
+	background: var(--color-background-hover);
+	color: var(--color-main-text);
+}
+
+.product-releases__section {
+	margin-bottom: 20px;
+}
+
+.product-releases__section-title {
+	font-size: 13px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	color: var(--color-text-maxcontrast);
+	margin: 0 0 8px 0;
 }
 
 .product-releases__grid {
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-	gap: 24px;
-	margin-bottom: 32px;
+	grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+	gap: 12px;
 }
 
 .product-card {
@@ -203,7 +278,6 @@ watch(() => licenseStore.loading, async (isLoading) => {
 	flex-direction: column;
 	position: relative;
 	transition: border-color 0.2s ease, box-shadow 0.2s ease;
-	height: min-content;
 }
 
 .product-card::before {
@@ -212,7 +286,7 @@ watch(() => licenseStore.loading, async (isLoading) => {
 	top: 0;
 	left: 0;
 	right: 0;
-	height: 4px;
+	height: 3px;
 	background: var(--color-primary-element);
 	border-radius: var(--border-radius-large) var(--border-radius-large) 0 0;
 }
@@ -220,6 +294,14 @@ watch(() => licenseStore.loading, async (isLoading) => {
 .product-card--outlook-cross-platform::before,
 .product-card--outlook-windows::before {
 	background-color: #0078d4;
+}
+
+.product-card--thunderbird::before {
+	background-color: #0a84ff;
+}
+
+.product-card--mac-mail::before {
+	background-color: #34aadc;
 }
 
 .product-card--ms-teams::before {
@@ -231,21 +313,61 @@ watch(() => licenseStore.loading, async (isLoading) => {
 }
 
 .product-card__content {
-	padding: 24px;
+	padding: 12px 14px;
 	display: flex;
 	flex-direction: column;
 	flex-grow: 1;
 }
 
 .product-card__header {
-	margin-bottom: 20px;
+	margin-bottom: 8px;
 }
 
-.product-card__title h3 {
-	font-size: 18px;
+.product-card__name {
+	font-size: 14px;
 	font-weight: 600;
-	margin: 0 0 10px 0;
+	margin: 0 0 6px 0;
 	color: var(--color-text-main);
+}
+
+.product-card__subtitle {
+	margin: -4px 0 6px 0;
+	font-size: 12px;
+	line-height: 18px;
+	color: var(--color-text-maxcontrast);
+	/* Keep to one line so badges and dates line up across cards */
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.product-card__unavailable {
+	margin: 0 0 10px 0;
+	font-size: 12px;
+	font-style: italic;
+	color: var(--color-text-maxcontrast);
+}
+
+.product-card__label {
+	display: inline-block;
+	margin-inline-start: 6px;
+	padding: 1px 7px;
+	font-size: 10px;
+	font-weight: 700;
+	letter-spacing: 0.5px;
+	text-transform: uppercase;
+	vertical-align: middle;
+	border-radius: var(--border-radius-pill);
+}
+
+.product-card__label--new {
+	background-color: var(--color-success);
+	color: var(--color-success-text, #fff);
+}
+
+.product-card__label--update {
+	background-color: var(--color-info);
+	color: var(--color-info-text, #fff);
 }
 
 .product-card__badges {
@@ -288,19 +410,15 @@ watch(() => licenseStore.loading, async (isLoading) => {
 	border-color: #c00;
 }
 
-.product-card__body {
-	flex-grow: 1;
-	margin-bottom: 24px;
-}
-
 .product-card__info {
 	display: flex;
-	flex-direction: column;
-	gap: 2px;
+	align-items: baseline;
+	gap: 6px;
+	margin-bottom: 10px;
 }
 
 .product-card__info-label {
-	font-size: 11px;
+	font-size: 10px;
 	text-transform: uppercase;
 	letter-spacing: 0.5px;
 	color: var(--color-text-maxcontrast);
@@ -308,15 +426,12 @@ watch(() => licenseStore.loading, async (isLoading) => {
 }
 
 .product-card__info-value {
-	font-size: 14px;
+	font-size: 12px;
 	color: var(--color-text-main);
 }
 
 .product-card__footer {
 	margin-top: auto;
-}
-
-.product-card__footer {
 	display: flex;
 	gap: 8px;
 }
@@ -328,8 +443,20 @@ watch(() => licenseStore.loading, async (isLoading) => {
 
 .product-card__footer .product-card__download {
 	flex: 1;
-	text-align: center;
 	text-decoration: none;
+}
+
+.product-card__footer button,
+.product-card__footer .product-card__download {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	box-sizing: border-box;
+	min-height: 32px;
+	margin: 0;
+	padding: 4px 12px;
+	font-size: 13px;
+	line-height: 1;
 }
 
 /* Release notes modal */
@@ -401,10 +528,18 @@ watch(() => licenseStore.loading, async (isLoading) => {
 	margin-top: 0;
 }
 
-.release-notes-modal__body :deep(ul) {
+.release-notes-modal__body :deep(ul),
+.release-notes-modal__body :deep(ol) {
 	padding-left: 20px;
 	margin: 8px 0;
+}
+
+.release-notes-modal__body :deep(ul) {
 	list-style: disc;
+}
+
+.release-notes-modal__body :deep(ol) {
+	list-style: decimal;
 }
 
 .release-notes-modal__body :deep(li) {

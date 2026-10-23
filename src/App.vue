@@ -25,7 +25,7 @@
 
 		<!-- Main app content -->
 		<template v-if="termsStore.agreed">
-			<h2>{{ t('sendent', 'Sendent for Outlook / Teams') }}</h2>
+			<h2>{{ t('sendent', 'Nextcloud for Email / Teams') }}</h2>
 			<TabContainer :tabs="mainTabs" default-tab="general" hash-key="tab">
 				<template #general>
 					<GeneralTab />

@@ -36,15 +36,15 @@
 				</template>
 				<template #outlook>
 					<DocumentationLink :links="[
-						{ href: 'https://help.sendent.com/sendent-for-outlook-cross-platform/3019/getting-started-administrator', label: t('sendent', 'Cross-Platform Outlook') },
-						{ href: 'https://help.sendent.com/sendent-for-outlook-windows-only/3021/getting-started-administrator', label: t('sendent', 'Windows Only Outlook Classic') },
+						{ href: 'https://help.sendent.com/nextcloud-for-email/nextcloud-for-outlook-cross-platform/3019/getting-started-administrator', label: t('sendent', 'Cross-Platform Outlook') },
+						{ href: 'https://help.sendent.com/nextcloud-for-email/nextcloud-for-outlook-windows-only/3021/getting-started-administrator', label: t('sendent', 'Windows Only Outlook Classic') },
 					]" />
 					<h3 class="group-settings-tab__active-group">{{ editingHeading }}</h3>
 					<OutlookSettingsTab />
 				</template>
 				<template #teams>
 					<DocumentationLink :links="[
-						{ href: 'https://help.sendent.com/sendent-for-ms-teams/3024/getting-started-administrator', label: t('sendent', 'Sendent for Microsoft Teams') },
+						{ href: 'https://help.sendent.com/sendent-nextcloud-workspace/nextcloud-for-ms-teams/3024/getting-started-administrator', label: t('sendent', 'Nextcloud for Microsoft Teams') },
 					]" />
 					<h3 class="group-settings-tab__active-group">{{ editingHeading }}</h3>
 					<TeamsSettingsTab />
@@ -77,7 +77,7 @@ const editingHeading = computed(() => {
 
 const subtabs = [
 	{ id: 'license', label: t('sendent', 'License') },
-	{ id: 'outlook', label: t('sendent', 'Outlook Settings') },
+	{ id: 'outlook', label: t('sendent', 'Mail Settings') },
 	{ id: 'teams', label: t('sendent', 'Teams Settings') },
 ]
 </script>
