@@ -87,6 +87,7 @@ jobs:
             --exclude="./${APP_NAME}/tests" \
             --exclude="./${APP_NAME}/build" \
             --exclude="./${APP_NAME}/releases" \
+            --exclude="./${APP_NAME}/screenshots" \
             --exclude="./${APP_NAME}/certificates" \
             --exclude="./${APP_NAME}/msteams-addin" \
             --exclude="./${APP_NAME}/package.json" \
