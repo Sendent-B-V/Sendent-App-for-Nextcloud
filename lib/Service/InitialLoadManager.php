@@ -309,13 +309,14 @@ class InitialLoadManager {
 				}
 			}
 			if (!is_null($guestaccounthtmlsnippet)) {
-				if ($guestaccounthtmlsnippet->getValue() === '' || $this->isLegacyDefault($guestaccounthtmlsnippet->getValue(), 'htmlsnippetguestaccounts', ['1.3', '2.0', '4.4'])) {
+				if ($guestaccounthtmlsnippet->getValue() === '') {
 					$this->update($guestaccounthtmlsnippet->getId(), $guestaccounthtmlsnippet->getSettingkeyid(), $guestaccounthtmlsnippet->getGroupid(), $this->getguestaccountshtml());
 				}
 			}
 			if (!is_null($guestaccountpublicsharehtmlsnippet)) {
-				if ($guestaccountpublicsharehtmlsnippet->getValue() === '' || $this->isLegacyDefault($guestaccountpublicsharehtmlsnippet->getValue(), 'htmlsnippetpublicaccounts', ['2.0', '4.4'])) {
+				if ($guestaccountpublicsharehtmlsnippet->getValue() === '') {
 					$this->update($guestaccountpublicsharehtmlsnippet->getId(), $guestaccountpublicsharehtmlsnippet->getSettingkeyid(), $guestaccountpublicsharehtmlsnippet->getGroupid(), $this->getguestaccountspublicsharehtml());
+
 				}
 			}
 			if (!is_null($talkhtmlsnippet)) {
@@ -331,25 +332,6 @@ class InitialLoadManager {
 		} catch (Exception $exception) {
 		}
 	}
-
-	/**
-	 * True if a stored snippet is still one of the previously released defaults
-	 * in assets/templates/legacy/<template>-<version>.html. Such a value was
-	 * never customised, so it can be replaced by the current default;
-	 * customised values stay.
-	 *
-	 * @param string[] $versions
-	 */
-	private function isLegacyDefault(string $value, string $template, array $versions): bool {
-		$normalise = fn (string $html): string => trim(str_replace("\r\n", "\n", $html));
-		foreach ($versions as $version) {
-			if ($normalise($value) === $normalise($this->getHTMLTemplate('legacy/' . $template . '-' . $version))) {
-				return true;
-			}
-		}
-		return false;
-	}
-
 	public function addStatusSync() : void {
 		$this->createKey('401', 'statussync', '0', 'select-one');
 		$this->createGroupValue('0', '401', 'False');
