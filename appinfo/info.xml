@@ -30,7 +30,7 @@ Browse, share, and open Nextcloud files without leaving Teams.
 - Files stay under Nextcloud permissions and sharing controls.
 
 Paid customers can manage admin policies centrally from this app. Free users can get started with Nextcloud for Outlook. Nextcloud for Thunderbird and Nextcloud for Mail (compatible with Apple Mail) already work with this app; settings specific to them are not available yet.]]></description>
-    <version>4.6.4</version>
+    <version>4.6.5</version>
     <licence>agpl</licence>
     <author mail="support@sendent.com" homepage="https://www.sendent.com">Sendent B.V.</author>
     <namespace>Sendent</namespace>
@@ -54,9 +54,11 @@ Paid customers can manage admin policies centrally from this app. Free users can
     <repair-steps>
         <post-migration>
             <step>OCA\Sendent\Migration\RepairInitialLoad</step>
+            <step>OCA\Sendent\Migration\MigrateLegacySnippets</step>
         </post-migration>
         <install>
             <step>OCA\Sendent\Migration\RepairInitialLoad</step>
+            <step>OCA\Sendent\Migration\MigrateLegacySnippets</step>
         </install>
     </repair-steps>
 

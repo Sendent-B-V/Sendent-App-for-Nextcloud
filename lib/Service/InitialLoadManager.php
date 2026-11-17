@@ -710,7 +710,7 @@ class InitialLoadManager {
 		$this->createGroupValue('0', '11', 'False');
 		$this->createGroupValue('0', '25', 'False');
 		$this->createGroupValue('0', '24', '/Outlook/SecureMail-Share/');
-		$this->createGroupValue('0', '12', $this->getsharefilehtml());
+		$this->createGroupValue('0', '12', $this->getsecuremailhtml());
 		$this->createGroupValue('0', '203', $this->gethtmltalksnippet());
 		$this->createGroupValue('0', '210', $this->gethtmltalkpwsnippet());
 		$this->createGroupValue('0', '30', $this->gethtmlpasswordsnippet());
