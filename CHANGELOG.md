@@ -361,6 +361,7 @@
 ### Fix
 - The default guest accounts snippet (Outlook, "Disable anonymous share") now contains the link to the shared files via `{URL}`. Recipients who already have an account previously got no link at all, because the Guests app only sends its activation email to newly created guests. The text now covers both new guests (activate via the separate email, then open the files) and existing accounts (sign in and open the files).
 - The default upload request snippet (Outlook, upload request with "Disable anonymous share" on) now contains the link to the folder via `{URL}`, with the same wording for new guests and existing accounts.
-- On update, the guest accounts and upload request snippets are replaced with the new default only if they still equal a previously released default. Customised snippets are left unchanged.
+- On update, all Outlook email snippets (file share, upload request, Secure Mail, password, Talk, Talk password, guest accounts, guest upload request) that still equal a previous default are replaced with the current default, so servers that never changed them get the current design. Customised snippets are left unchanged.
+- New installations store the Secure Mail default for the Secure Mail snippet instead of the file share default.
 ### Action required for customised guest accounts and upload request snippets
 - If you changed the guest accounts snippet or the upload request snippet, it still has no link to the files. Add the `{URL}` placeholder to it (for example `<a href="{URL}">{URL}</a>`), or reset the snippet to the default and reapply your changes.

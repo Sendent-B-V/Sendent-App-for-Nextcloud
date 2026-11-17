@@ -33,9 +33,11 @@ use OCP\Migration\IRepairStep;
 use Throwable;
 
 /**
- * Replaces stored HTML snippets that still equal a previously released
- * default (assets/templates/legacy/<template>-<version>.html) with the
- * current default. Customised snippets are left unchanged.
+ * Replaces stored HTML snippets that still equal a previous default with the
+ * current default. Previous defaults are kept byte for byte in
+ * assets/templates/legacy/<template>/<appversion>-<commit>.html; to cover a
+ * future template change, add the old default there. Customised snippets are
+ * left unchanged.
  *
  * This is its own repair step, not part of InitialLoadManager, because on an
  * update from the Apps page or `occ app:update` the old InitialLoadManager
@@ -44,10 +46,16 @@ use Throwable;
  * older versions are used here.
  */
 class MigrateLegacySnippets implements IRepairStep {
-	/** setting key => [template name, released versions that had no {URL}] */
-	private const LEGACY_SNIPPETS = [
-		302 => ['htmlsnippetguestaccounts', ['1.3', '2.0', '4.0', '4.4']],
-		303 => ['htmlsnippetpublicaccounts', ['2.0', '4.0', '4.4']],
+	/** setting key => template name */
+	private const SNIPPETS = [
+		9 => 'sharefolderhtml',
+		10 => 'sharefilehtml',
+		12 => 'securemailhtml',
+		30 => 'htmlsnippetpassword',
+		203 => 'talkhtml',
+		210 => 'talkpwhtml',
+		302 => 'htmlsnippetguestaccounts',
+		303 => 'htmlsnippetpublicaccounts',
 	];
 
 	private InitialLoadManager $initialLoadManager;
@@ -63,13 +71,22 @@ class MigrateLegacySnippets implements IRepairStep {
 	}
 
 	public function run(IOutput $output): void {
-		foreach (self::LEGACY_SNIPPETS as $key => [$template, $versions]) {
+		$templates = $this->appManager->getAppPath(Application::APPID) . '/assets/templates/';
+		foreach (self::SNIPPETS as $key => $template) {
 			try {
 				$stored = $this->initialLoadManager->showBySettingKeyId($key);
-				if ($stored === null || !$this->isLegacyDefault($stored->getValue(), $template, $versions)) {
+				if ($stored === null) {
 					continue;
 				}
-				$this->initialLoadManager->update($stored->getId(), $key, $stored->getGroupid(), $this->readTemplate($template));
+				$legacyFiles = glob($templates . 'legacy/' . $template . '/*.html') ?: [];
+				if ($key === 12) {
+					// Secure Mail used to be seeded with the file share default.
+					$legacyFiles = array_merge($legacyFiles, glob($templates . 'legacy/sharefilehtml/*.html') ?: [], [$templates . 'sharefilehtml.html']);
+				}
+				if (!$this->matchesAny($stored->getValue(), $legacyFiles)) {
+					continue;
+				}
+				$this->initialLoadManager->update($stored->getId(), $key, $stored->getGroupid(), $this->read($templates . $template . '.html'));
 				$output->info('Updated ' . $template . ' to the new default.');
 			} catch (Throwable $e) {
 				// Never break an update over a snippet; the old snippet keeps working.
@@ -79,22 +96,22 @@ class MigrateLegacySnippets implements IRepairStep {
 	}
 
 	/**
-	 * @param string[] $versions
+	 * @param string[] $files
 	 */
-	private function isLegacyDefault(string $value, string $template, array $versions): bool {
+	private function matchesAny(string $value, array $files): bool {
 		$normalise = fn (string $html): string => trim(str_replace("\r\n", "\n", $html));
-		foreach ($versions as $version) {
-			if ($normalise($value) === $normalise($this->readTemplate('legacy/' . $template . '-' . $version))) {
+		foreach ($files as $file) {
+			if ($normalise($value) === $normalise($this->read($file))) {
 				return true;
 			}
 		}
 		return false;
 	}
 
-	private function readTemplate(string $name): string {
-		$content = file_get_contents($this->appManager->getAppPath(Application::APPID) . '/assets/templates/' . $name . '.html');
+	private function read(string $file): string {
+		$content = file_get_contents($file);
 		if ($content === false) {
-			throw new \RuntimeException('Template ' . $name . ' not found');
+			throw new \RuntimeException('Template ' . $file . ' not found');
 		}
 		return $content;
 	}
