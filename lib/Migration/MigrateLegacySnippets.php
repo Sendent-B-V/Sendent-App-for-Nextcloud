@@ -46,8 +46,8 @@ use Throwable;
 class MigrateLegacySnippets implements IRepairStep {
 	/** setting key => [template name, released versions that had no {URL}] */
 	private const LEGACY_SNIPPETS = [
-		302 => ['htmlsnippetguestaccounts', ['1.3', '2.0', '4.4']],
-		303 => ['htmlsnippetpublicaccounts', ['2.0', '4.4']],
+		302 => ['htmlsnippetguestaccounts', ['1.3', '2.0', '4.0', '4.4']],
+		303 => ['htmlsnippetpublicaccounts', ['2.0', '4.0', '4.4']],
 	];
 
 	private InitialLoadManager $initialLoadManager;
