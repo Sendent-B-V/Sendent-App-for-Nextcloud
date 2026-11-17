@@ -28,19 +28,28 @@ namespace OCA\Sendent\Migration;
 use OCA\Sendent\AppInfo\Application;
 use OCA\Sendent\Service\InitialLoadManager;
 use OCP\App\IAppManager;
+use OCP\AppFramework\Services\IAppConfig;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
 use Throwable;
 
 /**
- * Replaces stored HTML snippets that still equal a previous default with the
+ * Replaces stored HTML snippets that still equal the previous default with the
  * current default. Customised snippets are left unchanged.
  *
- * The stored snippet is a copy of the default made at install time, with no
- * record of whether an admin edited it. So we compare it against the SHA-1 of
- * every default that shipped (CRLF normalised to LF, then trimmed). When you
- * change a template, add the hash of the old one here:
- *   php -r 'echo sha1(trim(str_replace("\r\n", "\n", file_get_contents($argv[1])))), "\n";' assets/templates/<template>.html
+ * The stored snippet is a copy of the default, with no record of whether an
+ * admin edited it. So after each run we remember the hash of the current
+ * template in app config (snippet_default_hash_<key>). On the next update, a
+ * stored snippet with that hash is still the untouched default and is replaced.
+ * Changing a template needs no code change.
+ *
+ * Servers that updated from before 4.6.5 have no remembered hash yet, so
+ * SNIPPETS lists the hashes of every default shipped until then. That list is
+ * frozen; don't add to it. Hashes are SHA-1 of the HTML with CRLF normalised
+ * to LF, then trimmed.
+ *
+ * This step also runs on install, so new servers remember their default from
+ * the start.
  *
  * This is its own repair step, not part of InitialLoadManager, because on an
  * update from the Apps page or `occ app:update` the old InitialLoadManager
@@ -49,7 +58,7 @@ use Throwable;
  * older versions are used here.
  */
 class MigrateLegacySnippets implements IRepairStep {
-	/** setting key => [template name, hashes of previous defaults (app version-commit)] */
+	/** setting key => [template name, hashes of defaults shipped before 4.6.5 (app version-commit)] */
 	private const SNIPPETS = [
 		9 => ['sharefolderhtml', [
 			'c5253642a0f732c2f30020cbc348980a1c965c6b', // 1.0.18-b3fde6d
@@ -112,10 +121,12 @@ class MigrateLegacySnippets implements IRepairStep {
 
 	private InitialLoadManager $initialLoadManager;
 	private IAppManager $appManager;
+	private IAppConfig $appConfig;
 
-	public function __construct(InitialLoadManager $initialLoadManager, IAppManager $appManager) {
+	public function __construct(InitialLoadManager $initialLoadManager, IAppManager $appManager, IAppConfig $appConfig) {
 		$this->initialLoadManager = $initialLoadManager;
 		$this->appManager = $appManager;
+		$this->appConfig = $appConfig;
 	}
 
 	public function getName(): string {
@@ -126,24 +137,31 @@ class MigrateLegacySnippets implements IRepairStep {
 		$templates = $this->appManager->getAppPath(Application::APPID) . '/assets/templates/';
 		foreach (self::SNIPPETS as $key => [$template, $legacyHashes]) {
 			try {
-				$stored = $this->initialLoadManager->showBySettingKeyId($key);
-				if ($stored === null) {
-					continue;
-				}
-				$hash = sha1(trim(str_replace("\r\n", "\n", $stored->getValue())));
-				if (!in_array($hash, $legacyHashes, true)) {
-					continue;
-				}
 				$default = file_get_contents($templates . $template . '.html');
 				if ($default === false) {
 					throw new \RuntimeException('Template ' . $template . '.html not found');
 				}
-				$this->initialLoadManager->update($stored->getId(), $key, $stored->getGroupid(), $default);
-				$output->info('Updated ' . $template . ' to the new default.');
+				$defaultHash = $this->hash($default);
+				$configKey = 'snippet_default_hash_' . $key;
+				$stored = $this->initialLoadManager->showBySettingKeyId($key);
+				if ($stored !== null) {
+					$storedHash = $this->hash($stored->getValue());
+					$previousDefaults = [...$legacyHashes, $this->appConfig->getAppValueString($configKey)];
+					if ($storedHash !== $defaultHash && in_array($storedHash, $previousDefaults, true)) {
+						$this->initialLoadManager->update($stored->getId(), $key, $stored->getGroupid(), $default);
+						$output->info('Updated ' . $template . ' to the new default.');
+					}
+				}
+				// Only remembered once the snippet is handled, so a failed update is retried next time.
+				$this->appConfig->setAppValueString($configKey, $defaultHash);
 			} catch (Throwable $e) {
 				// Never break an update over a snippet; the old snippet keeps working.
 				$output->warning('Could not update ' . $template . ': ' . $e->getMessage());
 			}
 		}
+	}
+
+	private function hash(string $html): string {
+		return sha1(trim(str_replace("\r\n", "\n", $html)));
 	}
 }
