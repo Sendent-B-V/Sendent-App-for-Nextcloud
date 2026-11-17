@@ -334,13 +334,19 @@ class InitialLoadManager {
 	}
 
 	/**
-	 * True if the stored guest accounts snippet (302) is still the previous
-	 * default, which had no {URL} placeholder. Such a value was never customised,
-	 * so it can be replaced by the current default; customised values stay.
+	 * True if the stored guest accounts snippet (302) is still one of the
+	 * previously released defaults (2.0 - 3.x and 4.4 - 4.6), which had no {URL}
+	 * placeholder. Such a value was never customised, so it can be replaced by
+	 * the current default; customised values stay.
 	 */
 	private function isLegacyGuestAccountsDefault(string $value): bool {
 		$normalise = fn (string $html): string => trim(str_replace("\r\n", "\n", $html));
-		return $normalise($value) === $normalise($this->getHTMLTemplate('legacy/htmlsnippetguestaccounts'));
+		foreach (['2.0', '4.4'] as $version) {
+			if ($normalise($value) === $normalise($this->getHTMLTemplate('legacy/htmlsnippetguestaccounts-' . $version))) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public function addStatusSync() : void {
