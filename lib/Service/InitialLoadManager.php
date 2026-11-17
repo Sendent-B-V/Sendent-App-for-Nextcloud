@@ -309,7 +309,7 @@ class InitialLoadManager {
 				}
 			}
 			if (!is_null($guestaccounthtmlsnippet)) {
-				if ($guestaccounthtmlsnippet->getValue() === '') {
+				if ($guestaccounthtmlsnippet->getValue() === '' || $this->isLegacyGuestAccountsDefault($guestaccounthtmlsnippet->getValue())) {
 					$this->update($guestaccounthtmlsnippet->getId(), $guestaccounthtmlsnippet->getSettingkeyid(), $guestaccounthtmlsnippet->getGroupid(), $this->getguestaccountshtml());
 				}
 			}
@@ -332,6 +332,17 @@ class InitialLoadManager {
 		} catch (Exception $exception) {
 		}
 	}
+
+	/**
+	 * True if the stored guest accounts snippet (302) is still the previous
+	 * default, which had no {URL} placeholder. Such a value was never customised,
+	 * so it can be replaced by the current default; customised values stay.
+	 */
+	private function isLegacyGuestAccountsDefault(string $value): bool {
+		$normalise = fn (string $html): string => trim(str_replace("\r\n", "\n", $html));
+		return $normalise($value) === $normalise($this->getHTMLTemplate('legacy/htmlsnippetguestaccounts'));
+	}
+
 	public function addStatusSync() : void {
 		$this->createKey('401', 'statussync', '0', 'select-one');
 		$this->createGroupValue('0', '401', 'False');

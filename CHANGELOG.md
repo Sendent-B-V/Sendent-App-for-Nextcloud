@@ -356,3 +356,10 @@
 - Release notes are cached for up to 8 hours, so opening the settings page no longer waits on the changelog server for every product.
 - The release notes endpoint is restricted to administrators and requires a CSRF token.
 - Documentation links point to the new help.sendent.com locations.
+
+## Unreleased
+### Fix
+- The default guest accounts snippet (Outlook, "Disable anonymous share") now contains the link to the shared files via `{URL}`. Recipients who already have an account previously got no link at all, because the Guests app only sends its activation email to newly created guests. The text now covers both new guests (activate via the separate email, then open the files) and existing accounts (sign in and open the files).
+- On update, the guest accounts snippet is replaced with the new default only if it still equals the previous default. Customised snippets are left unchanged.
+### Action required for customised guest accounts snippets
+- If you changed the guest accounts snippet, it still has no link to the files. Add the `{URL}` placeholder to it (for example `<a href="{URL}">{URL}</a>`), or reset the snippet to the default and reapply your changes.
