@@ -309,14 +309,13 @@ class InitialLoadManager {
 				}
 			}
 			if (!is_null($guestaccounthtmlsnippet)) {
-				if ($guestaccounthtmlsnippet->getValue() === '' || $this->isLegacyGuestAccountsDefault($guestaccounthtmlsnippet->getValue())) {
+				if ($guestaccounthtmlsnippet->getValue() === '' || $this->isLegacyDefault($guestaccounthtmlsnippet->getValue(), 'htmlsnippetguestaccounts', ['1.3', '2.0', '4.4'])) {
 					$this->update($guestaccounthtmlsnippet->getId(), $guestaccounthtmlsnippet->getSettingkeyid(), $guestaccounthtmlsnippet->getGroupid(), $this->getguestaccountshtml());
 				}
 			}
 			if (!is_null($guestaccountpublicsharehtmlsnippet)) {
-				if ($guestaccountpublicsharehtmlsnippet->getValue() === '') {
+				if ($guestaccountpublicsharehtmlsnippet->getValue() === '' || $this->isLegacyDefault($guestaccountpublicsharehtmlsnippet->getValue(), 'htmlsnippetpublicaccounts', ['2.0', '4.4'])) {
 					$this->update($guestaccountpublicsharehtmlsnippet->getId(), $guestaccountpublicsharehtmlsnippet->getSettingkeyid(), $guestaccountpublicsharehtmlsnippet->getGroupid(), $this->getguestaccountspublicsharehtml());
-
 				}
 			}
 			if (!is_null($talkhtmlsnippet)) {
@@ -334,15 +333,17 @@ class InitialLoadManager {
 	}
 
 	/**
-	 * True if the stored guest accounts snippet (302) is still one of the
-	 * previously released defaults (2.0 - 3.x and 4.4 - 4.6), which had no {URL}
-	 * placeholder. Such a value was never customised, so it can be replaced by
-	 * the current default; customised values stay.
+	 * True if a stored snippet is still one of the previously released defaults
+	 * in assets/templates/legacy/<template>-<version>.html. Such a value was
+	 * never customised, so it can be replaced by the current default;
+	 * customised values stay.
+	 *
+	 * @param string[] $versions
 	 */
-	private function isLegacyGuestAccountsDefault(string $value): bool {
+	private function isLegacyDefault(string $value, string $template, array $versions): bool {
 		$normalise = fn (string $html): string => trim(str_replace("\r\n", "\n", $html));
-		foreach (['2.0', '4.4'] as $version) {
-			if ($normalise($value) === $normalise($this->getHTMLTemplate('legacy/htmlsnippetguestaccounts-' . $version))) {
+		foreach ($versions as $version) {
+			if ($normalise($value) === $normalise($this->getHTMLTemplate('legacy/' . $template . '-' . $version))) {
 				return true;
 			}
 		}
