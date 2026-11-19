@@ -25,8 +25,10 @@ namespace OCA\Sendent\Tests\Unit\Controller;
 
 use OC\SystemTag\SystemTag;
 
+use OCA\Sendent\Constants;
 use OCA\Sendent\Controller\TagController;
 use OCP\AppFramework\Http\JSONResponse;
+use OCP\AppFramework\Services\IAppConfig;
 use OCP\IRequest;
 use OCP\SystemTag\ISystemTagManager;
 use OCP\SystemTag\TagAlreadyExistsException;
@@ -41,6 +43,9 @@ class TagControllerTest extends TestCase {
 	/** @var MockObject */
 	private $tagManager;
 
+	/** @var IAppConfig&MockObject */
+	private $appConfig;
+
 	/** @var TagController */
 	private $controller;
 
@@ -49,11 +54,13 @@ class TagControllerTest extends TestCase {
 		$this->request = $this->getMockBuilder(IRequest::class)->getMock();
 		/** @var ISystemTagManager */
 		$this->tagManager = $this->getMockBuilder(ISystemTagManager::class)->getMock();
+		$this->appConfig = $this->createMock(IAppConfig::class);
 
 		$this->controller = new TagController(
 			'sendent',
 			$this->request,
-			$this->tagManager
+			$this->tagManager,
+			$this->appConfig
 		);
 	}
 
@@ -137,5 +144,69 @@ class TagControllerTest extends TestCase {
 		$this->assertEquals($name, $data['name']);
 		$this->assertEquals($tag->isUserVisible(), $data['isVisible']);
 		$this->assertEquals($tag->isUserAssignable(), $data['isAssignable']);
+	}
+
+	public function testCreateWithoutConfigKeyDoesNotTouchConfig() {
+		$this->tagManager
+			->method('createTag')
+			->willReturn(new SystemTag('1', 'foobar', true, false));
+
+		$this->appConfig->expects($this->never())->method('setAppValueString');
+
+		$response = $this->controller->create('foobar');
+
+		$this->assertEquals(200, $response->getStatus());
+	}
+
+	/**
+	 * The tag id must be persisted server-side: since NC 33 the frontend
+	 * OCP.AppConfig.setValue() sends the id as a JSON number, which the
+	 * provisioning API rejects with a 400 (string $value TypeError).
+	 */
+	public function testCreateWithConfigKeySavesTagIdAsString() {
+		$this->tagManager
+			->expects($this->once())
+			->method('createTag')
+			->with('retention:removed', true, false)
+			->willReturn(new SystemTag('8', 'retention:removed', true, false));
+
+		$this->appConfig
+			->expects($this->once())
+			->method('setAppValueString')
+			->with(Constants::CONFIG_REMOVED_TAG, '8');
+
+		$response = $this->controller->create('retention:removed', Constants::CONFIG_REMOVED_TAG);
+
+		$this->assertEquals(200, $response->getStatus());
+		$this->assertSame(8, $response->getData()['id']);
+	}
+
+	public function testCreateDuplicateWithConfigKeySavesExistingTagId() {
+		$this->tagManager
+			->method('createTag')
+			->willThrowException(new TagAlreadyExistsException());
+		$this->tagManager
+			->method('getTag')
+			->with('retention:expired', true, false)
+			->willReturn(new SystemTag('9', 'retention:expired', true, false));
+
+		$this->appConfig
+			->expects($this->once())
+			->method('setAppValueString')
+			->with(Constants::CONFIG_EXPIRED_TAG, '9');
+
+		$response = $this->controller->create('retention:expired', Constants::CONFIG_EXPIRED_TAG);
+
+		$this->assertEquals(200, $response->getStatus());
+		$this->assertSame(9, $response->getData()['id']);
+	}
+
+	public function testCreateWithUnknownConfigKeyIsRejected() {
+		$this->tagManager->expects($this->never())->method('createTag');
+		$this->appConfig->expects($this->never())->method('setAppValueString');
+
+		$response = $this->controller->create('foobar', 'licensekey');
+
+		$this->assertEquals(400, $response->getStatus());
 	}
 }

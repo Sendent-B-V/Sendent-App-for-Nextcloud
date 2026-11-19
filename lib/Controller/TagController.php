@@ -23,9 +23,11 @@
 
 namespace OCA\Sendent\Controller;
 
+use OCA\Sendent\Constants;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
+use OCP\AppFramework\Services\IAppConfig;
 use OCP\IRequest;
 use OCP\SystemTag\ISystemTag;
 use OCP\SystemTag\ISystemTagManager;
@@ -34,12 +36,23 @@ use OCP\SystemTag\TagNotFoundException;
 
 class TagController extends Controller {
 
+	/** App config keys that may hold a retention tag id */
+	private const TAG_CONFIG_KEYS = [
+		Constants::CONFIG_UPLOAD_TAG,
+		Constants::CONFIG_REMOVED_TAG,
+		Constants::CONFIG_EXPIRED_TAG,
+	];
+
 	/** @var ISystemTagManager */
 	private $tagManager;
 
-	public function __construct($appName, IRequest $request, ISystemTagManager $tagManager) {
+	/** @var IAppConfig */
+	private $appConfig;
+
+	public function __construct($appName, IRequest $request, ISystemTagManager $tagManager, IAppConfig $appConfig) {
 		parent::__construct($appName, $request);
 		$this->tagManager = $tagManager;
+		$this->appConfig = $appConfig;
 	}
 
 	public function show(string $id): JSONResponse {
@@ -52,11 +65,27 @@ class TagController extends Controller {
 		return new JSONResponse($this->serializeTag($tags[$id]));
 	}
 
-	public function create(string $name): JSONResponse {
+	/**
+	 * Create (or reuse) a system tag and, when $key is given, persist its id
+	 * in the sendent app config.
+	 *
+	 * The id is saved server-side on purpose: since NC 33 the frontend
+	 * OCP.AppConfig.setValue() posts JSON, so a numeric id reaches the
+	 * provisioning API's `string $value` as an int and is rejected with 400.
+	 */
+	public function create(string $name, string $key = ''): JSONResponse {
+		if ($key !== '' && !in_array($key, self::TAG_CONFIG_KEYS, true)) {
+			return new JSONResponse(['error' => 'key'], Http::STATUS_BAD_REQUEST);
+		}
+
 		try {
 			$tag = $this->tagManager->createTag($name, true, false);
 		} catch (TagAlreadyExistsException $e) {
 			$tag = $this->tagManager->getTag($name, true, false);
+		}
+
+		if ($key !== '') {
+			$this->appConfig->setAppValueString($key, (string)$tag->getId());
 		}
 
 		return new JSONResponse($this->serializeTag($tag));

@@ -87,3 +87,6 @@ jobs:
     - name: Run tests
       working-directory: nextcloud/apps/sendent
       run: composer run test
+    - name: Run integration tests (real Nextcloud services)
+      working-directory: nextcloud/apps/sendent
+      run: composer run test:integration

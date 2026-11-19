@@ -70,14 +70,20 @@ export async function fetchTag(id: number): Promise<TagData> {
 }
 
 /**
- * Creates a new system tag with the given name.
+ * Creates (or reuses) a system tag and saves its id under the given app
+ * config key server-side, in one request.
+ *
+ * Don't save the id via OCP.AppConfig.setValue(): since NC 33 it posts JSON,
+ * a numeric id is rejected by the provisioning API with 400, and the failure
+ * is silent.
  *
  * @param name - Display name for the new tag
- * @return The newly created tag data
+ * @param key - Sendent app config key that stores the tag id (e.g. 'tag:removed')
+ * @return The created or existing tag data
  */
-export async function createTag(name: string): Promise<TagData> {
+export async function createTag(name: string, key: string): Promise<TagData> {
 	const url = generateUrl(`${baseUrl}/tag`)
-	const response = await axios.post(url, { name })
+	const response = await axios.post(url, { name, key })
 	return response.data
 }
 

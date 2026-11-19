@@ -10,6 +10,7 @@
     ],
     "scripts": {
         "test": "phpunit -c phpunit.xml",
+        "test:integration": "phpunit -c phpunit.integration.xml",
         "cs:check": "php-cs-fixer fix --dry-run --diff",
         "cs:fix": "php-cs-fixer fix",
         "lint": "find . -name \\*.php -not -path './vendor/*' -exec php -l \"{}\" \\;"

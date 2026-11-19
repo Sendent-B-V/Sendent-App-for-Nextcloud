@@ -55,8 +55,9 @@ export const useRetentionStore = defineStore('retention', () => {
 	/** Load initial state from PHP */
 	function loadInitialState() {
 		try {
-			const state = loadState('sendent', 'tags') as TagState
-			tags.value = state
+			// Copy: loadState() returns a globally cached object, mutating it
+			// would make later loadState() calls show unsaved in-memory ids
+			tags.value = { ...(loadState('sendent', 'tags') as TagState) }
 		} catch {
 			// Tags not configured
 		}
@@ -78,11 +79,9 @@ export const useRetentionStore = defineStore('retention', () => {
 		if (tags.value[key] >= 0) {
 			return tags.value[key]
 		}
-		const tag = await retentionApi.createTag(DEFAULT_TAG_NAMES[key])
+		// The server saves the id under `key` in the same request
+		const tag = await retentionApi.createTag(DEFAULT_TAG_NAMES[key], key)
 		tags.value[key] = tag.id
-
-		// Save to NC app config
-		OCP.AppConfig.setValue('sendent', key, tag.id)
 		return tag.id
 	}
 
@@ -155,12 +154,18 @@ export const useRetentionStore = defineStore('retention', () => {
 		timeafter: number,
 	) {
 		const tagId = await ensureTag(tagKey)
-		await retentionApi.createRetention({
-			tagid: tagId,
-			timeafter,
-			timeamount,
-			timeunit,
-		})
+		// files_retention allows one rule per tag and answers a duplicate with
+		// 400 {"error":"tagid"}. A rule can already exist without us knowing,
+		// e.g. on installs where the tag id was never saved, so reuse it.
+		const existing = await retentionApi.fetchRetentions()
+		if (!existing.some((r) => r.tagid === tagId)) {
+			await retentionApi.createRetention({
+				tagid: tagId,
+				timeafter,
+				timeamount,
+				timeunit,
+			})
+		}
 		if (tagKey === 'tag:removed') hasRemovedRetention.value = true
 		if (tagKey === 'tag:expired') hasExpiredRetention.value = true
 	}

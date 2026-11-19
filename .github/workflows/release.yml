@@ -97,6 +97,7 @@ jobs:
             --exclude="./${APP_NAME}/composer.phar" \
             --exclude="./${APP_NAME}/yarn.lock" \
             --exclude="./${APP_NAME}/webpack.*" \
+            --exclude="./${APP_NAME}/vitest.config.*" \
             --exclude="./${APP_NAME}/tsconfig.json" \
             --exclude="./${APP_NAME}/Makefile" \
             --exclude="./${APP_NAME}/psalm.xml" \
