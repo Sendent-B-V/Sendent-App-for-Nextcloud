@@ -137,9 +137,8 @@ declare namespace OCA {
 }
 
 declare namespace OCP {
-	namespace AppConfig {
-		function setValue(appId: string, key: string, value: any): void;
-	}
+	// OCP.AppConfig is intentionally not declared: writing app config from the
+	// browser is banned by the no-restricted-syntax rule in .eslintrc.js
 	namespace Files {
 		namespace Router {
 			namespace query {
