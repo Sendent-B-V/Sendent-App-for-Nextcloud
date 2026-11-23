@@ -54,9 +54,11 @@ Paid customers can manage admin policies centrally from this app. Free users can
     <repair-steps>
         <post-migration>
             <step>OCA\Sendent\Migration\RepairInitialLoad</step>
+            <step>OCA\Sendent\Migration\MigrateLegacySnippets</step>
         </post-migration>
         <install>
             <step>OCA\Sendent\Migration\RepairInitialLoad</step>
+            <step>OCA\Sendent\Migration\MigrateLegacySnippets</step>
         </install>
     </repair-steps>
 
