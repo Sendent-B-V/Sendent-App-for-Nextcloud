@@ -39,7 +39,7 @@ export type Section =
 export interface SelectOption {
 	value: string
 	label: string
-	/** Hint shown under the field while this option is selected. */
+	/** What this option does; listed in the setting's info popover. */
 	description?: string
 }
 
@@ -57,8 +57,10 @@ export interface SettingDefinition {
 	options?: SelectOption[]
 	visibilityRule?: VisibilityRule
 	defaultValue?: string
-	/** Hint shown under the field. The selected option's own description takes precedence. */
+	/** What the setting does; first paragraph of its info popover. */
 	description?: string
+	/** How to fill the field in, with an example; last paragraph of the info popover. */
+	format?: string
 	/** Only Outlook Classic reads this setting; shown as a note under the label. */
 	classicOnly?: boolean
 	/** Clients whose settings tab shows this setting. Omitted means every client. */

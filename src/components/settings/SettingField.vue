@@ -21,10 +21,13 @@
 <template>
 	<div v-if="visible"
 		class="setting-field"
-		:class="{ 'setting-field--block': isBlockInput, 'setting-field--annotated': hint || exceedsNextcloudMaxShareDays }">
+		:class="{ 'setting-field--block': isBlockInput, 'setting-field--warning': exceedsNextcloudMaxShareDays }">
 		<div class="setting-field__header">
 			<div>
-				<label class="setting-field__label">{{ label }}</label>
+				<div class="setting-field__title">
+					<label class="setting-field__label">{{ label }}</label>
+					<SettingHelp v-if="hasHelp" :definition="definition" :label="label" />
+				</div>
 				<span v-if="definition.classicOnly" class="setting-field__scope">
 					{{ t('sendent', 'Outlook Classic only') }}
 				</span>
@@ -70,9 +73,6 @@
 				:signature-mode="definition.signatureMode"
 				@save="onTextareaSave"
 				@reset="onTextareaReset" />
-			<p v-if="hint" class="setting-field__hint">
-				{{ hint }}
-			</p>
 			<p v-if="exceedsNextcloudMaxShareDays" class="setting-field__warning">
 				{{ n('sendent',
 					'Nextcloud limits shared links to %n day, so shares created from the add-ins will expire after %n day.',
@@ -98,6 +98,7 @@ import SaveIndicator from './SaveIndicator.vue'
 import InheritanceCheckbox from './InheritanceCheckbox.vue'
 import MultiInputList from './MultiInputList.vue'
 import SettingTextarea from './SettingTextarea.vue'
+import SettingHelp from './SettingHelp.vue'
 
 const props = defineProps<{
 	definition: SettingDefinition
@@ -122,11 +123,12 @@ const isBlockInput = computed(() =>
 	props.definition.inputType === 'textarea' || props.definition.inputType === 'multiInput',
 )
 
-/** The selected option's hint when it has one, otherwise the setting's own. */
-const hint = computed(() =>
-	props.definition.options?.find(opt => opt.value === localValue.value)?.description
-	?? props.definition.description,
-)
+/** Settings without any explanation text get no info button. */
+const hasHelp = computed(() => Boolean(
+	props.definition.description
+	|| props.definition.format
+	|| props.definition.options?.some(opt => opt.description),
+))
 
 /** Maximum share days enforced by Nextcloud; the add-ins cap the Sendent value at it. */
 const nextcloudMaxShareDays = computed(() => {
@@ -203,6 +205,12 @@ async function onTextareaReset() {
 	flex-shrink: 0;
 }
 
+.setting-field__title {
+	display: flex;
+	align-items: center;
+	gap: 2px;
+}
+
 .setting-field__label {
 	font-weight: 500;
 	font-size: 14px;
@@ -219,16 +227,9 @@ async function onTextareaReset() {
 	width: 100%;
 }
 
-/* Keep the label level with the input text instead of centering it against input + hint or warning */
-.setting-field--annotated {
+/* Keep the label level with the input text instead of centering it against input + warning */
+.setting-field--warning {
 	align-items: baseline;
-}
-
-.setting-field__hint {
-	margin: 4px 0 0;
-	font-size: 13px;
-	line-height: 1.4;
-	color: var(--color-text-maxcontrast);
 }
 
 /* Sits under the label, so it adds no height to the row */

@@ -54,6 +54,7 @@ export const settingsRegistry: SettingDefinition[] = [
 		section: 'General',
 		inputType: 'select',
 		classicOnly: true,
+		description: t('sendent', 'Language of the add-in when a user signs in for the first time. Users can change it afterwards.'),
 		options: [
 			{ value: 'en', label: t('sendent', 'English') },
 			{ value: 'nl', label: t('sendent', 'Nederlands') },
@@ -71,9 +72,18 @@ export const settingsRegistry: SettingDefinition[] = [
 		templateId: 0,
 		section: 'General',
 		inputType: 'select',
+		description: t('sendent', 'Where the add-in puts its snippet, the block with the share link, in the email.'),
 		options: [
-			{ value: 'True', label: t('sendent', 'At cursor') },
-			{ value: 'False', label: t('sendent', 'Top of email body') },
+			{
+				value: 'True',
+				label: t('sendent', 'At cursor'),
+				description: t('sendent', 'At the cursor. When the cursor is not in the message body, the snippet goes to the top.'),
+			},
+			{
+				value: 'False',
+				label: t('sendent', 'Top of email body'),
+				description: t('sendent', 'Above the existing message text.'),
+			},
 		],
 	},
 	{
@@ -82,6 +92,7 @@ export const settingsRegistry: SettingDefinition[] = [
 		templateId: 0,
 		section: 'General',
 		inputType: 'select',
+		description: t('sendent', 'Every share gets its own folder inside the upload folder. This setting adds a folder named after the upload date in between.'),
 		options: [
 			{ value: 'True', label: t('sendent', 'Add upload date to folder path') },
 			{ value: 'False', label: t('sendent', 'Do not add upload date to folder path') },
@@ -94,7 +105,7 @@ export const settingsRegistry: SettingDefinition[] = [
 		section: 'General',
 		inputType: 'select',
 		classicOnly: true,
-		description: t('sendent', "Writes a log file to the user's Documents folder."),
+		description: t('sendent', "Writes a log file to the user's Documents folder, for troubleshooting. It is applied when a user first signs in; users can change it afterwards."),
 		options: [
 			{ value: 'True', label: t('sendent', 'Enabled') },
 			{ value: 'False', label: t('sendent', 'Disabled') },
@@ -106,9 +117,18 @@ export const settingsRegistry: SettingDefinition[] = [
 		templateId: 0,
 		section: 'General',
 		inputType: 'select',
+		description: t('sendent', 'Whether users can see the settings page inside the add-in.'),
 		options: [
-			{ value: 'False', label: t('sendent', 'Enabled') },
-			{ value: 'True', label: t('sendent', 'Disabled') },
+			{
+				value: 'False',
+				label: t('sendent', 'Enabled'),
+				description: t('sendent', 'Users can open the settings of the add-in.'),
+			},
+			{
+				value: 'True',
+				label: t('sendent', 'Disabled'),
+				description: t('sendent', 'The settings are hidden from users.'),
+			},
 		],
 	},
 	{
@@ -117,17 +137,22 @@ export const settingsRegistry: SettingDefinition[] = [
 		templateId: 0,
 		section: 'General',
 		inputType: 'select',
+		description: t('sendent', 'When the add-in asks the user for a password to protect a share. Not used when “Disable anonymous share” is on.'),
 		options: [
-			{ value: 'Off', label: t('sendent', 'Off') },
+			{
+				value: 'Off',
+				label: t('sendent', 'Off'),
+				description: t('sendent', 'The add-in does not ask for a password.'),
+			},
 			{
 				value: 'BeforeSend',
 				label: t('sendent', 'Before sending'),
-				description: t('sendent', 'Asks for a share password when the user starts sharing.'),
+				description: t('sendent', 'When the user starts sharing.'),
 			},
 			{
 				value: 'BeforeSendAndAfter',
 				label: t('sendent', 'Before and after sending'),
-				description: t('sendent', 'Also shows the password again after the upload.'),
+				description: t('sendent', 'When the user starts sharing. After the upload, the password is shown again so it can be copied.'),
 			},
 		],
 	},
@@ -137,12 +162,17 @@ export const settingsRegistry: SettingDefinition[] = [
 		templateId: 0,
 		section: 'General',
 		inputType: 'select',
+		description: t('sendent', 'How the share password reaches the recipient. Not used when “Disable anonymous share” is on.'),
 		options: [
-			{ value: 'CurrentMail', label: t('sendent', 'Include in email body') },
+			{
+				value: 'CurrentMail',
+				label: t('sendent', 'Include in email body'),
+				description: t('sendent', 'In the same email as the share link.'),
+			},
 			{
 				value: 'Separate',
 				label: t('sendent', 'Send in separate email'),
-				description: t('sendent', 'Opens a draft with the password; the user sends it.'),
+				description: t('sendent', 'In a second email. The add-in opens it as a draft and the user sends it.'),
 			},
 			{ value: 'External', label: t('sendent', 'Use external service (like sms-gateway)') },
 		],
@@ -153,6 +183,7 @@ export const settingsRegistry: SettingDefinition[] = [
 		templateId: 0,
 		section: 'General',
 		inputType: 'textarea',
+		description: t('sendent', 'The text of the separate password email.'),
 		visibilityRule: { dependsOn: 'sendmode', showWhen: 'Separate' },
 	},
 	{
@@ -162,7 +193,7 @@ export const settingsRegistry: SettingDefinition[] = [
 		section: 'General',
 		inputType: 'select',
 		classicOnly: true,
-		description: t('sendent', "Sets the user's Nextcloud status from Outlook."),
+		description: t('sendent', "Keeps the user's Nextcloud status in line with Outlook: do not disturb during meetings, away when the user is idle, otherwise online."),
 		options: [
 			{ value: 'True', label: t('sendent', 'Enabled') },
 			{ value: 'False', label: t('sendent', 'Disabled') },
@@ -178,12 +209,17 @@ export const settingsRegistry: SettingDefinition[] = [
 		section: 'General',
 		inputType: 'select',
 		defaultValue: 'False',
+		description: t('sendent', 'Sets a default expiration for shares made from the add-in.'),
 		options: [
-			{ value: 'True', label: t('sendent', 'Enabled') },
+			{
+				value: 'True',
+				label: t('sendent', 'Enabled'),
+				description: t('sendent', 'Shares expire after the number of days set below.'),
+			},
 			{
 				value: 'False',
 				label: t('sendent', 'Disabled'),
-				description: t('sendent', "Nextcloud's own default expiration applies."),
+				description: t('sendent', 'The default expiration set in Nextcloud applies, if there is one.'),
 			},
 		],
 	},
@@ -194,6 +230,7 @@ export const settingsRegistry: SettingDefinition[] = [
 		section: 'General',
 		inputType: 'numeric',
 		defaultValue: '7',
+		description: t('sendent', 'Number of days after which a new share expires. If Nextcloud enforces a shorter maximum, that maximum applies.'),
 		visibilityRule: { dependsOn: 'sharedaysenabled', showWhen: 'True' },
 	},
 
@@ -279,10 +316,22 @@ export const settingsRegistry: SettingDefinition[] = [
 
 	// ── Domain Exceptions ────────────────────────────────
 	{
-		key: 2, name: 'attachmentdomainexceptionsinternal', templateId: 0, section: 'DomainExceptions', inputType: 'multiInput',
+		key: 2,
+		name: 'attachmentdomainexceptionsinternal',
+		templateId: 0,
+		section: 'DomainExceptions',
+		inputType: 'multiInput',
+		description: t('sendent', 'Recipients on this list are exempt from the attachment and Secure Mail checks. An email is only exempt when every recipient is on this list or the external one.'),
+		format: t('sendent', 'Each entry is a domain (example.com) or a full address (name@example.com). Matches are exact, so subdomains are not included.'),
 	},
 	{
-		key: 0, name: 'attachmentdomainexceptions', templateId: 0, section: 'DomainExceptions', inputType: 'multiInput',
+		key: 0,
+		name: 'attachmentdomainexceptions',
+		templateId: 0,
+		section: 'DomainExceptions',
+		inputType: 'multiInput',
+		description: t('sendent', 'Works like the internal list. The difference is that the add-in can ask the user to confirm before sending to these recipients, see the popup setting.'),
+		format: t('sendent', 'Each entry is a domain (example.com) or a full address (name@example.com). Matches are exact, so subdomains are not included.'),
 	},
 	{
 		key: 31,
@@ -290,12 +339,9 @@ export const settingsRegistry: SettingDefinition[] = [
 		templateId: 0,
 		section: 'DomainExceptions',
 		inputType: 'select',
+		description: t('sendent', 'Asks the user to confirm before an exempt email is sent to recipients on the external list.'),
 		options: [
-			{
-				value: 'True',
-				label: t('sendent', 'Enabled'),
-				description: t('sendent', 'Asks the user to confirm before sending to external exceptions.'),
-			},
+			{ value: 'True', label: t('sendent', 'Enabled') },
 			{ value: 'False', label: t('sendent', 'Disabled') },
 		],
 	},
@@ -357,6 +403,7 @@ export const settingsRegistry: SettingDefinition[] = [
 		templateId: 0,
 		section: 'SecureMail',
 		inputType: 'select',
+		description: t('sendent', 'Lets users secure an email: the body is uploaded to Nextcloud and the recipient gets a link instead.'),
 		options: [
 			{ value: 'True', label: t('sendent', 'Enabled') },
 			{ value: 'False', label: t('sendent', 'Disabled') },
@@ -368,13 +415,10 @@ export const settingsRegistry: SettingDefinition[] = [
 		templateId: 0,
 		section: 'SecureMail',
 		inputType: 'select',
+		description: t('sendent', 'Emails cannot be sent until they are secured and have no attachments left. Emails covered by the domain or sender exceptions are exempt.'),
 		visibilityRule: { dependsOn: 'securemail', showWhen: 'True' },
 		options: [
-			{
-				value: 'True',
-				label: t('sendent', 'Enabled'),
-				description: t('sendent', 'Blocks sending until the email is secured.'),
-			},
+			{ value: 'True', label: t('sendent', 'Enabled') },
 			{ value: 'False', label: t('sendent', 'Disabled') },
 		],
 	},
@@ -385,6 +429,7 @@ export const settingsRegistry: SettingDefinition[] = [
 		section: 'SecureMail',
 		inputType: 'select',
 		classicOnly: true,
+		description: t('sendent', 'Where users find Secure Mail in Outlook.'),
 		visibilityRule: { dependsOn: 'securemail', showWhen: 'True' },
 		options: [
 			{ value: 'toolbar', label: t('sendent', 'Toolbar in message compose window') },
@@ -397,7 +442,8 @@ export const settingsRegistry: SettingDefinition[] = [
 		templateId: 0,
 		section: 'SecureMail',
 		inputType: 'text',
-		description: t('sendent', "Folder in each user's Nextcloud files."),
+		description: t('sendent', "Folder in each user's Nextcloud files where secured emails are stored."),
+		format: t('sendent', 'A path such as Outlook/SecureMail-Share. That folder is used when the field is empty.'),
 		visibilityRule: { dependsOn: 'securemail', showWhen: 'True' },
 	},
 	{
@@ -406,7 +452,7 @@ export const settingsRegistry: SettingDefinition[] = [
 		templateId: 0,
 		section: 'SecureMail',
 		inputType: 'textarea',
-		description: t('sendent', 'Replaces the body of the secured email.'),
+		description: t('sendent', 'The text that replaces the body of a secured email.'),
 		visibilityRule: { dependsOn: 'securemail', showWhen: 'True' },
 	},
 
