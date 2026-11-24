@@ -53,6 +53,8 @@ export const settingsRegistry: SettingDefinition[] = [
 		templateId: 0,
 		section: 'General',
 		inputType: 'select',
+		classicOnly: true,
+		description: t('sendent', 'Default language at first sign-in. Users can change it afterwards.'),
 		options: [
 			{ value: 'en', label: t('sendent', 'English') },
 			{ value: 'nl', label: t('sendent', 'Nederlands') },
@@ -71,8 +73,16 @@ export const settingsRegistry: SettingDefinition[] = [
 		section: 'General',
 		inputType: 'select',
 		options: [
-			{ value: 'True', label: t('sendent', 'At cursor') },
-			{ value: 'False', label: t('sendent', 'Top of email body') },
+			{
+				value: 'True',
+				label: t('sendent', 'At cursor'),
+				description: t('sendent', 'The snippet is inserted at the cursor, or at the top when the cursor is not in the message body.'),
+			},
+			{
+				value: 'False',
+				label: t('sendent', 'Top of email body'),
+				description: t('sendent', 'The snippet is inserted above the existing message text.'),
+			},
 		],
 	},
 	{
@@ -82,7 +92,11 @@ export const settingsRegistry: SettingDefinition[] = [
 		section: 'General',
 		inputType: 'select',
 		options: [
-			{ value: 'True', label: t('sendent', 'Add upload date to folder path') },
+			{
+				value: 'True',
+				label: t('sendent', 'Add upload date to folder path'),
+				description: t('sendent', 'Uploads go into a subfolder named after the upload date.'),
+			},
 			{ value: 'False', label: t('sendent', 'Do not add upload date to folder path') },
 		],
 	},
@@ -92,6 +106,8 @@ export const settingsRegistry: SettingDefinition[] = [
 		templateId: 0,
 		section: 'General',
 		inputType: 'select',
+		classicOnly: true,
+		description: t('sendent', 'Writes a daily log file to the Documents folder of the user. Applied at first sign-in; users can change it afterwards.'),
 		options: [
 			{ value: 'True', label: t('sendent', 'Enabled') },
 			{ value: 'False', label: t('sendent', 'Disabled') },
@@ -105,7 +121,11 @@ export const settingsRegistry: SettingDefinition[] = [
 		inputType: 'select',
 		options: [
 			{ value: 'False', label: t('sendent', 'Enabled') },
-			{ value: 'True', label: t('sendent', 'Disabled') },
+			{
+				value: 'True',
+				label: t('sendent', 'Disabled'),
+				description: t('sendent', 'The add-in hides its settings from users.'),
+			},
 		],
 	},
 	{
@@ -115,9 +135,21 @@ export const settingsRegistry: SettingDefinition[] = [
 		section: 'General',
 		inputType: 'select',
 		options: [
-			{ value: 'Off', label: t('sendent', 'Off') },
-			{ value: 'BeforeSend', label: t('sendent', 'Before sending') },
-			{ value: 'BeforeSendAndAfter', label: t('sendent', 'Before and after sending') },
+			{
+				value: 'Off',
+				label: t('sendent', 'Off'),
+				description: t('sendent', 'No password dialog is shown when sharing.'),
+			},
+			{
+				value: 'BeforeSend',
+				label: t('sendent', 'Before sending'),
+				description: t('sendent', 'A password dialog opens when the user starts sharing.'),
+			},
+			{
+				value: 'BeforeSendAndAfter',
+				label: t('sendent', 'Before and after sending'),
+				description: t('sendent', 'A password dialog opens when the user starts sharing, and the password is shown again after the upload so it can be copied.'),
+			},
 		],
 	},
 	{
@@ -127,8 +159,16 @@ export const settingsRegistry: SettingDefinition[] = [
 		section: 'General',
 		inputType: 'select',
 		options: [
-			{ value: 'CurrentMail', label: t('sendent', 'Include in email body') },
-			{ value: 'Separate', label: t('sendent', 'Send in separate email') },
+			{
+				value: 'CurrentMail',
+				label: t('sendent', 'Include in email body'),
+				description: t('sendent', 'The share password is placed in the same email as the link.'),
+			},
+			{
+				value: 'Separate',
+				label: t('sendent', 'Send in separate email'),
+				description: t('sendent', 'A second email draft with the password opens for the user to send. It is not sent automatically.'),
+			},
 			{ value: 'External', label: t('sendent', 'Use external service (like sms-gateway)') },
 		],
 	},
@@ -138,6 +178,7 @@ export const settingsRegistry: SettingDefinition[] = [
 		templateId: 0,
 		section: 'General',
 		inputType: 'textarea',
+		description: t('sendent', 'Body of the separate password email.'),
 		visibilityRule: { dependsOn: 'sendmode', showWhen: 'Separate' },
 	},
 	{
@@ -146,6 +187,8 @@ export const settingsRegistry: SettingDefinition[] = [
 		templateId: 0,
 		section: 'General',
 		inputType: 'select',
+		classicOnly: true,
+		description: t('sendent', 'Sets the Nextcloud status of the user from their Outlook calendar and activity.'),
 		options: [
 			{ value: 'True', label: t('sendent', 'Enabled') },
 			{ value: 'False', label: t('sendent', 'Disabled') },
@@ -163,7 +206,11 @@ export const settingsRegistry: SettingDefinition[] = [
 		defaultValue: 'False',
 		options: [
 			{ value: 'True', label: t('sendent', 'Enabled') },
-			{ value: 'False', label: t('sendent', 'Disabled') },
+			{
+				value: 'False',
+				label: t('sendent', 'Disabled'),
+				description: t('sendent', 'New shares use the default expiration set in Nextcloud, if there is one.'),
+			},
 		],
 	},
 	{
@@ -172,6 +219,7 @@ export const settingsRegistry: SettingDefinition[] = [
 		templateId: 0,
 		section: 'General',
 		inputType: 'numeric',
+		description: t('sendent', 'Default number of days until a new share expires.'),
 		defaultValue: '7',
 		visibilityRule: { dependsOn: 'sharedaysenabled', showWhen: 'True' },
 	},
@@ -345,7 +393,11 @@ export const settingsRegistry: SettingDefinition[] = [
 		inputType: 'select',
 		visibilityRule: { dependsOn: 'securemail', showWhen: 'True' },
 		options: [
-			{ value: 'True', label: t('sendent', 'Enabled') },
+			{
+				value: 'True',
+				label: t('sendent', 'Enabled'),
+				description: t('sendent', 'Emails cannot be sent until they are secured. Emails covered by the domain or sender exceptions are exempt.'),
+			},
 			{ value: 'False', label: t('sendent', 'Disabled') },
 		],
 	},
@@ -355,6 +407,7 @@ export const settingsRegistry: SettingDefinition[] = [
 		templateId: 0,
 		section: 'SecureMail',
 		inputType: 'select',
+		classicOnly: true,
 		visibilityRule: { dependsOn: 'securemail', showWhen: 'True' },
 		options: [
 			{ value: 'toolbar', label: t('sendent', 'Toolbar in message compose window') },
@@ -367,6 +420,7 @@ export const settingsRegistry: SettingDefinition[] = [
 		templateId: 0,
 		section: 'SecureMail',
 		inputType: 'text',
+		description: t('sendent', 'Folder in the Nextcloud files of each user where secured emails are uploaded.'),
 		visibilityRule: { dependsOn: 'securemail', showWhen: 'True' },
 	},
 	{
@@ -375,6 +429,7 @@ export const settingsRegistry: SettingDefinition[] = [
 		templateId: 0,
 		section: 'SecureMail',
 		inputType: 'textarea',
+		description: t('sendent', 'Replaces the body of the secured email.'),
 		visibilityRule: { dependsOn: 'securemail', showWhen: 'True' },
 	},
 

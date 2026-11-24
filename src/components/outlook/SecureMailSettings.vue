@@ -20,6 +20,7 @@
   -->
 <template>
 	<SettingsSection :title="t('sendent', 'Secure Mail')"
+		:description="t('sendent', 'Secure Mail uploads the email body and attachments to Nextcloud and sends the recipient a link instead.')"
 		:definitions="definitions"
 		:labels="labels" />
 </template>

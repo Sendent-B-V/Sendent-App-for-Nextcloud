@@ -21,7 +21,7 @@
 <template>
 	<div v-if="visible"
 		class="setting-field"
-		:class="{ 'setting-field--block': isBlockInput, 'setting-field--warning': exceedsNextcloudMaxShareDays }">
+		:class="{ 'setting-field--block': isBlockInput, 'setting-field--annotated': hasHint || exceedsNextcloudMaxShareDays }">
 		<div class="setting-field__header">
 			<label class="setting-field__label">{{ label }}</label>
 			<SaveIndicator :saving="saving" :saved="saved" />
@@ -65,6 +65,10 @@
 				:signature-mode="definition.signatureMode"
 				@save="onTextareaSave"
 				@reset="onTextareaReset" />
+			<p v-if="hasHint" class="setting-field__hint">
+				<span v-if="definition.classicOnly" class="setting-field__tag">{{ t('sendent', 'Outlook Classic only') }}</span>
+				{{ hint }}
+			</p>
 			<p v-if="exceedsNextcloudMaxShareDays" class="setting-field__warning">
 				{{ n('sendent',
 					'Nextcloud limits shared links to %n day, so shares created from the add-ins will expire after %n day.',
@@ -81,7 +85,7 @@
 <script setup lang="ts">
 import { computed, watch } from 'vue'
 import { storeToRefs } from 'pinia'
-import { translatePlural as n } from '@nextcloud/l10n'
+import { translate as t, translatePlural as n } from '@nextcloud/l10n'
 import type { SettingDefinition } from '../../types/settings'
 import { useSettingField } from '../../composables/useSettingField'
 import { useSettingsStore } from '../../stores/settings'
@@ -113,6 +117,14 @@ const { shareExpirationDays, shareExpirationEnforced } = storeToRefs(useDependen
 const isBlockInput = computed(() =>
 	props.definition.inputType === 'textarea' || props.definition.inputType === 'multiInput',
 )
+
+/** The selected option's hint when it has one, otherwise the setting's own. */
+const hint = computed(() =>
+	props.definition.options?.find(opt => opt.value === localValue.value)?.description
+	?? props.definition.description,
+)
+
+const hasHint = computed(() => Boolean(hint.value) || props.definition.classicOnly === true)
 
 /** Maximum share days enforced by Nextcloud; the add-ins cap the Sendent value at it. */
 const nextcloudMaxShareDays = computed(() => {
@@ -205,9 +217,26 @@ async function onTextareaReset() {
 	width: 100%;
 }
 
-/* Keep the label level with the input text instead of centering it against input + warning */
-.setting-field--warning {
+/* Keep the label level with the input text instead of centering it against input + hint or warning */
+.setting-field--annotated {
 	align-items: baseline;
+}
+
+.setting-field__hint {
+	margin: 4px 0 0;
+	font-size: 13px;
+	line-height: 1.4;
+	color: var(--color-text-maxcontrast);
+}
+
+.setting-field__tag {
+	display: inline-block;
+	margin-right: 4px;
+	padding: 0 8px;
+	border: 1px solid var(--color-border-dark);
+	border-radius: var(--border-radius-pill);
+	font-size: 12px;
+	white-space: nowrap;
 }
 
 .setting-field__warning {

@@ -39,6 +39,8 @@ export type Section =
 export interface SelectOption {
 	value: string
 	label: string
+	/** Hint shown under the field while this option is selected. */
+	description?: string
 }
 
 export interface VisibilityRule {
@@ -55,6 +57,10 @@ export interface SettingDefinition {
 	options?: SelectOption[]
 	visibilityRule?: VisibilityRule
 	defaultValue?: string
+	/** Hint shown under the field. The selected option's own description takes precedence. */
+	description?: string
+	/** Only Outlook Classic reads this setting; shown as a tag in front of the hint. */
+	classicOnly?: boolean
 	/** Clients whose settings tab shows this setting. Omitted means every client. */
 	clients?: Client[]
 	/** Placeholder tags offered by the TinyMCE "Insert variable" menu for this field. */

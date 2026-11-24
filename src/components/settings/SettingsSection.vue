@@ -20,9 +20,13 @@
   -->
 <template>
 	<div class="settings-section">
-		<h3 class="settings-section__title">
+		<h3 class="settings-section__title"
+			:class="{ 'settings-section__title--described': description }">
 			{{ title }}
 		</h3>
+		<p v-if="description" class="settings-section__description">
+			{{ description }}
+		</p>
 		<slot />
 		<SettingField v-for="def in definitions"
 			:key="def.key"
@@ -37,6 +41,8 @@ import SettingField from './SettingField.vue'
 
 defineProps<{
 	title: string
+	/** One sentence under the title explaining what the feature does. */
+	description?: string
 	definitions: SettingDefinition[]
 	labels: Record<string, string>
 }>()
@@ -53,5 +59,14 @@ defineProps<{
 	margin-bottom: 16px;
 	padding-bottom: 8px;
 	border-bottom: 1px solid var(--color-border);
+}
+
+.settings-section__title--described {
+	margin-bottom: 8px;
+}
+
+.settings-section__description {
+	margin: 0 0 16px;
+	color: var(--color-text-maxcontrast);
 }
 </style>
