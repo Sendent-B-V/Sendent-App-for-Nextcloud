@@ -127,6 +127,7 @@ const isBlockInput = computed(() =>
 const hasHelp = computed(() => Boolean(
 	props.definition.description
 	|| props.definition.format
+	|| props.definition.helpUrl
 	|| props.definition.options?.some(opt => opt.description),
 ))
 

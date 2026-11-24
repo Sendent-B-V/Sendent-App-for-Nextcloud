@@ -21,6 +21,25 @@
 import { translate as t } from '@nextcloud/l10n'
 import type { SettingDefinition } from '../types/settings'
 
+/** Help centre articles, linked from the info popovers of the settings they cover. */
+const HELP_ADMIN = 'https://help.sendent.com/general/sendent-app-for-nextcloud-outlook-ms-teams'
+const HELP_OUTLOOK = 'https://help.sendent.com/nextcloud-for-email'
+const HELP = {
+	archiving: `${HELP_OUTLOOK}/nextcloud-for-outlook-windows-only/how-to-archive-emails`,
+	attachments: `${HELP_ADMIN}/how-to-manage-attachment-settings-sender-and-domain-exceptions`,
+	debugMode: `${HELP_ADMIN}/how-to-enable-debug-mode`,
+	guestAccounts: `${HELP_ADMIN}/how-to-configure-guest-accounts`,
+	passwordDialog: `${HELP_ADMIN}/how-to-manage-password-dialog-behavior-before-and-after-sharing`,
+	passwordMode: `${HELP_ADMIN}/how-to-handle-password-communication-when-sharing-and-emailing-1`,
+	presence: `${HELP_ADMIN}/how-to-configure-user-presence-synchronization`,
+	secureMail: `${HELP_ADMIN}/how-to-configure-the-secure-mail-feature`,
+	signature: `${HELP_OUTLOOK}/nextcloud-for-outlook-cross-platform/how-to-use-the-automatic-email-signature-cross-platform`,
+	snippets: `${HELP_ADMIN}/how-to-edit-and-customize-html-snippets-using-the-wysiwyg-editor`,
+	storagePaths: `${HELP_ADMIN}/how-to-customize-storage-paths-share-files-public-share-secure-mail`,
+	teamsStoragePaths: `${HELP_ADMIN}/how-to-customize-storage-paths`,
+	theming: `${HELP_ADMIN}/how-to-customize-sendent-for-outlook-using-theming-windows-only-1`,
+}
+
 /** Placeholder tags resolved from the Nextcloud user profile (see SignatureService.php). */
 export const SIGNATURE_TEMPLATE_VARIABLES = [
 	'{DISPLAYNAME}',
@@ -93,6 +112,7 @@ export const settingsRegistry: SettingDefinition[] = [
 		section: 'General',
 		inputType: 'select',
 		description: t('sendent', 'Every share gets its own folder inside the upload folder. This setting adds a folder named after the upload date in between.'),
+		helpUrl: HELP.storagePaths,
 		options: [
 			{ value: 'True', label: t('sendent', 'Add upload date to folder path') },
 			{ value: 'False', label: t('sendent', 'Do not add upload date to folder path') },
@@ -106,6 +126,7 @@ export const settingsRegistry: SettingDefinition[] = [
 		inputType: 'select',
 		classicOnly: true,
 		description: t('sendent', "Writes a log file to the user's Documents folder, for troubleshooting. It is applied when a user first signs in; users can change it afterwards."),
+		helpUrl: HELP.debugMode,
 		options: [
 			{ value: 'True', label: t('sendent', 'Enabled') },
 			{ value: 'False', label: t('sendent', 'Disabled') },
@@ -138,6 +159,7 @@ export const settingsRegistry: SettingDefinition[] = [
 		section: 'General',
 		inputType: 'select',
 		description: t('sendent', 'When the add-in asks the user for a password to protect a share. Not used when “Disable anonymous share” is on.'),
+		helpUrl: HELP.passwordDialog,
 		options: [
 			{
 				value: 'Off',
@@ -163,6 +185,7 @@ export const settingsRegistry: SettingDefinition[] = [
 		section: 'General',
 		inputType: 'select',
 		description: t('sendent', 'How the share password reaches the recipient. Not used when “Disable anonymous share” is on.'),
+		helpUrl: HELP.passwordMode,
 		options: [
 			{
 				value: 'CurrentMail',
@@ -184,6 +207,7 @@ export const settingsRegistry: SettingDefinition[] = [
 		section: 'General',
 		inputType: 'textarea',
 		description: t('sendent', 'The text of the separate password email.'),
+		helpUrl: HELP.snippets,
 		visibilityRule: { dependsOn: 'sendmode', showWhen: 'Separate' },
 	},
 	{
@@ -194,6 +218,7 @@ export const settingsRegistry: SettingDefinition[] = [
 		inputType: 'select',
 		classicOnly: true,
 		description: t('sendent', "Keeps the user's Nextcloud status in line with Outlook: do not disturb during meetings, away when the user is idle, otherwise online."),
+		helpUrl: HELP.presence,
 		options: [
 			{ value: 'True', label: t('sendent', 'Enabled') },
 			{ value: 'False', label: t('sendent', 'Disabled') },
@@ -268,6 +293,7 @@ export const settingsRegistry: SettingDefinition[] = [
 		section: 'Talk',
 		inputType: 'textarea',
 		description: t('sendent', 'The text the add-in inserts into the meeting invitation, with the link to the Talk room.'),
+		helpUrl: HELP.snippets,
 	},
 	{
 		key: 209,
@@ -290,6 +316,7 @@ export const settingsRegistry: SettingDefinition[] = [
 		inputType: 'textarea',
 		classicOnly: true,
 		description: t('sendent', 'The text of the separate password email.'),
+		helpUrl: HELP.snippets,
 	},
 
 	// ── Archiving ────────────────────────────────────────
@@ -300,6 +327,7 @@ export const settingsRegistry: SettingDefinition[] = [
 		section: 'Archiving',
 		inputType: 'select',
 		description: t('sendent', 'Adds an Archiving button to Outlook. It opens a side panel where users drop emails and upload them to Nextcloud.'),
+		helpUrl: HELP.archiving,
 		options: [
 			{ value: 'True', label: t('sendent', 'Enabled') },
 			{ value: 'False', label: t('sendent', 'Disabled') },
@@ -313,6 +341,7 @@ export const settingsRegistry: SettingDefinition[] = [
 		inputType: 'text',
 		description: t('sendent', "Folder in each user's Nextcloud files that archived emails are uploaded to. Users can pick a different folder when they archive."),
 		format: t('sendent', 'A path such as /Outlook/Archiving/.'),
+		helpUrl: HELP.archiving,
 	},
 	{
 		key: 206,
@@ -321,6 +350,7 @@ export const settingsRegistry: SettingDefinition[] = [
 		section: 'Archiving',
 		inputType: 'select',
 		description: t('sendent', 'What is uploaded for each archived email.'),
+		helpUrl: HELP.archiving,
 		options: [
 			{
 				value: '1',
@@ -346,6 +376,7 @@ export const settingsRegistry: SettingDefinition[] = [
 		section: 'Archiving',
 		inputType: 'select',
 		description: t('sendent', 'Puts each archived email in its own folder, named after the subject. This is the default; users can change it when they archive.'),
+		helpUrl: HELP.archiving,
 		options: [
 			{ value: 'True', label: t('sendent', 'Enabled') },
 			{ value: 'False', label: t('sendent', 'Disabled') },
@@ -361,6 +392,7 @@ export const settingsRegistry: SettingDefinition[] = [
 		inputType: 'multiInput',
 		description: t('sendent', 'Recipients on this list are exempt from the attachment and Secure Mail checks. An email is only exempt when every recipient is on this list or the external one.'),
 		format: t('sendent', 'Each entry is a domain (example.com) or a full address (name@example.com). Matches are exact, so subdomains are not included.'),
+		helpUrl: HELP.attachments,
 	},
 	{
 		key: 0,
@@ -370,6 +402,7 @@ export const settingsRegistry: SettingDefinition[] = [
 		inputType: 'multiInput',
 		description: t('sendent', 'Works like the internal list. The difference is that the add-in can ask the user to confirm before sending to these recipients, see the popup setting.'),
 		format: t('sendent', 'Each entry is a domain (example.com) or a full address (name@example.com). Matches are exact, so subdomains are not included.'),
+		helpUrl: HELP.attachments,
 	},
 	{
 		key: 31,
@@ -378,6 +411,7 @@ export const settingsRegistry: SettingDefinition[] = [
 		section: 'DomainExceptions',
 		inputType: 'select',
 		description: t('sendent', 'Asks the user to confirm before an exempt email is sent to recipients on the external list.'),
+		helpUrl: HELP.attachments,
 		options: [
 			{ value: 'True', label: t('sendent', 'Enabled') },
 			{ value: 'False', label: t('sendent', 'Disabled') },
@@ -392,6 +426,7 @@ export const settingsRegistry: SettingDefinition[] = [
 		section: 'Attachments',
 		inputType: 'select',
 		description: t('sendent', 'What happens to attachments when the user clicks Send. Images inside the message text do not count.'),
+		helpUrl: HELP.attachments,
 		options: [
 			{
 				value: 'MaximumAttachmentSize',
@@ -417,6 +452,7 @@ export const settingsRegistry: SettingDefinition[] = [
 		section: 'Attachments',
 		inputType: 'numeric',
 		description: t('sendent', 'Total size of all attachments in one email, in whole megabytes.'),
+		helpUrl: HELP.attachments,
 		visibilityRule: { dependsOn: 'attachmentmode', showWhen: 'MaximumAttachmentSize' },
 	},
 	{
@@ -427,6 +463,7 @@ export const settingsRegistry: SettingDefinition[] = [
 		inputType: 'multiInput',
 		description: t('sendent', 'Emails sent from these addresses skip the attachment and Secure Mail checks.'),
 		format: t('sendent', 'Each entry is a full address (name@example.com). Domains are not matched for senders.'),
+		helpUrl: HELP.attachments,
 	},
 
 	// ── File Handling ────────────────────────────────────
@@ -438,6 +475,7 @@ export const settingsRegistry: SettingDefinition[] = [
 		inputType: 'text',
 		description: t('sendent', "Folder in each user's Nextcloud files where files shared from Outlook are uploaded. It is created automatically."),
 		format: t('sendent', 'A path such as /Outlook/Upload-Share/.'),
+		helpUrl: HELP.storagePaths,
 	},
 	{
 		key: 10,
@@ -446,6 +484,7 @@ export const settingsRegistry: SettingDefinition[] = [
 		section: 'FileHandling',
 		inputType: 'textarea',
 		description: t('sendent', 'The text the add-in inserts into the email after files are shared, with the link to them.'),
+		helpUrl: HELP.snippets,
 	},
 	{
 		key: 7,
@@ -455,6 +494,7 @@ export const settingsRegistry: SettingDefinition[] = [
 		inputType: 'text',
 		description: t('sendent', "Folder in each user's Nextcloud files used when a user asks someone to send them files. The add-in creates a folder there and the recipient uploads into it through a link."),
 		format: t('sendent', 'A path such as /Outlook/Public-Share/.'),
+		helpUrl: HELP.storagePaths,
 	},
 	{
 		key: 9,
@@ -463,6 +503,7 @@ export const settingsRegistry: SettingDefinition[] = [
 		section: 'FileHandling',
 		inputType: 'textarea',
 		description: t('sendent', 'The text the add-in inserts into the email when a user asks someone to send them files, with the upload link.'),
+		helpUrl: HELP.snippets,
 	},
 	{
 		key: 700,
@@ -486,6 +527,7 @@ export const settingsRegistry: SettingDefinition[] = [
 		section: 'SecureMail',
 		inputType: 'select',
 		description: t('sendent', 'Lets users secure an email: the body is uploaded to Nextcloud and the recipient gets a link instead.'),
+		helpUrl: HELP.secureMail,
 		options: [
 			{ value: 'True', label: t('sendent', 'Enabled') },
 			{ value: 'False', label: t('sendent', 'Disabled') },
@@ -498,6 +540,7 @@ export const settingsRegistry: SettingDefinition[] = [
 		section: 'SecureMail',
 		inputType: 'select',
 		description: t('sendent', 'Emails cannot be sent until they are secured and have no attachments left. Emails covered by the domain or sender exceptions are exempt.'),
+		helpUrl: HELP.secureMail,
 		visibilityRule: { dependsOn: 'securemail', showWhen: 'True' },
 		options: [
 			{ value: 'True', label: t('sendent', 'Enabled') },
@@ -512,6 +555,7 @@ export const settingsRegistry: SettingDefinition[] = [
 		inputType: 'select',
 		classicOnly: true,
 		description: t('sendent', 'Where users find Secure Mail in Outlook.'),
+		helpUrl: HELP.secureMail,
 		visibilityRule: { dependsOn: 'securemail', showWhen: 'True' },
 		options: [
 			{ value: 'toolbar', label: t('sendent', 'Toolbar in message compose window') },
@@ -525,7 +569,8 @@ export const settingsRegistry: SettingDefinition[] = [
 		section: 'SecureMail',
 		inputType: 'text',
 		description: t('sendent', "Folder in each user's Nextcloud files where secured emails are stored."),
-		format: t('sendent', 'A path such as Outlook/SecureMail-Share. That folder is used when the field is empty.'),
+		format: t('sendent', 'A path such as /Outlook/SecureMail-Share/. That folder is used when the field is empty.'),
+		helpUrl: HELP.storagePaths,
 		visibilityRule: { dependsOn: 'securemail', showWhen: 'True' },
 	},
 	{
@@ -535,6 +580,7 @@ export const settingsRegistry: SettingDefinition[] = [
 		section: 'SecureMail',
 		inputType: 'textarea',
 		description: t('sendent', 'The text that replaces the body of a secured email.'),
+		helpUrl: HELP.snippets,
 		visibilityRule: { dependsOn: 'securemail', showWhen: 'True' },
 	},
 
@@ -546,6 +592,7 @@ export const settingsRegistry: SettingDefinition[] = [
 		section: 'GuestAccounts',
 		inputType: 'select',
 		description: t('sendent', 'Users can share files directly with the Nextcloud account of a recipient. A recipient without an account gets a guest account.'),
+		helpUrl: HELP.guestAccounts,
 		options: [
 			{ value: 'True', label: t('sendent', 'Enabled') },
 			{ value: 'False', label: t('sendent', 'Disabled') },
@@ -558,6 +605,7 @@ export const settingsRegistry: SettingDefinition[] = [
 		section: 'GuestAccounts',
 		inputType: 'select',
 		description: t('sendent', 'Users cannot leave recipients out: every recipient is shared with through an account. In Teams, recipients are only preselected and users can still deselect them.'),
+		helpUrl: HELP.guestAccounts,
 		visibilityRule: { dependsOn: 'guestaccountsenabled', showWhen: 'True' },
 		options: [
 			{ value: 'True', label: t('sendent', 'Enabled') },
@@ -571,6 +619,7 @@ export const settingsRegistry: SettingDefinition[] = [
 		section: 'GuestAccounts',
 		inputType: 'select',
 		description: t('sendent', 'No public links are created, so files are only shared with Nextcloud accounts. Share passwords are not used in that case.'),
+		helpUrl: HELP.guestAccounts,
 		visibilityRule: { dependsOn: 'guestaccountsenabled', showWhen: 'True' },
 		options: [
 			{ value: 'True', label: t('sendent', 'Enabled') },
@@ -585,6 +634,7 @@ export const settingsRegistry: SettingDefinition[] = [
 		clients: ['outlook'],
 		inputType: 'textarea',
 		description: t('sendent', 'Used in place of the file share snippet when “Disable anonymous share” is on. The cross-platform add-in only uses it when the share created a new guest account.'),
+		helpUrl: HELP.snippets,
 		visibilityRule: { dependsOn: 'guestaccountsenabled', showWhen: 'True' },
 	},
 	{
@@ -595,6 +645,7 @@ export const settingsRegistry: SettingDefinition[] = [
 		clients: ['outlook'],
 		inputType: 'textarea',
 		description: t('sendent', 'Used in place of the folder share snippet when “Disable anonymous share” is on. The cross-platform add-in only uses it when the share created a new guest account.'),
+		helpUrl: HELP.snippets,
 		visibilityRule: { dependsOn: 'guestaccountsenabled', showWhen: 'True' },
 	},
 
@@ -606,6 +657,7 @@ export const settingsRegistry: SettingDefinition[] = [
 		section: 'EmailSignature',
 		inputType: 'select',
 		description: t('sendent', 'Inserts the signature into every email a user starts writing, including replies and forwards. The user has to have signed in to the add-in once.'),
+		helpUrl: HELP.signature,
 		options: [
 			{ value: 'True', label: 'Enabled' },
 			{ value: 'False', label: 'Disabled' },
@@ -618,6 +670,7 @@ export const settingsRegistry: SettingDefinition[] = [
 		section: 'EmailSignature',
 		inputType: 'textarea',
 		description: t('sendent', "The signature itself. Placeholders are replaced with details from the user's Nextcloud profile; a placeholder without a value is left empty."),
+		helpUrl: HELP.signature,
 		visibilityRule: { dependsOn: 'enablesignaturepush', showWhen: 'True' },
 		templateVariables: SIGNATURE_TEMPLATE_VARIABLES,
 		signatureMode: true,
@@ -631,6 +684,7 @@ export const settingsRegistry: SettingDefinition[] = [
 		section: 'AdvancedTheming',
 		inputType: 'select',
 		description: t('sendent', 'Applies the vendor name and the colors below to the add-in.'),
+		helpUrl: HELP.theming,
 		options: [
 			{ value: 'true', label: t('sendent', 'Enabled') },
 			{ value: 'false', label: t('sendent', 'Disabled') },
@@ -643,6 +697,7 @@ export const settingsRegistry: SettingDefinition[] = [
 		section: 'AdvancedTheming',
 		inputType: 'text',
 		description: t('sendent', 'Name shown in place of “Sendent” in the add-in, for example in the ribbon and in window titles. Only used when Advanced Theming is enabled.'),
+		helpUrl: HELP.theming,
 	},
 	{ key: 85, name: 'ButtonPrimaryColor', templateId: 1, section: 'AdvancedTheming', inputType: 'color', visibilityRule: { dependsOn: 'AdvancedThemingEnabled', showWhen: 'true' } },
 	{ key: 86, name: 'ButtonPrimaryFontColor', templateId: 1, section: 'AdvancedTheming', inputType: 'color', visibilityRule: { dependsOn: 'AdvancedThemingEnabled', showWhen: 'true' } },
@@ -677,6 +732,7 @@ export const settingsRegistry: SettingDefinition[] = [
 		inputType: 'text',
 		description: t('sendent', "Folder in each user's Nextcloud files where files shared from Teams are uploaded, unless the user picks another folder. It is created automatically."),
 		format: t('sendent', 'A path such as /MSTeams/Upload-Share/.'),
+		helpUrl: HELP.teamsStoragePaths,
 	},
 	{
 		key: 502,

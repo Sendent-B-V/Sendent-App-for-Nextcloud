@@ -19,8 +19,8 @@
   - along with this program. If not, see <http://www.gnu.org/licenses/>.
   -->
 <template>
-	<!-- Text only, so there is nothing for a focus trap to hold on to -->
-	<NcPopover placement="bottom-start" no-focus-trap>
+	<!-- Without a link there is nothing for a focus trap to hold on to -->
+	<NcPopover placement="bottom-start" :no-focus-trap="!definition.helpUrl">
 		<template #trigger>
 			<NcButton variant="tertiary-no-background"
 				size="small"
@@ -41,6 +41,11 @@
 			</ul>
 			<p v-if="definition.format">
 				{{ definition.format }}
+			</p>
+			<p v-if="definition.helpUrl">
+				<a :href="definition.helpUrl" target="_blank" rel="noopener noreferrer">
+					{{ t('sendent', 'Read more in the documentation') }}
+				</a>
 			</p>
 		</div>
 	</NcPopover>
@@ -97,5 +102,10 @@ const describedOptions = computed(() =>
 .setting-help p + p,
 .setting-help ul + p {
 	margin-top: 8px;
+}
+
+.setting-help a {
+	color: var(--color-primary-element);
+	text-decoration: underline;
 }
 </style>

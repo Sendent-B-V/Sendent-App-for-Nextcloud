@@ -61,6 +61,8 @@ export interface SettingDefinition {
 	description?: string
 	/** How to fill the field in, with an example; last paragraph of the info popover. */
 	format?: string
+	/** Help centre article that covers this setting; linked at the end of the info popover. */
+	helpUrl?: string
 	/** Only Outlook Classic reads this setting; shown as a note under the label. */
 	classicOnly?: boolean
 	/** Clients whose settings tab shows this setting. Omitted means every client. */
