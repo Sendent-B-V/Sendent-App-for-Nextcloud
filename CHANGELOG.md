@@ -359,7 +359,7 @@
 
 ## Unreleased
 ### Feature
-- Mail and Teams settings explain themselves: every section has a one-line description and most settings have an info button that describes the setting, its options and the expected format.
+- Each Mail and Teams settings section has a one-line description and most settings have an info button that describes the setting, its options and the expected format.
 - Info buttons link to the matching help.sendent.com article where one exists.
 - Settings that only Outlook Classic reads are marked as such.
 - The "Changes are saved automatically" note is shown once per tab instead of in every section.
