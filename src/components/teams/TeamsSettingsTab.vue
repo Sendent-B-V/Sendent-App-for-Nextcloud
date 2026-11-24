@@ -21,6 +21,7 @@
 <template>
 	<div class="teams-settings-tab">
 		<SettingsSection :title="t('sendent', 'Teams')"
+			:description="t('sendent', 'Where files shared from Microsoft Teams are stored and how users can open them.')"
 			:definitions="definitions"
 			:labels="labels" />
 		<GuestAccountSettings client="teams" />

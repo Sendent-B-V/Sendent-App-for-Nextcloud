@@ -20,11 +20,13 @@
   -->
 <template>
 	<SettingsSection title="Email Signature"
+		:description="t('sendent', 'Adds a signature, filled in from the Nextcloud profile of each user, to emails written with the cross-platform Outlook add-in.')"
 		:definitions="definitions"
 		:labels="labels" />
 </template>
 
 <script setup lang="ts">
+import { translate as t } from '@nextcloud/l10n'
 import SettingsSection from '../settings/SettingsSection.vue'
 import { getSettingsForSection } from '../../common/settingsRegistry'
 

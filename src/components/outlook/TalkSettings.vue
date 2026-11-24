@@ -20,6 +20,7 @@
   -->
 <template>
 	<SettingsSection :title="t('sendent', 'Talk')"
+		:description="t('sendent', 'Adds a Nextcloud Talk room to meeting invitations in Outlook.')"
 		:definitions="definitions"
 		:labels="labels" />
 </template>

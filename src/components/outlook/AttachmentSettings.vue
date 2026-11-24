@@ -20,6 +20,7 @@
   -->
 <template>
 	<SettingsSection :title="t('sendent', 'Attachments')"
+		:description="t('sendent', 'Checks attachments when the user clicks Send, so they can be shared through Nextcloud instead of being sent along.')"
 		:definitions="definitions"
 		:labels="labels" />
 </template>

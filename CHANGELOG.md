@@ -356,3 +356,9 @@
 - Release notes are cached for up to 8 hours, so opening the settings page no longer waits on the changelog server for every product.
 - The release notes endpoint is restricted to administrators and requires a CSRF token.
 - Documentation links point to the new help.sendent.com locations.
+
+## Unreleased
+### Feature
+- Mail and Teams settings explain themselves: every section has a one-line description and most settings have an info button that describes the setting, its options and the expected format.
+- Settings that only Outlook Classic reads are marked as such.
+- The "Changes are saved automatically" note is shown once per tab instead of in every section.

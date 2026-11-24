@@ -20,6 +20,7 @@
   -->
 <template>
 	<SettingsSection :title="t('sendent', 'Advanced Theming')"
+		:description="t('sendent', 'Changes the colors and the product name of the add-in in Outlook Classic.')"
 		:definitions="definitions"
 		:labels="labels" />
 </template>

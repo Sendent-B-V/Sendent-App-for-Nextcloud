@@ -20,6 +20,7 @@
   -->
 <template>
 	<SettingsSection :title="t('sendent', 'Archiving')"
+		:description="t('sendent', 'Lets users of Outlook Classic upload emails and their attachments to a folder in Nextcloud.')"
 		:definitions="definitions"
 		:labels="labels" />
 </template>
