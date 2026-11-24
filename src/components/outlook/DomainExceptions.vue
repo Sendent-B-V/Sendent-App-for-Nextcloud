@@ -20,6 +20,7 @@
   -->
 <template>
 	<SettingsSection :title="t('sendent', 'Domain Exceptions')"
+		:description="description"
 		:definitions="definitions"
 		:labels="labels" />
 </template>
@@ -30,6 +31,8 @@ import SettingsSection from '../settings/SettingsSection.vue'
 import { getSettingsForSection } from '../../common/settingsRegistry'
 
 const definitions = getSettingsForSection('DomainExceptions')
+
+const description = t('sendent', 'When a user clicks Send, the add-in checks the email for attachments to share and, if enforced, for Secure Mail. An email skips these checks when every recipient is on one of these lists. Add a domain (example.com) or a full address (name@example.com). Matches are exact, so a domain does not include its subdomains.')
 
 const labels: Record<string, string> = {
 	attachmentdomainexceptionsinternal: t('sendent', 'Internal domain exceptions'),

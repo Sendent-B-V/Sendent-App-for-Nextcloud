@@ -66,6 +66,7 @@ defineProps<{
 }
 
 .settings-section__description {
+	max-width: 720px;
 	margin: 0 0 16px;
 	color: var(--color-text-maxcontrast);
 }

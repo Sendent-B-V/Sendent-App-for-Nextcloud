@@ -291,7 +291,11 @@ export const settingsRegistry: SettingDefinition[] = [
 		section: 'DomainExceptions',
 		inputType: 'select',
 		options: [
-			{ value: 'True', label: t('sendent', 'Enabled') },
+			{
+				value: 'True',
+				label: t('sendent', 'Enabled'),
+				description: t('sendent', 'Asks the user to confirm before sending to external exceptions.'),
+			},
 			{ value: 'False', label: t('sendent', 'Disabled') },
 		],
 	},
