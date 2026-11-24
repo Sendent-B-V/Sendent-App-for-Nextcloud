@@ -21,9 +21,14 @@
 <template>
 	<div v-if="visible"
 		class="setting-field"
-		:class="{ 'setting-field--block': isBlockInput, 'setting-field--annotated': hasHint || exceedsNextcloudMaxShareDays }">
+		:class="{ 'setting-field--block': isBlockInput, 'setting-field--annotated': hint || exceedsNextcloudMaxShareDays }">
 		<div class="setting-field__header">
-			<label class="setting-field__label">{{ label }}</label>
+			<div>
+				<label class="setting-field__label">{{ label }}</label>
+				<span v-if="definition.classicOnly" class="setting-field__scope">
+					{{ t('sendent', 'Outlook Classic only') }}
+				</span>
+			</div>
 			<SaveIndicator :saving="saving" :saved="saved" />
 		</div>
 		<div class="setting-field__input">
@@ -65,8 +70,7 @@
 				:signature-mode="definition.signatureMode"
 				@save="onTextareaSave"
 				@reset="onTextareaReset" />
-			<p v-if="hasHint" class="setting-field__hint">
-				<span v-if="definition.classicOnly" class="setting-field__tag">{{ t('sendent', 'Outlook Classic only') }}</span>
+			<p v-if="hint" class="setting-field__hint">
 				{{ hint }}
 			</p>
 			<p v-if="exceedsNextcloudMaxShareDays" class="setting-field__warning">
@@ -123,8 +127,6 @@ const hint = computed(() =>
 	props.definition.options?.find(opt => opt.value === localValue.value)?.description
 	?? props.definition.description,
 )
-
-const hasHint = computed(() => Boolean(hint.value) || props.definition.classicOnly === true)
 
 /** Maximum share days enforced by Nextcloud; the add-ins cap the Sendent value at it. */
 const nextcloudMaxShareDays = computed(() => {
@@ -229,14 +231,12 @@ async function onTextareaReset() {
 	color: var(--color-text-maxcontrast);
 }
 
-.setting-field__tag {
-	display: inline-block;
-	margin-right: 4px;
-	padding: 0 8px;
-	border: 1px solid var(--color-border-dark);
-	border-radius: var(--border-radius-pill);
+/* Sits under the label, so it adds no height to the row */
+.setting-field__scope {
+	display: block;
 	font-size: 12px;
-	white-space: nowrap;
+	line-height: 1.3;
+	color: var(--color-text-maxcontrast);
 }
 
 .setting-field__warning {

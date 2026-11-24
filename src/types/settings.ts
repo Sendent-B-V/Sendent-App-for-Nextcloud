@@ -59,7 +59,7 @@ export interface SettingDefinition {
 	defaultValue?: string
 	/** Hint shown under the field. The selected option's own description takes precedence. */
 	description?: string
-	/** Only Outlook Classic reads this setting; shown as a tag in front of the hint. */
+	/** Only Outlook Classic reads this setting; shown as a note under the label. */
 	classicOnly?: boolean
 	/** Clients whose settings tab shows this setting. Omitted means every client. */
 	clients?: Client[]
