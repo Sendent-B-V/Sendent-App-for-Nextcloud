@@ -127,7 +127,7 @@ export const settingsRegistry: SettingDefinition[] = [
 			{
 				value: 'True',
 				label: t('sendent', 'Disabled'),
-				description: t('sendent', 'Users see only a few basic settings, such as logging.'),
+				description: t('sendent', 'Users see only a few basic settings, such as logging. In Outlook Classic they can still change the language.'),
 			},
 		],
 	},
@@ -242,7 +242,7 @@ export const settingsRegistry: SettingDefinition[] = [
 		section: 'Talk',
 		inputType: 'select',
 		classicOnly: true,
-		description: t('sendent', 'Shows the Talk buttons in Outlook, which add a Talk room to a meeting invitation.'),
+		description: t('sendent', 'Shows the Talk buttons in Outlook, which add a Talk room to a meeting invitation. The cross-platform add-in always shows its Talk button.'),
 		options: [
 			{ value: 'True', label: t('sendent', 'Enabled') },
 			{ value: 'False', label: t('sendent', 'Disabled') },
@@ -255,7 +255,7 @@ export const settingsRegistry: SettingDefinition[] = [
 		section: 'Talk',
 		inputType: 'select',
 		classicOnly: true,
-		description: t('sendent', 'Asks for a room password when a user creates a Talk room. The user can type one, have one generated or leave it empty. When disabled, rooms are created without a password.'),
+		description: t('sendent', 'Asks for a room password when a user creates a Talk room. The user can type one, have one generated or leave it empty. When disabled, rooms are created without a password. The cross-platform add-in always offers a password field.'),
 		options: [
 			{ value: 'True', label: t('sendent', 'Enabled') },
 			{ value: 'False', label: t('sendent', 'Disabled') },
