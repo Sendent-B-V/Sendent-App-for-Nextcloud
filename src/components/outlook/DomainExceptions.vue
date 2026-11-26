@@ -20,6 +20,7 @@
   -->
 <template>
 	<SettingsSection :title="t('sendent', 'Domain Exceptions')"
+		:description="description"
 		:definitions="definitions"
 		:labels="labels" />
 </template>
@@ -30,6 +31,8 @@ import SettingsSection from '../settings/SettingsSection.vue'
 import { getSettingsForSection } from '../../common/settingsRegistry'
 
 const definitions = getSettingsForSection('DomainExceptions')
+
+const description = t('sendent', 'Emails sent only to recipients on these lists skip the checks that run on Send.')
 
 const labels: Record<string, string> = {
 	attachmentdomainexceptionsinternal: t('sendent', 'Internal domain exceptions'),

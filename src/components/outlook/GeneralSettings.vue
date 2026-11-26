@@ -20,6 +20,7 @@
   -->
 <template>
 	<SettingsSection :title="t('sendent', 'General')"
+		:description="t('sendent', 'Language, password handling and other general behavior of the add-in.')"
 		:definitions="definitions"
 		:labels="labels" />
 </template>

@@ -20,6 +20,7 @@
   -->
 <template>
 	<SettingsSection :title="t('sendent', 'File Handling')"
+		:description="t('sendent', 'Where shared files are stored in Nextcloud and which text is added to the email.')"
 		:definitions="definitions"
 		:labels="labels" />
 </template>

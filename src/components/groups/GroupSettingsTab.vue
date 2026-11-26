@@ -39,14 +39,20 @@
 						{ href: 'https://help.sendent.com/nextcloud-for-email/nextcloud-for-outlook-cross-platform/3019/getting-started-administrator', label: t('sendent', 'Cross-Platform Outlook') },
 						{ href: 'https://help.sendent.com/nextcloud-for-email/nextcloud-for-outlook-windows-only/3021/getting-started-administrator', label: t('sendent', 'Windows Only Outlook Classic') },
 					]" />
-					<h3 class="group-settings-tab__active-group">{{ editingHeading }}</h3>
+					<h3 class="group-settings-tab__active-group group-settings-tab__active-group--with-note">{{ editingHeading }}</h3>
+					<p class="group-settings-tab__autosave">
+						{{ t('sendent', 'Changes are saved automatically') }}
+					</p>
 					<OutlookSettingsTab />
 				</template>
 				<template #teams>
 					<DocumentationLink :links="[
 						{ href: 'https://help.sendent.com/sendent-nextcloud-workspace/nextcloud-for-ms-teams/3024/getting-started-administrator', label: t('sendent', 'Nextcloud for Microsoft Teams') },
 					]" />
-					<h3 class="group-settings-tab__active-group">{{ editingHeading }}</h3>
+					<h3 class="group-settings-tab__active-group group-settings-tab__active-group--with-note">{{ editingHeading }}</h3>
+					<p class="group-settings-tab__autosave">
+						{{ t('sendent', 'Changes are saved automatically') }}
+					</p>
 					<TeamsSettingsTab />
 				</template>
 			</TabContainer>
@@ -87,6 +93,16 @@ const subtabs = [
 	font-size: 16px;
 	font-weight: 600;
 	margin: 0 0 16px 0;
+}
+
+.group-settings-tab__active-group--with-note {
+	margin-bottom: 4px;
+}
+
+.group-settings-tab__autosave {
+	margin: 0 0 16px 0;
+	font-size: 12px;
+	color: var(--color-text-maxcontrast);
 }
 
 .group-settings-tab__loading {

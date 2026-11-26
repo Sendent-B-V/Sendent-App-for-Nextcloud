@@ -20,6 +20,7 @@
   -->
 <template>
 	<SettingsSection :title="t('sendent', 'Guest Accounts')"
+		:description="t('sendent', 'Shares files directly with the Nextcloud accounts of recipients, and creates guest accounts for recipients who have none.')"
 		:definitions="definitions"
 		:labels="labels">
 		<p v-if="guestsAppMissing" class="guest-accounts__warning">

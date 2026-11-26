@@ -23,7 +23,15 @@
 		class="setting-field"
 		:class="{ 'setting-field--block': isBlockInput, 'setting-field--warning': exceedsNextcloudMaxShareDays }">
 		<div class="setting-field__header">
-			<label class="setting-field__label">{{ label }}</label>
+			<div>
+				<div class="setting-field__title">
+					<label class="setting-field__label">{{ label }}</label>
+					<SettingHelp v-if="hasHelp" :definition="definition" :label="label" />
+				</div>
+				<span v-if="definition.classicOnly" class="setting-field__scope">
+					{{ t('sendent', 'Outlook Classic only') }}
+				</span>
+			</div>
 			<SaveIndicator :saving="saving" :saved="saved" />
 		</div>
 		<div class="setting-field__input">
@@ -81,7 +89,7 @@
 <script setup lang="ts">
 import { computed, watch } from 'vue'
 import { storeToRefs } from 'pinia'
-import { translatePlural as n } from '@nextcloud/l10n'
+import { translate as t, translatePlural as n } from '@nextcloud/l10n'
 import type { SettingDefinition } from '../../types/settings'
 import { useSettingField } from '../../composables/useSettingField'
 import { useSettingsStore } from '../../stores/settings'
@@ -90,6 +98,7 @@ import SaveIndicator from './SaveIndicator.vue'
 import InheritanceCheckbox from './InheritanceCheckbox.vue'
 import MultiInputList from './MultiInputList.vue'
 import SettingTextarea from './SettingTextarea.vue'
+import SettingHelp from './SettingHelp.vue'
 
 const props = defineProps<{
 	definition: SettingDefinition
@@ -113,6 +122,14 @@ const { shareExpirationDays, shareExpirationEnforced } = storeToRefs(useDependen
 const isBlockInput = computed(() =>
 	props.definition.inputType === 'textarea' || props.definition.inputType === 'multiInput',
 )
+
+/** Settings without any explanation text get no info button. */
+const hasHelp = computed(() => Boolean(
+	props.definition.description
+	|| props.definition.format
+	|| props.definition.helpUrl
+	|| props.definition.options?.some(opt => opt.description),
+))
 
 /** Maximum share days enforced by Nextcloud; the add-ins cap the Sendent value at it. */
 const nextcloudMaxShareDays = computed(() => {
@@ -189,6 +206,12 @@ async function onTextareaReset() {
 	flex-shrink: 0;
 }
 
+.setting-field__title {
+	display: flex;
+	align-items: center;
+	gap: 2px;
+}
+
 .setting-field__label {
 	font-weight: 500;
 	font-size: 14px;
@@ -208,6 +231,14 @@ async function onTextareaReset() {
 /* Keep the label level with the input text instead of centering it against input + warning */
 .setting-field--warning {
 	align-items: baseline;
+}
+
+/* Sits under the label, so it adds no height to the row */
+.setting-field__scope {
+	display: block;
+	font-size: 12px;
+	line-height: 1.3;
+	color: var(--color-text-maxcontrast);
 }
 
 .setting-field__warning {
